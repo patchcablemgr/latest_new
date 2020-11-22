@@ -1,0 +1,104 @@
+/*====================
+Cabinet Styling
+====================*/
+.cabinet {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.cabinetRailRU {
+	width:25px;
+	height:25px;
+	border: 1px solid black;
+	background:silver url('../../assets/images/CabinetRail.gif') no-repeat;
+}
+
+.cabinetRailLeft {
+	background-position: right center;
+}
+
+.cabinetRailRight {
+	background-position: left center;
+}
+
+[class*="cab-"] {
+	float: left;
+}
+
+.cab-height{
+	height: 25px;
+}
+
+.cab-wall{
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+	background-color: gray;
+	color: white;
+	text-align: center;
+}
+
+.cab-rail-wrapper{
+	background-color: silver;
+}
+
+.cabinetRail {
+	height: 25px;
+	width: 30px;
+	border: 1px solid black;
+	background: url('../images/CabinetRail.gif');
+	background-color: silver;
+	background-repeat: no-repeat;
+}
+
+.leftRail {
+	background-position: right center;
+}
+
+.rightRail {
+	background-position: left center;
+}
+
+.cab-object{
+	background-color:MediumSpringGreen;
+	border:1px solid black;
+	width:100%;
+	text-align: center;
+}
+
+.cabinet-border{
+	border:1px solid black;
+}
+
+.cabinet-foot{
+	width: 10%;
+	float: left;
+	height: 5px;
+	background-color: black;
+}
+
+.cabinet-blank{
+	width: 80%;
+	float: left;
+	height: 5px;
+}
+
+.cabinetCol-label {width:30px; border:none;}
+
+.cabinetRow::after {
+	content: "";
+	clear: both;
+	display: block;
+}
+
+.cabinet-end {
+	width: 100%;
+	border: 1px solid black;
+	color: white;
+	text-align: center;
+	/* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#d8e0de+0,aebfbc+22,99afab+33,8ea6a2+50,829d98+67,4e5c5a+82,0e0e0e+100;Grey+3D */
+	background: #d8e0de; /* Old browsers */
+	background: -moz-linear-gradient(top, #d8e0de 0%, #aebfbc 22%, #99afab 33%, #8ea6a2 50%, #829d98 67%, #4e5c5a 82%, #0e0e0e 100%); /* FF3.6-15 */
+	background: -webkit-linear-gradient(top, #d8e0de 0%,#aebfbc 22%,#99afab 33%,#8ea6a2 50%,#829d98 67%,#4e5c5a 82%,#0e0e0e 100%); /* Chrome10-25,Safari5.1-6 */
+	background: linear-gradient(to bottom, #d8e0de 0%,#aebfbc 22%,#99afab 33%,#8ea6a2 50%,#829d98 67%,#4e5c5a 82%,#0e0e0e 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d8e0de', endColorstr='#0e0e0e',GradientType=0 ); /* IE6-9 */
+}

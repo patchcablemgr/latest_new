@@ -1,0 +1,14 @@
+# Composer includes
+includes/composer.phar
+includes/composer-setup.php
+includes/composer.lock
+includes/vendor
+
+# Images symbolic link
+/images
+
+# User upload/download working directories
+userDownloads/*
+userUploads/*
+!userDownloads/README.txt
+!userUploads/.keep

@@ -1,0 +1,26 @@
+/*====================
+Object Styling
+====================*/
+
+.object-wrapper {
+	margin-bottom: 10px;
+}
+
+.obj-style {
+	width: 100%;
+	text-align: center;
+}
+
+.obj-border {
+	border: 1px solid black;
+}
+
+.portTable {
+	border-collapse: collapse;
+	height:100%;
+	width:100%;
+}
+
+.hoverClass {
+	border: 2px solid yellow;
+}
