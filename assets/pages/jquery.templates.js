@@ -1579,7 +1579,7 @@ function initializeTemplateCatalog(){
 		data = JSON.stringify(data);
 		
 		//Retrieve object details
-		$.post("https://patchcablemgr.com/public/template-catalog-details.php", {data:data}, function(response){
+		$.post("https://patchcablemgr.com/public/template-catalog-details-0-3-11.php", {data:data}, function(response){
 			var alertMsg = '';
 			var responseJSON = JSON.parse(response);
 			if ($(responseJSON.error).size() > 0){
