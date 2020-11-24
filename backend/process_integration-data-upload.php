@@ -334,6 +334,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					unset($qls->App);
 					$qls->App = new App($qls);
 					$portArray = buildPortArray($qls);
+					$debugPortArray = fopen($_SERVER['DOCUMENT_ROOT'].'/debug-portArray.json', 'w');
+					fwrite($debugPortArray, json_encode($portArray));
 					
 					// Build Connection Array
 					if($connectionFileExists) {
@@ -993,6 +995,9 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 		$firstObjPortName = $peer['firstObjPortName'];
 		$firstObjPortNameHash = $peer['firstObjPortNameHash'];
 		$peerObjID = ($peerID == 'a') ? 'b' : 'a';
+		$peerObjName = $peerArray[$peerObjID]['objName'];
+		$peerObjNameHash = $peerArray[$peerObjID]['objNameHash'];
+		$peerFirstObjPortName = $peerArray[$peerObjID]['firstObjPortName'];
 		$peerFirstObjPortNameHash = $peerArray[$peerObjID]['firstObjPortNameHash'];
 		
 		// Validate peer duplicates
@@ -1005,6 +1010,9 @@ function buildImportedTrunkArray($csvLine, $csvLineNumber, $csvFilename, &$impor
 		$importedTrunkArray[$firstObjPortNameHash]['nameHash'] = $objNameHash;
 		$importedTrunkArray[$firstObjPortNameHash]['portName'] = $firstObjPortName;
 		$importedTrunkArray[$firstObjPortNameHash]['portNameHash'] = $firstObjPortNameHash;
+		$importedTrunkArray[$firstObjPortNameHash]['peerName'] = $peerObjName;
+		$importedTrunkArray[$firstObjPortNameHash]['peerNameHash'] = $peerObjNameHash;
+		$importedTrunkArray[$firstObjPortNameHash]['peerPortName'] = $peerFirstObjPortName;
 		$importedTrunkArray[$firstObjPortNameHash]['peerPortNameHash'] = $peerFirstObjPortNameHash;
 		$importedTrunkArray[$firstObjPortNameHash]['line'] = $csvLineNumber;
 		$importedTrunkArray[$firstObjPortNameHash]['fileName'] = $csvFilename;
@@ -1858,18 +1866,105 @@ function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importe
 	
 	$walljackPortIDArray = array();
 	
+	$debugObjectArray = fopen($_SERVER['DOCUMENT_ROOT'].'/debug-objectArray.json', 'w');
+	fwrite($debugObjectArray, json_encode($importedObjectArray));
+	
+	$debugTrunkArray = fopen($_SERVER['DOCUMENT_ROOT'].'/debug-trunkArray.json', 'w');
+	fwrite($debugTrunkArray, json_encode($importedTrunkArray));
+	
 	foreach($importedTrunkArray as &$trunk) {
 		
 		$csvLine = $trunk['line'];
 		$csvFileName = $trunk['fileName'];
-		//
+		
+		$peerDataArray = array(
+			array('peerColumn' => 'PeerA', 'nameHash' => $trunk['nameHash'], 'portNameHash' => $trunk['portNameHash']),
+			array('peerColumn' => 'PeerB', 'nameHash' => $trunk['peerNameHash'], 'portNameHash' => $trunk['peerPortNameHash'])
+		);
 		$portName = $trunk['portName'];
-		//
 		$portNameHash = $trunk['portNameHash'];
+		$peerPortName = $trunk['peerPortName'];
 		$peerPortNameHash = $trunk['peerPortNameHash'];
 		
-		error_log('Debug (portName-portNameHash): '.$portName.'-'.$portNameHash);
+		foreach($peerDataArray as &$peerData) {
+			
+			$peerDataFound = false;
+			$peerColumn = $peerData['peerColumn'];
+			$nameHash = $peerData['nameHash'];
+			$portNameHash = $peerData['portNameHash'];
+			
+			if(isset($portArray[$portNameHash])) {
+				
+				$peerDataFound = true;
+				
+				// Collect trunk object information
+				$port = $portArray[$portNameHash];
+				$objID = $port['objID'];
+				$face = $port['face'];
+				$depth = $port['depth'];
+				$portID = $port['portID'];
+				
+				// Store peer Info
+				$trunk['aObjID'] = $objID;
+				$trunk['aFace'] = $face;
+				$trunk['aDepth'] = $depth;
+				$trunk['aPortID'] = $portID;
+				
+				// 
+				$obj = $qls->App->objectArray[$objID];
+				$objTemplateID = $obj['template_id'];
+				$peerData['templateID'] = $objTemplateID;
+				$peerData['face'] = $face;
+				$peerData['depth'] = $depth;
+				
+			} else if(isset($importedObjectArray[$nameHash])) {
+				
+				$importedObj = $importedObjectArray[$nameHash];
+				$objID = $importedObj['id'];
+				$obj = $qls->App->objectArray[$objID];
+				$objTemplateID = $obj['template_id'];
+				$objTemplate = $qls->App->templateArray[$objTemplateID];
+				$objTemplateType = $objTemplate['templateType'];
+				
+				if($objTemplateType == 'walljack') {
+					
+					$peerDataFound = true;
+					
+					// Create variable to track walljack portID
+					if(!isset($walljackPortIDArray[$nameHash])) {
+						$walljackPortIDArray[$nameHash] = 0;
+					}
+					
+					// Store walljack portID
+					$portID = $walljackPortIDArray[$nameHash];
+					
+					// Increment walljack portID
+					$walljackPortIDArray[$nameHash]++;
+					
+					// Store peer Info
+					$trunk['aObjID'] = $objID;
+					$trunk['aFace'] = 0;
+					$trunk['aDepth'] = 0;
+					$trunk['aPortID'] = $portID;
+					
+					// 
+					$peerData['templateID'] = $objTemplateID;
+					$peerData['face'] = 0;
+					$peerData['depth'] = 0;
+					
+				}
+				
+			}
+			
+			if(!$peerDataFound) {
+				$errMsg = $peerColumn.' on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
+				array_push($validate->returnData['error'], $errMsg);
+			}
+		}
+		unset($peerData);
 		
+		
+		/*
 		// Store PeerA data
 		if(isset($portArray[$portNameHash])) {
 			
@@ -1908,6 +2003,7 @@ function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importe
 			$trunk['aPortID'] = $portID;
 			
 		} else {
+			error_log('Debug (portName-portNameHash): '.$portName.'-'.$portNameHash);
 			$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
@@ -1950,15 +2046,24 @@ function validateImportedTrunks($qls, &$importedTrunkArray, $portArray, $importe
 			$trunk['bPortID'] = $peerPortID;
 			
 		} else {
+			error_log('Debug (peerPortName-peerPortNameHash): '.$peerPortName.'-'.$peerPortNameHash);
 			$errMsg = 'Port on line '.$csvLine.' of file "'.$csvFileName.'" does not exist.';
 			array_push($validate->returnData['error'], $errMsg);
 		}
+		*/
 		
 		
 		
 		
-		
-		if($objTemplateID and $peerTemplateID) {
+		if($peerDataArray[0]['templateID'] and $peerDataArray[1]['templateID']) {
+			
+			$objTemplateID = $peerDataArray[0]['templateID'];
+			$face = $peerDataArray[0]['face'];
+			$depth = $peerDataArray[0]['depth'];
+			
+			$peerTemplateID = $peerDataArray[1]['templateID'];
+			$peerFace = $peerDataArray[1]['face'];
+			$peerDepth = $peerDataArray[1]['depth'];
 			
 			// Gather compatibility info for obj & peer
 			$objCompatibility = $qls->App->compatibilityArray[$objTemplateID][$face][$depth];
@@ -2515,10 +2620,6 @@ function insertTemplateAdds(&$qls, &$importedTemplateArray, $importedCategoryArr
 		$frontImage = $template['templateFrontImage'];
 		$rearImage = $template['templateFrontImage'];
 		
-		if(strtolower($templateName) == '24p_rj45_cat5e') {
-			error_log('Debug (template): '.json_encode($template));
-		}
-		
 		$templateAttributes = array(
 			'templateName',
 			'templateCategory_id',
@@ -2950,15 +3051,15 @@ function buildPortArray(&$qls){
 					$partitionType = $compatibility['partitionType'];
 					if($partitionType == 'Connectable') {
 						if($templateType == 'walljack') {
-							
+							error_log('here1');
 							if(isset($qls->App->peerArray[$objID][$faceID][$depth]['peerArray'])) {
-								
+								error_log('here2');
 								foreach($qls->App->peerArray[$objID][$faceID][$depth]['peerArray'] as $peerID => $peer) {
-									
+									error_log('here3');
 									foreach($peer as $peerFaceID => $peerFace) {
-										
+										error_log('here4');
 										foreach($peerFace as $peerDepth => $partition) {
-											
+											error_log('here5');
 											$peerObj = $qls->App->objectArray[$peerID];
 											$peerObjName = $peerObj['nameString'];
 											$peerTemplateID = $peerObj['template_id'];
@@ -2966,7 +3067,7 @@ function buildPortArray(&$qls){
 											$peerObjPortNameFormat = json_decode($peerCompatibility['portNameFormat'], true);
 											$peerObjPortTotal = $peerCompatibility['portTotal'];
 											foreach($partition as $portPair) {
-												
+												error_log('here6');
 												$peerPortID = $portPair[1];
 												$portID = $portPair[0];
 												$peerObjPortName = $qls->App->generatePortName($peerObjPortNameFormat, $peerPortID, $peerObjPortTotal);
@@ -3009,7 +3110,6 @@ function buildPortArray(&$qls){
 									'portName' => $portName,
 									'portNameString' => $objPortNameString
 								);
-								error_log('Debug (portArray portName-portNameHash): '.$objPortNameString.'-'.$portNameStringHash);
 							}
 						}
 					}

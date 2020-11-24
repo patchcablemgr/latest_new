@@ -757,14 +757,22 @@ function createTrunks(&$qls){
 										if($objATemplateType == 'walljack' or $objBTemplateType == 'walljack') {
 											if($objATemplateType == 'walljack') {
 												$portName = $qls->App->generatePortName($objBPortNameFormat, $objBPortID, $objBPortTotal);
-												//$objAPort = $portName.'('.$walljackPortID.')';
 												$objAPort = $portName;
 												$objBPort = $portName;
+												if($objBTemplateFunction == 'Endpoint') {
+													$objectBName = $qls->App->objectArray[$objBID]['nameString'];
+													$objectBNameArray = explode('.', $objectBName);
+													$objAPort = array_pop($objectBNameArray).$portName;
+												}
 											} else {
 												$portName = $qls->App->generatePortName($objAPortNameFormat, $objAPortID, $objAPortTotal);
-												//$objBPort = $portName.'('.$walljackPortID.')';
 												$objBPort = $portName;
 												$objAPort = $portName;
+												if($objATemplateFunction == 'Endpoint') {
+													$objectAName = $qls->App->objectArray[$objAID]['nameString'];
+													$objectANameArray = explode('.', $objectAName);
+													$objBPort = array_pop($objectANameArray).$portName;
+												}
 											}
 										} else {
 											$objAPort = $qls->App->generatePortName($objAPortNameFormat, $objAPortID, $objAPortTotal);

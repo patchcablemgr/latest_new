@@ -734,7 +734,11 @@ var $qls;
                     $query .= " {$data_type} NOT NULL";
 				}
 				if($default_value !== false) {
-					$query .= " DEFAULT '".$default_value."'";
+					if($default_value === 'NULL') {
+						$query .= " DEFAULT ".$default_value;
+					} else {
+						$query .= " DEFAULT '".$default_value."'";
+					}
 				}
 			} else {
 			    die(SQL_ALTER_QUERY_FAILED);

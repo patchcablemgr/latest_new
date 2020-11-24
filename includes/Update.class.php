@@ -115,10 +115,10 @@ var $qls;
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Add nested insert columns to "template" table
-		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentHUnits', 'int(11)', true);
-		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentVUnits', 'int(11)', true);
-		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentEncLayoutX', 'int(11)', true);
-		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentEncLayoutY', 'int(11)', true);
+		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentHUnits', 'int(11)', true, 'NULL');
+		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentVUnits', 'int(11)', true, 'NULL');
+		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentEncLayoutX', 'int(11)', true, 'NULL');
+		$this->qls->SQL->alter('app_object_templates', 'add', 'nestedParentEncLayoutY', 'int(11)', true, 'NULL');
 		
 		// Add "objSort" column to "users" table
 		$this->qls->SQL->alter('users', 'add', 'objSort', 'tinyint(4)', false, 0);

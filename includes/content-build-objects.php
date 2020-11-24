@@ -75,6 +75,7 @@ for ($x=0; $x<$faceCount; $x++){
 							$hUnits = $partitionData[0]['hUnits'];
 							$vUnits = $partitionData[0]['vUnits'];
 							$minRUSize = ceil($vUnits/2);
+							
 							$totalVUnits = $minRUSize * 2;
 							$heightNumerator = $vUnits/$totalVUnits;
 							$flexWidth = $hUnits/24;
@@ -89,11 +90,31 @@ for ($x=0; $x<$faceCount; $x++){
 								
 								$parentFlexWidth = ($nestedParentHUnits / 24) / $nestedParentEncLayoutX;
 								$parentFlexHeight = ($nestedParentVUnits / ($RUSize * 2)) / $nestedParentEncLayoutY;
-								$flexWidth = $parentFlexWidth * $flexWidth;
+								//$flexWidth = $parentFlexWidth * $flexWidth;
+								$flexWidth = $parentFlexWidth;
 								$flexHeight = $parentFlexHeight * $flexHeight;
 							}
 							
-							$minRUSize = ceil($vUnits/2);
+							/*
+							if(isset($templateOrganic['nestedParentHUnits']) and isset($templateOrganic['nestedParentVUnits'])) {
+								$nestedParentHUnits = $templateOrganic['nestedParentHUnits'];
+								$nestedParentVUnits = $templateOrganic['nestedParentVUnits'];
+								$nestedParentEncLayoutX = $templateOrganic['nestedParentEncLayoutX'];
+								$nestedParentEncLayoutY = $templateOrganic['nestedParentEncLayoutY'];
+								
+								$parentFlexWidth = ($nestedParentHUnits / 24) / $nestedParentEncLayoutX;
+								$parentFlexHeight = ($nestedParentVUnits / ($RUSize * 2)) / $nestedParentEncLayoutY;
+								$flexWidth = $parentFlexWidth;
+								$flexHeight = $parentFlexHeight;
+							} else {
+								$totalVUnits = $minRUSize * 2;
+								$heightNumerator = $vUnits/$totalVUnits;
+								$flexWidth = $hUnits/24;
+								$flexHeight = $heightNumerator/$templateOrganic['templateEncLayoutY'];
+							}
+							*/
+							
+							//$minRUSize = ceil($vUnits/2);
 
 								// Flex Container
 								echo '<div class="RU'.$minRUSize.'" style="display:flex;flex-direction:row;">';
