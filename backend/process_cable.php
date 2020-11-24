@@ -214,15 +214,12 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						foreach($objIDArray as $objID) {
 							$templateID = $qls->App->objectArray[$objID]['template_id'];
 							$templateType = $qls->App->templateArray[$templateID]['templateType'];
-							//error_log('Debug(templateType): '.$templateType);
 							if(isset($qls->App->floorplanObjDetails[$templateType])) {
 								$templateFunction = $qls->App->templateArray[$templateID]['templateFunction'];
-								//error_log('Debug(templateFunction): '.$templateFunction);
 								if($templateFunction == 'Endpoint') {
 									if(isset($qls->App->peerArrayWalljack[$objID])) {
 										foreach($qls->App->peerArrayWalljack[$objID] as $peerEntry) {
 											$rowID = $peerEntry['rowID'];
-											//error_log('Debug(rowID): '.$rowID);
 											$qls->SQL->delete('app_object_peer', array('id' => array('=', $rowID)));
 										}
 									}

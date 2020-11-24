@@ -694,8 +694,4 @@ function getSize($objID, &$qls){
 	}
 	return $size;
 }
-
-// Debug templates
-// file_put_contents('filename.output', json_encode($array));
-// error_log('Debug (debugName): '.json_encode($array));
 ?>

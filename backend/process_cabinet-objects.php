@@ -327,25 +327,20 @@ function checkInsertCompatibility($parent_id, $parent_face, $parent_depth, $obje
 	
 	if($parent['encTolerance'] == 'Strict') {
 		if($parent['hUnits'] != $insert['templateHUnits']) {
-			error_log('Debug: hUnits');
 			$compatible = false;
 		}
 		if($parent['vUnits'] != $insert['templateVUnits']) {
-			error_log('Debug: vUnits');
 			$compatible = false;
 		}
 		if($parent['encLayoutX'] != $insert['templateEncLayoutX']) {
-			error_log('Debug: layoutX');
 			$compatible = false;
 		}
 		if($parent['encLayoutY'] != $insert['templateEncLayoutY']) {
-			error_log('Debug: layoutY');
 			$compatible = false;
 		}
 	}
 	
 	if($parent['partitionFunction'] != $insert['templateFunction']) {
-		error_log('Debug: function');
 		$compatible = false;
 	}
 

@@ -1054,11 +1054,9 @@ var $qls;
 				
 				
 				$howMuchToIncrement = floor($index / $numerator);
-				//error_log('Index:'.$index.' Order:'.$order.' howMuchToIncrement:'.$howMuchToIncrement.' numerator:'.$numerator);
 				if($howMuchToIncrement >= $count) {
 					$rollOver = floor($howMuchToIncrement / $count);
 					$howMuchToIncrement = $howMuchToIncrement - ($rollOver * $count);
-					//error_log('rollOver:'.$howMuchToIncrement);
 				}
 				
 				if($type == 'incremental') {

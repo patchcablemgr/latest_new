@@ -389,7 +389,6 @@ class Validate {
 			return false;
 		} else {
 			if (!preg_match($this->portNameFieldIncrementalRegEx, $input)){
-				error_log('Failed Incremental Validation: '.$input);
 				$errorMsg = $reference ? $reference : 'Incremental port name fields may only contain a single alphanumeric character.';
 				array_push($this->returnData['error'], $errorMsg);
 				return false;

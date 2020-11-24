@@ -456,7 +456,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 function updatePartitionData(&$partitionData, $depth, $value, $attribute, &$counter=0){
 	
 	foreach($partitionData as &$element) {
-		error_log('Debug: '.$depth.'-'.$counter.'-'.$element['partitionType']);
 		if($counter == $depth) {
 			$element[$attribute] = $value;
 			return;

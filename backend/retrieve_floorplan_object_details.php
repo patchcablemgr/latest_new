@@ -31,9 +31,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		$type = $floorplanObjectTemplate['templateType'];
 		$trunkable = $qls->App->floorplanObjDetails[$type]['trunkable'];
-		error_log('Debug (objectID): '.$objectID);
-		error_log('Debug (floorplanObjectTemplateID): '.$floorplanObjectTemplateID);
-		error_log('Debug (type): '.$type);
 		$peerIDArray = array();
 		$objPortArray = array();
 		if($trunkable) {

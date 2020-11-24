@@ -39,12 +39,8 @@ header('Content-Type: text/html; charset=iso-8859-1');
 // The language we are using
 require_once('Blank.lang.php');
 
-define('START_TIME', microtime(true));
-
 // The qls class will start the other classes
 require_once('qls.class.php');
 $qls = new qls(SYS_CURRENT_LANG);
-
-error_log('Debug (time taken header1): '.(microtime(true)-START_TIME));
 
 ?>

@@ -940,7 +940,7 @@ function buildTrunkFlatPath($objectID, $objectFace, $objectDepth, &$qls){
 		$portTotal = $partitionCompatibility['portLayoutX']*$partitionCompatibility['portLayoutY'];
 		$firstIndex = 0;
 		$lastIndex = $portTotal - 1;
-		error_log('Debug: '.json_encode($portNameFormat));
+		
 		$firstPortName = $qls->App->generatePortName($portNameFormat, $firstIndex, $portTotal);
 		$lastPortName = $qls->App->generatePortName($portNameFormat, $lastIndex, $portTotal);
 		$portRange = $firstPortName.'&nbsp;&#8209;&nbsp;'.$lastPortName;

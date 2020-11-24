@@ -220,7 +220,6 @@ for($x=0; $x<2; $x++){
 }
 
 function isFloorplanTrunked($peer, $portID) {
-	error_log('Debug: '.json_encode($peer));
 	$isTrunked = false;
 	foreach($peer['peerArray'] as $peerObjID => $peerObj) {
 		foreach($peerObj as $peerFaceID => $peerFace) {

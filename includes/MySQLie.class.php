@@ -841,10 +841,9 @@ var $qls;
 		if ($query != '') {
             $this->update_queries();
             $this->last_query[] = $query;
-			//$start = microtime(true);
+			
             $result = mysqli_query($this->connection, $query) or die(mysqli_errno($this->connection) . ': ' . mysqli_error($this->connection));
-			//$end = microtime(true);
-			//error_log('Debug (query time): '.($start - $end));
+
             return $result;
 		}
 		else {

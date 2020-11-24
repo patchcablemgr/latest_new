@@ -79,7 +79,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$validate->returnData['success']['imgWidth'] = $templateImgWidth;
 			} else if($action == 'floorplanImage') {
 				$floorplanID = $postData['floorplanID'];
-				error_log('floorplanID'.$floorplanID);
 				
 				// Update database with new filname
 				$set = array(

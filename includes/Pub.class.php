@@ -78,7 +78,6 @@ var $qls;
 			$returnData['success'] = false;
 			$returnData['msg'] = 'Error when submitting email data to proxy server.';
 		} else {
-			error_log('Debug: response = '.$responseJSON);
 			$response = json_decode($responseJSON, true);
 		}
 	}
