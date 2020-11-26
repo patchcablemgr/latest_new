@@ -59,7 +59,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		// Retreive template rear image
 		if($importData['success']['template']['rearImage']) {
-			getImgFile($importData['success']['template']['frontImage'], $validate);
+			getImgFile($importData['success']['template']['rearImage'], $validate);
 		}
 		
 		// Check for errors

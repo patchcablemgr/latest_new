@@ -36,6 +36,7 @@ Contents
 [Fix]		Issue with connections being imported as "populated" when restoring from backup
 [Fix]		Validate duplicate walljack port names when trunked to multiple partitions
 [Fix]		Validate trunked endpoint is not connected
+[Fix]		Issue with template rear image when importing from template catalog
 
 **Changes introduced in 0.3.10
 [Enhance]	Added "Bottom-Left to Top" port orientation
