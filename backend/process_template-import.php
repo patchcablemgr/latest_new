@@ -22,7 +22,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		// POST Request
 		$POSTData = array('data' => $dataJSON);
 
-		$ch = curl_init('https://patchcablemgr.com/public/template-import-0-3-11.php');
+		$ch = curl_init('https://patchcablemgr.com/public/template-import.php?version='.PCM_VERSION);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);

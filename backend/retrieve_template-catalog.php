@@ -3,7 +3,7 @@ define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
 $qls->Security->check_auth_page('operator.php');
 
-$ch = curl_init('https://patchcablemgr.com/public/template-catalog-data-0-3-11.php');
+$ch = curl_init('https://patchcablemgr.com/public/template-catalog-data.php?version='.PCM_VERSION);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
 
