@@ -2323,7 +2323,7 @@ var $qls;
 		$dataJSON = json_encode($data);
 		$POSTData = array('data' => $dataJSON);
 		
-		$ch = curl_init('https://patchcablemgr.com/public/process_entitlement.php');
+		$ch = curl_init('https://patchcablemgr.com/public/process_entitlement.php?version='.PCM_VERSION);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
