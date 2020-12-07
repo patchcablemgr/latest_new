@@ -24,6 +24,12 @@ function color_inverse($color){
     }
     return '#'.$rgb;
 }
+
+for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
+	echo '.RU'.$x.' {';
+	echo 'height: '.$x*RU_HEIGHT.'px;';
+	echo '}';
+}
 ?>
 
 .navTree {
@@ -308,106 +314,6 @@ function color_inverse($color){
 	background-size: 20px 100%;
 	background-repeat: no-repeat;
 	-webkit-print-color-adjust: exact;
-}
-
-.RU1 {
-	height: 25px;
-}
-
-.RU2 {
-	height: 50px;
-}
-
-.RU3 {
-	height: 75px;
-}
-
-.RU4 {
-	height: 100px;
-}
-
-.RU5 {
-	height: 125px;
-}
-
-.RU6 {
-	height: 150px;
-}
-
-.RU7 {
-	height: 175px;
-}
-
-.RU8 {
-	height: 200px;
-}
-
-.RU9 {
-	height: 225px;
-}
-
-.RU10 {
-	height: 250px;
-}
-
-.RU11 {
-	height: 275px;
-}
-
-.RU12 {
-	height: 300px;
-}
-
-.RU13 {
-	height: 325px;
-}
-
-.RU14 {
-	height: 350px;
-}
-
-.RU15 {
-	height: 375px;
-}
-
-.RU16 {
-	height: 400px;
-}
-
-.RU17 {
-	height: 425px;
-}
-
-.RU18 {
-	height: 450px;
-}
-
-.RU19 {
-	height: 475px;
-}
-
-.RU20 {
-	height: 500px;
-}
-
-.RU21 {
-	height: 525px;
-}
-
-.RU22 {
-	height: 550px;
-}
-
-.RU23 {
-	height: 575px;
-}
-
-.RU24 {
-	height: 600px;
-}
-
-.RU25 {
-	height: 625px;
 }
 
 .flex-container {

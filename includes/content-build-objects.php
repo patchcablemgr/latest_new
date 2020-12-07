@@ -83,67 +83,51 @@ for ($x=0; $x<$faceCount; $x++){
 							
 							// Further calculate template height & width if nested insert
 							if(isset($templateOrganic['nestedParentHUnits']) and isset($templateOrganic['nestedParentVUnits'])) {
-								$nestedParentHUnits = $templateOrganic['nestedParentHUnits'];
-								$nestedParentVUnits = $templateOrganic['nestedParentVUnits'];
+								//$nestedParentHUnits = $templateOrganic['nestedParentHUnits'];
+								//$nestedParentVUnits = $templateOrganic['nestedParentVUnits'];
 								$nestedParentEncLayoutX = $templateOrganic['nestedParentEncLayoutX'];
 								$nestedParentEncLayoutY = $templateOrganic['nestedParentEncLayoutY'];
 								
-								$parentFlexWidth = ($nestedParentHUnits / 24) / $nestedParentEncLayoutX;
-								$parentFlexHeight = ($nestedParentVUnits / ($RUSize * 2)) / $nestedParentEncLayoutY;
-								//$flexWidth = $parentFlexWidth * $flexWidth;
-								$flexWidth = $parentFlexWidth;
-								$flexHeight = $parentFlexHeight * $flexHeight;
-							}
-							
-							/*
-							if(isset($templateOrganic['nestedParentHUnits']) and isset($templateOrganic['nestedParentVUnits'])) {
-								$nestedParentHUnits = $templateOrganic['nestedParentHUnits'];
-								$nestedParentVUnits = $templateOrganic['nestedParentVUnits'];
-								$nestedParentEncLayoutX = $templateOrganic['nestedParentEncLayoutX'];
-								$nestedParentEncLayoutY = $templateOrganic['nestedParentEncLayoutY'];
+								//$parentFlexWidth = ($nestedParentHUnits / 24) / $nestedParentEncLayoutX;
+								$parentFlexWidth = $flexWidth / $nestedParentEncLayoutX;
+								$parentFlexHeight = $flexHeight / $nestedParentEncLayoutY;
+								//$parentFlexHeight = ($nestedParentVUnits / ($RUSize * 2)) / $nestedParentEncLayoutY;
 								
-								$parentFlexWidth = ($nestedParentHUnits / 24) / $nestedParentEncLayoutX;
-								$parentFlexHeight = ($nestedParentVUnits / ($RUSize * 2)) / $nestedParentEncLayoutY;
 								$flexWidth = $parentFlexWidth;
+								//$flexHeight = $parentFlexHeight * $flexHeight;
 								$flexHeight = $parentFlexHeight;
-							} else {
-								$totalVUnits = $minRUSize * 2;
-								$heightNumerator = $vUnits/$totalVUnits;
-								$flexWidth = $hUnits/24;
-								$flexHeight = $heightNumerator/$templateOrganic['templateEncLayoutY'];
 							}
-							*/
-							
-							//$minRUSize = ceil($vUnits/2);
 
-								// Flex Container
-								echo '<div class="RU'.$minRUSize.'" style="display:flex;flex-direction:row;">';
-									// Partition Width
-									echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
-										// Partition Height
-										echo '<div class="flex-container" style="flex:'.$flexHeight.';">';
-											echo '<div class="tableRow">';
-											for($encX=0; $encX<$templateOrganic['templateEncLayoutX']; $encX++) {
-												echo '<div class="tableCol">';
-												if($encX == 0) {
-													$objClassArray = array(
-														'stockObj',
-														$cursorClass,
-														'insertDraggable'
-													);
-													
-													$templateFace = 0;
-													$objID = false;
-													echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $isCombinedTemplate, $objID, $categoryData);
-													echo $qls->App->buildStandard($partitionData, $isCombinedTemplate);
-													echo '</div>';
-												}
+							// Flex Container
+							//echo '<div class="RU'.$minRUSize.'" style="display:flex;flex-direction:row;">';
+							echo '<div style="height:'.round(($minRUSize*25)*$flexHeight).'px;display:flex;flex-direction:row;">';
+								// Partition Width
+								echo '<div class="flex-container" style="flex-direction:column;flex:'.$flexWidth.';">';
+									// Partition Height
+									//echo '<div class="flex-container" style="flex:'.$flexHeight.';">';
+									echo '<div class="flex-container" style="flex:1;">';
+										echo '<div class="tableRow">';
+										for($encX=0; $encX<$templateOrganic['templateEncLayoutX']; $encX++) {
+											echo '<div class="tableCol">';
+											if($encX == 0) {
+												$objClassArray = array(
+													'stockObj',
+													$cursorClass,
+													'insertDraggable'
+												);
+												
+												$templateFace = 0;
+												$objID = false;
+												echo $qls->App->generateObjContainer($templateOrganic, $templateFace, $objClassArray, $isCombinedTemplate, $objID, $categoryData);
+												echo $qls->App->buildStandard($partitionData, $isCombinedTemplate);
 												echo '</div>';
 											}
 											echo '</div>';
+										}
 										echo '</div>';
 									echo '</div>';
 								echo '</div>';
+							echo '</div>';
 						}
 						echo '</div>';
 					}
