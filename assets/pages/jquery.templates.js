@@ -1689,25 +1689,6 @@ function handleScrollLock(){
 function buildInsertParent(RUSize, hUnits, vUnits, encLayoutX, encLayoutY, nestedInsert, parentHUnits, parentVUnits, parentEncLayoutX, parentEncLayoutY){
 	var variables = getVariables();
 	
-	/*
-	var totalVUnits = RUSize * 2;
-	var flexRow = hUnits/24;
-	var flexCol = vUnits/totalVUnits;
-	
-	console.log('hUnits: '+hUnits);
-	console.log('parentHUnits: '+parentHUnits);
-	console.log('parentEncLayoutX: '+parentEncLayoutX);
-	console.log('nestedInsert: '+nestedInsert);
-	
-	if(nestedInsert) {
-		
-		parentFlexWidth = (parentHUnits / 24) / parentEncLayoutX;
-		parentFlexHeight = (parentVUnits / (RUSize * 2)) / parentEncLayoutY;
-		flexRow = parentFlexWidth * flexRow;
-		flexCol = parentFlexHeight * flexCol;
-	}
-	*/
-	
 	if(nestedInsert) {
 		parentFlexWidth = (parentHUnits / 24) / parentEncLayoutX;
 		parentFlexHeight = (parentVUnits / (RUSize * 2)) / parentEncLayoutY;
@@ -2398,6 +2379,7 @@ $( document ).ready(function() {
 		$(document).data('portNameFormatAction', $(invoker).data('portNameAction'));
 		
 		setPortNameInput();
+		handlePortNameFieldAddRemoveButtons();
 		updatePortNameDisplay();
 		setPortNameFieldFocus();
 		

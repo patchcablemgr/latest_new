@@ -23,15 +23,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$portTotal = $data['portTotal'];
 			$portNameListLong = '';
 			$portNameListShort = '';
+			$portNameListShortCount = 3;
+			$portNameListLongCount = 5;
 			
 			for($x=0; $x<$portTotal; $x++) {
 				$portName = $qls->App->generatePortName($portNameFormat, $x, $portTotal);
 				
-				if($x < 3) {
+				if($x < $portNameListShortCount) {
 					$portNameListShort .= $portName.', ';
 				}
 				
-				if($x < 10) {
+				if($x < $portNameListLongCount) {
 					$portNameListLong .= $portName.'<br>';
 				}
 				
@@ -43,7 +45,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			}
 			
 			$portNameListShort .= '...';
-			$portNameListLong .= '...';
+			//$portNameListLong .= '...';
+			if($portTotal > $portNameListLongCount) {
+				$portNameListLong .= '...<br>'.$portNameLast;
+			}
 			$portRange = $portNameFirst.'&#8209;'.$portNameLast;
 			
 			$validate->returnData['success']['portNameListLong'] = $portNameListLong;

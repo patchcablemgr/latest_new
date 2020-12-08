@@ -33,6 +33,8 @@ Contents
 
 **Changes introduced in 0.3.12
 [Fix]		Corrected nested insert size as displayed in "Available Templates" box
+[Fix]		Template port ID add/remove field not refreshing when shown for different connectable partitions
+[Enhance]	When configuring template port ID, show last port ID in long abreviated list
 
 **Changes introduced in 0.3.11
 [Enhance]	Added ability to create inserts with enclosure partitions
