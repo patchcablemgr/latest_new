@@ -6,13 +6,15 @@ $qls->Security->check_auth_page('user.php');
 ?>
 
 <?php require './includes/header_start.php'; ?>
-<!-- DataTables -->
-<link href="assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-<link href="assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
-<!--Morris Chart CSS -->
-<link rel="stylesheet" href="assets/plugins/morris/morris.css">
-<?php require './includes/header_end.php'; ?>
 
+	<!-- DataTables -->
+	<link href="assets/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+	<link href="assets/plugins/datatables/buttons.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+	<!--Morris Chart CSS -->
+	<link rel="stylesheet" href="assets/plugins/morris/morris.css">
+	
+<?php require './includes/header_end.php'; ?>
+<?php require_once './includes/modals.php'; ?>
 
 <!-- Page-Title -->
 <div class="row">

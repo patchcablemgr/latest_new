@@ -82,7 +82,7 @@ $( document ).ready(function() {
 		$('#objectTreeModal').modal('show');
 	});
 	
-	$('#buttonObjectTreeModalAdd').click(function(){
+	$('#buttonObjectTreeModalSave').click(function(){
 		var node = $('#objTree').jstree('get_selected', false);
 		var nodeID = node[0];
 		

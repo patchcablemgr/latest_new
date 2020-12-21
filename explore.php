@@ -7,151 +7,23 @@ $qls->Security->check_auth_page('user.php');
 
 <?php require 'includes/header_start.php'; ?>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
-<link href="assets/css/style-cabinet.css" rel="stylesheet" type="text/css"/>
-<link href="assets/css/style-object.css" rel="stylesheet" type="text/css"/>
-<link href="assets/css/style-templates.css" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
+	<link href="assets/css/style-cabinet.css" rel="stylesheet" type="text/css"/>
+	<link href="assets/css/style-object.css" rel="stylesheet" type="text/css"/>
+	<link href="assets/css/style-templates.css" rel="stylesheet" type="text/css"/>
 
-<!-- X-editable css -->
-<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
+	<!-- X-editable css -->
+	<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
 
-<!-- DataTables -->
-<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
+	<!-- DataTables -->
+	<link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
-<!-- ION Slider -->
-<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.css" rel="stylesheet" type="text/css"/>
-<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.skinModern.css" rel="stylesheet" type="text/css"/>
+	<!-- ION Slider -->
+	<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.css" rel="stylesheet" type="text/css"/>
+	<link href="assets/plugins/ion-rangeslider/ion.rangeSlider.skinModern.css" rel="stylesheet" type="text/css"/>
 
 <?php require 'includes/header_end.php'; ?>
-<?php require_once './includes/content-object_tree_modal.php'; ?>
-
-<!-- sample modal content -->
-<div id="modalPathFinder" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div title="Close">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						<i class="zmdi zmdi-close"></i>
-					</button>
-				</div>
-				<h4 class="modal-title" id="myModalLabel">Find Path</h4>
-			</div>
-			<div class="row">
-				<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
-						<div class="row">
-							<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
-								<div id="alertMsgModal"></div>
-							</div>
-						</div>
-				</div>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-sm-12">
-						<div class="card-box">
-							<div class="row">
-								<div class="col-sm-6">
-									<dl class="dl-horizontal row">
-										<dt class="col-sm-3">Local Port:</dt>
-										<dd id="pathFinderLocalPort" class="col-sm-9"></dd>
-										<dt class="col-sm-3">Remote Port:</dt>
-										<dd class="col-sm-9"><div id="pathFinderRemotePort"></div><div id="pathFinderTree" class="navTree m-b-30"></div></dd>
-									</dl>
-								</div>
-								<div class="col-sm-6">
-									<?php
-									echo '<input id="pathFinderMaxResults" type="hidden" value="'.PATH_FINDER_MAX_RESULTS.'">';
-									echo '<input id="pathFinderMaxResultsDefault" type="hidden" value="'.PATH_FINDER_MAX_RESULTS_DEFAULT.'">';
-									echo '<input id="pathFinderMaxDepth" type="hidden" value="'.PATH_FINDER_MAX_DEPTH.'">';
-									echo '<input id="pathFinderMaxDepthDefault" type="hidden" value="'.PATH_FINDER_MAX_DEPTH_DEFAULT.'">';
-									?>
-									<form class="form-horizontal">
-										<div class="form-group row">
-											<label for="rangeResults" class="col-sm-2 control-label"><b>Max Results</b><i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Maximum number of paths to return for each media type."></i></label>
-											<div class="col-sm-10">
-												<input type="text" id="rangeResults">
-											</div>
-										</div>
-										<div class="form-group row">
-											<label for="rangeDepth" class="col-sm-2 control-label"><b>Max Depth</b><i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Maximum number of cable jumpers for each path returned."></i></label>
-											<div class="col-sm-10">
-												<input type="text" id="rangeDepth">
-											</div>
-										</div>
-									</form>
-								</div>
-							</div>
-							<div class="row">
-								<div title="Run">
-									<button id="buttonPathFinderRun" class="btn btn-sm waves-effect waves-light btn-primary" type="button" disabled>
-										<span class="btn-label"><i class="fa fa-cogs"></i></span>
-										Find Paths
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-				</div>
-				<div class="row">
-					<div class="col-sm-6">
-						<div class="card-box">
-							<div class="card">
-								<div class="card-header">Path
-								</div>
-								<div class="card-block">
-									<blockquote class="card-blockquote">
-									<div class="table-responsive">
-										<table id="cablePathTable" class="table table-striped table-bordered">
-											<thead>
-											<tr>
-												<th>MediaType</th>
-												<th>Local</th>
-												<th>Adj.</th>
-												<th>Path</th>
-												<th>Total</th>
-												<!--th></th-->
-											</tr>
-											</thead>
-											<tbody id="cablePathTableBody">
-											</tbody>
-										</table>
-									</div>
-									</blockquote>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-sm-6">
-						<div class="card-box">
-							<div class="card">
-								<div class="card-header">Path
-									<span>
-										<div class="btn-group pull-right">
-											<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
-											<div class="dropdown-menu">
-												<a id="printPathFinder" class="dropdown-item" href="#" ><i class="ion-map"></i></span> Print</a>
-											</div>
-										</div>
-									</span>
-								</div>
-								<div class="card-block">
-									<blockquote class="card-blockquote">
-										<div id="containerCablePath"></div>
-									</blockquote>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+<?php require_once './includes/modals.php'; ?>
 
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>

@@ -7,54 +7,11 @@ $qls->Security->check_auth_page('administrator.php');
 
 <?php require 'includes/header_start.php'; ?>
 
-<!-- X-editable css -->
-<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
+	<!-- X-editable css -->
+	<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
 
 <?php require 'includes/header_end.php'; ?>
-
-<div id="removeUserModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="removeUserModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div title="Close">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						<i class="zmdi zmdi-close"></i>
-					</button>
-				</div>
-                <h4 class="modal-title" id="removeUserModalLabel">Remove User</h4>
-            </div>
-            <div class="modal-body">
-                Delete: username?
-            </div>
-			<div class="modal-footer">
-                <button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary waves-effect waves-light">Ok</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-<div id="cancelEntitlementModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="cancelEntitlementModalLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div title="Close">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						<i class="zmdi zmdi-close"></i>
-					</button>
-				</div>
-                <h4 class="modal-title" id="cancelEntitlementModalLabel">Cancel Entitlement</h4>
-            </div>
-            <div class="modal-body">
-                Confirm cancelation.
-            </div>
-			<div class="modal-footer">
-				<button id="confirmEntitlementCancellation" type="button" class="btn btn-secondary btn-danger waves-effect" data-toggle="modal" data-target="#cancelEntitlementModal">Confirm</button>
-				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-			</div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+<?php require_once './includes/modals.php'; ?>
 
 <!-- Page-Title -->
 <div class="row">

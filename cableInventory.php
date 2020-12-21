@@ -14,7 +14,7 @@ $qls->Security->check_auth_page('operator.php');
     <link href="assets/plugins/datatables/responsive.bootstrap4.min.css" rel="stylesheet" type="text/css"/>
 
 <?php require 'includes/header_end.php'; ?>
-
+<?php require_once './includes/modals.php'; ?>
 
 <!-- Page-Title -->
 <div class="row">

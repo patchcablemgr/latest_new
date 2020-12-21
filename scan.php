@@ -6,84 +6,15 @@ $qls->Security->check_auth_page('operator.php');
 ?>
 
 <?php require 'includes/header_start.php'; ?>
-<!-- JSTree css -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
 
-<!-- X-editable css -->
-<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
+	<!-- JSTree css -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/themes/default/style.min.css" />
+
+	<!-- X-editable css -->
+	<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
 
 <?php require 'includes/header_end.php'; ?>
-<?php require_once './includes/content-object_tree_modal.php'; ?>
-
-<!-- scan modal -->
-<div id="scanModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div title="Close">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						<i class="zmdi zmdi-close"></i>
-					</button>
-				</div>
-				<h4 class="modal-title" id="myModalLabel">Scan Cable</h4>
-			</div>
-			<div class="row">
-				<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
-						<div class="row">
-							<div class="col-lg-12 col-sm-12 col-xs-12 col-md-12 col-xl-12">
-								<div id="alertMsgScan"></div>
-							</div>
-						</div>
-				</div>
-			</div>
-			<div class="modal-body">
-				<div class="row">
-					<div class="col-sm-12">
-						<div class="card-box">
-							<?php
-								if($qls->user_info['scanMethod']) {
-									$labelText = 'Manual Scan:';
-									$manualDisplay = 'style="display:none;"';
-									$barcodeDisplay = '';
-								} else {
-									$labelText = 'Barcode Scan:';
-									$manualDisplay = '';
-									$barcodeDisplay = 'style="display:none;"';
-								}
-							?>
-						
-							<input id="scanMethod" type="hidden" value="<?php echo $qls->user_info['scanMethod']; ?>">
-						
-							<div class="m-b-20">
-								<label><?php echo $labelText; ?></label>
-								<input id="manualCheckbox" type="checkbox" data-plugin="switchery" data-color="#f1b53d"/>
-							</div>
-							
-							<div id="scannerContainer" <?php echo $barcodeDisplay; ?>>
-								<div id="flashContainer" style="display:none;" class="m-b-20">
-									<label>Flash:</label>
-									<input id="torchCheckbox" type="checkbox" data-plugin="switchery" data-color="#f1b53d"/>
-								</div>
-								
-								<div id="scanner" style="position: relative; width: 100%; height: auto; overflow: hidden; text-align: center;" class="viewport"></div>
-							</div>
-							
-							<div id="manualEntry" <?php echo $manualDisplay; ?>>
-								<form action="#">
-								<input id="manualEntryInput" type="text" class="form-control m-b-10" placeholder="Enter cable ID">
-								<button id="manualEntrySubmit" type="submit" class="btn btn-primary">Submit</button>
-								</form>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Close</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+<?php require_once './includes/modals.php'; ?>
 
 <div class="row">
 	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">

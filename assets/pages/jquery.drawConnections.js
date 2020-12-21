@@ -38,6 +38,7 @@ function drawConnection(elementArray){
 	context.strokeStyle = 'LightSkyBlue';
 	context.lineWidth = 3;
 	context.beginPath();
+	console.log('Debug (elementArray): '+JSON.stringify(elementArray));
 	
 	$.each(elementArray, function(index, element){
 		var elemA = element[0];
@@ -235,49 +236,62 @@ function crawlPath(selectedPort){
 		}
 		
 		while($(selectedPort).length) {
-			
-			// Crawl connection peer
-			var selectedPortID = $(selectedPort).attr('id');
-			var selectedPartition = $(selectedPort).closest('.partition');
-			var connectedPortID = $(selectedPort).data('connectedGlobalId');
-			var connectedPort = $('#'+connectedPortID);
-			
+			console.log('here1');
 			portArray.push(selectedPort);
 			
-			if($(connectedPort).length) {
-				
-				portArray.push(connectedPort)
-				connectionArray.push([selectedPort, connectedPort]);
-				
-			} else {
-				if(connectedPortID != 'none') {
-					connectionArray.push([selectedPort, connectedPortID]);
-				}
-				break;
-			}
+			// Crawl connection peer
+			var connectedPortIDString = $(selectedPort).data('connectedGlobalId');
+			var connectedPortIDArray = JSON.parse(atob(connectedPortIDString));
 			
-			var connectedPartition = $(connectedPort).closest('.partition');
-			var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
+			console.log('Debug (connectedPortIDString): '+atob(connectedPortIDString));
 			
-			if($('#'+connectedPartitionPeerID).length) {
-				
-				var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
-				trunkArray.push([connectedPartition, connectedPartitionPeer]);
-				partitionArray.push(connectedPartition, connectedPartitionPeer);
-				
-				var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
-				var peerID = connectedPartitionPeerIDArray[2];
-				var peerFace = connectedPartitionPeerIDArray[3];
-				var peerDepth = connectedPartitionPeerIDArray[4];
-				
-				var connectedPortIDArray = connectedPortID.split('-');
-				var peerPort = connectedPortIDArray[5];
-				var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-			} else {
-				if(connectedPartitionPeerID != 'none') {
-					trunkArray.push([connectedPartition, connectedPartitionPeerID]);
+			if(connectedPortIDArray.length) {
+				var peerPortFound = false;
+				$.each(connectedPortIDArray, function(index, connectedPortID){
+					console.log('Debug (connectedPortID): '+connectedPortID);
+					var connectedPort = $('#'+connectedPortID);
+					if($(connectedPort).length) {
+						
+						portArray.push(connectedPort)
+						connectionArray.push([selectedPort, connectedPort]);
+						
+						var connectedPartition = $(connectedPort).closest('.partition');
+						var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
+						
+						if($('#'+connectedPartitionPeerID).length) {
+							
+							var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
+							trunkArray.push([connectedPartition, connectedPartitionPeer]);
+							partitionArray.push(connectedPartition, connectedPartitionPeer);
+							
+							var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
+							var peerID = connectedPartitionPeerIDArray[2];
+							var peerFace = connectedPartitionPeerIDArray[3];
+							var peerDepth = connectedPartitionPeerIDArray[4];
+							
+							var connectedPortIDArray = connectedPortID.split('-');
+							var peerPort = connectedPortIDArray[5];
+							selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
+							peerPortFound = true;
+						} else {
+							if(connectedPartitionPeerID != 'none') {
+								trunkArray.push([connectedPartition, connectedPartitionPeerID]);
+							}
+							//selectedPort = false;
+							//return false;
+						}
+						
+					} else {
+						connectionArray.push([selectedPort, connectedPortID]);
+						//selectedPort = false;
+						//return false;
+					}
+				});
+				if(peerPortFound == false) {
+					selectedPort = false;
 				}
-				break;
+			} else {
+				selectedPort = false;
 			}
 		}
 	}

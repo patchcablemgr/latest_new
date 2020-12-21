@@ -7,7 +7,7 @@ $qls->Security->check_auth_page('user.php');
 
 <?php require 'includes/header_start.php'; ?>
 <?php require 'includes/header_end.php'; ?>
-
+<?php require_once './includes/modals.php'; ?>
 
 <!-- Page-Title -->
 <div class="row">

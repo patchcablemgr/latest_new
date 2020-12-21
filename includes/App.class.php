@@ -289,7 +289,10 @@ var $qls;
 		while($row = $this->qls->SQL->fetch_assoc($query)) {
 			$this->inventoryAllArray[$row['id']] = $row;
 			if($row['a_object_id'] != 0) {
-				$this->inventoryArray[$row['a_object_id']][$row['a_object_face']][$row['a_object_depth']][$row['a_port_id']] = array(
+				if(!isset($this->inventoryArray[$row['a_object_id']][$row['a_object_face']][$row['a_object_depth']][$row['a_port_id']])) {
+					$this->inventoryArray[$row['a_object_id']][$row['a_object_face']][$row['a_object_depth']][$row['a_port_id']] = array();
+				}
+				array_push($this->inventoryArray[$row['a_object_id']][$row['a_object_face']][$row['a_object_depth']][$row['a_port_id']], array(
 					'rowID' => $row['id'],
 					'id' => $row['b_object_id'],
 					'face' => $row['b_object_face'],
@@ -299,10 +302,13 @@ var $qls;
 					'localAttrPrefix' => 'a',
 					'remoteEndID' => $row['b_id'],
 					'remoteAttrPrefix' => 'b'
-				);
+				));
 			}
 			if($row['b_object_id'] != 0) {
-				$this->inventoryArray[$row['b_object_id']][$row['b_object_face']][$row['b_object_depth']][$row['b_port_id']] = array(
+				if(!isset($this->inventoryArray[$row['b_object_id']][$row['b_object_face']][$row['b_object_depth']][$row['b_port_id']])) {
+					$this->inventoryArray[$row['b_object_id']][$row['b_object_face']][$row['b_object_depth']][$row['b_port_id']] = array();
+				}
+				array_push($this->inventoryArray[$row['b_object_id']][$row['b_object_face']][$row['b_object_depth']][$row['b_port_id']], array(
 					'rowID' => $row['id'],
 					'id' => $row['a_object_id'],
 					'face' => $row['a_object_face'],
@@ -312,7 +318,7 @@ var $qls;
 					'localAttrPrefix' => 'b',
 					'remoteEndID' => $row['a_id'],
 					'remoteAttrPrefix' => 'a'
-				);
+				));
 			}
 			if($row['a_id'] != 0) {
 				$this->inventoryByIDArray[$row['a_id']] = array(
@@ -1846,26 +1852,28 @@ var $qls;
 	}
 	
 	function clearInventoryTable($objID, $objFace, $objDepth, $objPort){
-		if($inventoryEntry = $this->inventoryArray[$objID][$objFace][$objDepth][$objPort]) {
-			$rowID = $inventoryEntry['rowID'];
-			if($inventoryEntry['localEndID'] === 0 and $inventoryEntry['remoteEndID'] === 0) {
-				// If this is an unmanaged connection, delete the entry
-				$this->qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
-			} else {
-				// If this is a managed connection, just clear the data
-				$attrPrefix = $inventoryEntry['localAttrPrefix'];
-				$set = array(
-					$attrPrefix.'_object_id' => 0,
-					$attrPrefix.'_object_face' => 0,
-					$attrPrefix.'_object_depth' => 0,
-					$attrPrefix.'_port_id' => 0
-				);
-				$this->qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
-				if(isset($this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']])) {
-					$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['id'] = 0;
-					$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['face'] = 0;
-					$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['depth'] = 0;
-					$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['port'] = 0;
+		if($inventory = $this->inventoryArray[$objID][$objFace][$objDepth][$objPort]) {
+			foreach($inventory as $inventoryEntryIndex => $inventoryEntry) {
+				$rowID = $inventoryEntry['rowID'];
+				if($inventoryEntry['localEndID'] === 0 and $inventoryEntry['remoteEndID'] === 0) {
+					// If this is an unmanaged connection, delete the entry
+					$this->qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+				} else {
+					// If this is a managed connection, just clear the data
+					$attrPrefix = $inventoryEntry['localAttrPrefix'];
+					$set = array(
+						$attrPrefix.'_object_id' => 0,
+						$attrPrefix.'_object_face' => 0,
+						$attrPrefix.'_object_depth' => 0,
+						$attrPrefix.'_port_id' => 0
+					);
+					$this->qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+					if(isset($this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']][$inventoryEntryIndex])) {
+						$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']][$inventoryEntryIndex]['id'] = 0;
+						$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']][$inventoryEntryIndex]['face'] = 0;
+						$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']][$inventoryEntryIndex]['depth'] = 0;
+						$this->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']][$inventoryEntryIndex]['port'] = 0;
+					}
 				}
 			}
 			unset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort]);
@@ -2532,19 +2540,21 @@ var $qls;
 						}
 						
 						// Attr - code39
+						$code39 = 0;
+						$connectionArray = array();
 						if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex])) {
-							$connection = $this->inventoryArray[$objID][$objFace][$objDepth][$portIndex];
-							$inventoryID = $connection['localEndID'];
-							$code39 = $this->inventoryByIDArray[$inventoryID]['localEndCode39'];
-							$attrAssocArray['data-code39'] = $code39;
-							
-							// Connected Object GlobalID
-							$connectedGlobalID = 'port-4-'.$connection['id'].'-'.$connection['face'].'-'.$connection['depth'].'-'.$connection['port'];
-							$attrAssocArray['data-connected-global-id'] = $connectedGlobalID;
-						} else {
-							$attrAssocArray['data-code39'] = 0;	
-							$attrAssocArray['data-connected-global-id'] = 'none';
+							$connectionArray = array();
+							foreach($this->inventoryArray[$objID][$objFace][$objDepth][$portIndex] as $connection) {
+								$inventoryID = $connection['localEndID'];
+								$code39 = $this->inventoryByIDArray[$inventoryID]['localEndCode39'];
+								
+								// Connected Object GlobalID
+								$connectedGlobalID = 'port-4-'.$connection['id'].'-'.$connection['face'].'-'.$connection['depth'].'-'.$connection['port'];
+								array_push($connectionArray, $connectedGlobalID);
+							}
 						}
+						$attrAssocArray['data-code39'] = $code39;
+						$attrAssocArray['data-connected-global-id'] = base64_encode(json_encode($connectionArray));
 						
 						// Attr - title
 						$attrAssocArray['title'] = $this->generatePortName($portNameFormat, $portIndex, $portTotal);
@@ -3109,5 +3119,51 @@ var $qls;
 	function unConvertHyphens($string){
 		return str_replace('&#8209;', '-', $string);
 	}
-
+	
+	function loopDetected($aID, $aFace, $aDepth, $aPort, $bID, $bFace, $bDepth, $bPort){
+		
+		// If cable is connected to an object
+		if($aID != 0) {
+			
+			// If object is trunked
+			if(isset($this->peerArray[$aID][$aFace][$aDepth])) {
+				$peerRecord = $this->peerArray[$aID][$aFace][$aDepth];
+				
+				// If object's peer is not an endpoint
+				if(!$peerRecord['peerEndpoint']) {
+					$objID = $peerRecord['peerID'];
+					$objFace = $peerRecord['peerFace'];
+					$objDepth = $peerRecord['peerDepth'];
+					
+					// If peer has cable connected
+					if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$aPort])) {
+						
+						foreach($this->inventoryArray[$objID][$objFace][$objDepth][$aPort] as $peerCable) {
+							$peerID = $peerCable['id'];
+							$peerFace = $peerCable['face'];
+							$peerDepth = $peerCable['depth'];
+							$peerPort = $peerCable['port'];
+							
+							$loopDetected = $this->loopDetected($peerID, $peerFace, $peerDepth, $peerPort, $objID, $objFace, $objDepth, $aPort);
+							if($loopDetected) {
+								return true;
+							}
+						}
+						
+						return false;
+					} else if($objID == $bID and $objFace == $bFace and $objDepth == $bDepth and $aPort == $bPort) {
+						return true;
+					} else {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 }

@@ -165,7 +165,51 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$validate->returnData['success']['connectorFlatPath'] = $connectorFlatPath;
 				}
 				break;
+			
+			case 'connectionExploreClear':
+			
+				$validate->returnData['success'] = array();
+			
+				// Retrieve object data
+				$objID = $data['objID'];
+				$objFace = $data['objFace'];
+				$objDepth = $data['objDepth'];
+				$objPort = $data['objPort'];
+				$obj = (isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort] : false;
 				
+				// Retrieve old peer port ID so it can have the "populated" class cleared
+				if($obj) {
+					$oldPeerPortID = '4-'.$obj['id'].'-'.$obj['face'].'-'.$obj['depth'].'-'.$obj['port'];
+				} else {
+					$oldPeerPortID = false;
+				}
+				
+				// Clear inventory table entry
+				$objRowID = $obj['rowID'];
+				if($obj['localEndID'] or $obj['remoteEndID']) {
+					clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
+				} else {
+					$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+				}
+				
+				// Clear populated port entry
+				clearTablePopulated($qls, $objID, $objFace, $objDepth, $objPort);
+				
+				// Log history
+				$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+				$remotePortData = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+				$remoteObjID = $remotePortData['id'];
+				$remoteObjFace = $remotePortData['face'];
+				$remoteObjDepth = $remotePortData['depth'];
+				$remoteObjPort = $remotePortData['port'];
+				$remotePort = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
+				$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+				$qls->App->logAction(3, 3, $actionString);
+				
+				$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
+			
+				break;
+			
 			case 'connectionExplore':
 				require_once '../includes/path_functions.php';
 				$validate->returnData['success'] = array();
@@ -173,55 +217,36 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$clear = $value == 'clear' ? true : false;
 				$peerPortID = '';
 				
-				if($clear) {
-					$elementID = $elementFace = $elementDepth = $elementPort = 0;
-				} else {
-					$valueArray = explode('-', $value);
-					$elementID = $valueArray[1];
-					$elementFace = $valueArray[2];
-					$elementDepth = $valueArray[3];
-					$elementPort = $valueArray[4];
-				}
+				foreach($value as $peerPortString) {
 				
-				$objID = $data['objID'];
-				$objFace = $data['objFace'];
-				$objDepth = $data['objDepth'];
-				$objPort = $data['objPort'];
+					$peerPortArray = explode('-', $peerPortString);
 				
-				if(loopDetected($qls, $objID, $objFace, $objDepth, $objPort, $elementID, $elementFace, $elementDepth, $elementPort)) {
-					$errMsg = 'Loop detected.';
-					array_push($validate->returnData['error'], $errMsg);
-				} else {
+					$elementID = $peerPortArray[1];
+					$elementFace = $peerPortArray[2];
+					$elementDepth = $peerPortArray[3];
+					$elementPort = $peerPortArray[4];
+					$element = (isset($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort])) ? $qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort] : false;
 					
-					$query = $qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$objID.' AND a_object_face = '.$objFace.' AND a_object_depth = '.$objDepth.' AND a_port_id = '.$objPort.') OR (b_object_id = '.$objID.' AND b_object_face = '.$objFace.' AND b_object_depth = '.$objDepth.' AND b_port_id = '.$objPort.')');
-					$objEntry = $qls->SQL->num_rows($query) ? $qls->SQL->fetch_assoc($query) : false;
+					$objID = $data['objID'];
+					$objFace = $data['objFace'];
+					$objDepth = $data['objDepth'];
+					$objPort = $data['objPort'];
+					$obj = (isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort] : false;
+
+					$peerPortID = '4-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
 					
-					if($clear) {
-						$elementEntry = false;
-						if($objEntry) {
-							$elementAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'b' : 'a';
-							$peerPortID = '4-'.$objEntry[$elementAttr.'_object_id'].'-'.$objEntry[$elementAttr.'_object_face'].'-'.$objEntry[$elementAttr.'_object_depth'].'-'.$objEntry[$elementAttr.'_port_id'];
-						} else {
-							$peerPortID = '4-0-0-0-0';
-						}
-					} else {
-						$query = $qls->SQL->select('*', 'app_inventory', '(a_object_id = '.$elementID.' AND a_object_face = '.$elementFace.' AND a_object_depth = '.$elementDepth.' AND a_port_id = '.$elementPort.') OR (b_object_id = '.$elementID.' AND b_object_face = '.$elementFace.' AND b_object_depth = '.$elementDepth.' AND b_port_id = '.$elementPort.')');
-						$elementEntry = $qls->SQL->num_rows($query) ? $qls->SQL->fetch_assoc($query) : false;
-						$peerPortID = '4-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
-						
-						// Clear trunk if this is a trunked floorplan object
-						$objIDArray = array($elementID, $objID);
-						foreach($objIDArray as $objID) {
-							$templateID = $qls->App->objectArray[$objID]['template_id'];
-							$templateType = $qls->App->templateArray[$templateID]['templateType'];
-							if(isset($qls->App->floorplanObjDetails[$templateType])) {
-								$templateFunction = $qls->App->templateArray[$templateID]['templateFunction'];
-								if($templateFunction == 'Endpoint') {
-									if(isset($qls->App->peerArrayWalljack[$objID])) {
-										foreach($qls->App->peerArrayWalljack[$objID] as $peerEntry) {
-											$rowID = $peerEntry['rowID'];
-											$qls->SQL->delete('app_object_peer', array('id' => array('=', $rowID)));
-										}
+					// Clear trunk if this is a trunked floorplan object
+					$objIDArray = array($elementID, $objID);
+					foreach($objIDArray as $objID) {
+						$templateID = $qls->App->objectArray[$objID]['template_id'];
+						$templateType = $qls->App->templateArray[$templateID]['templateType'];
+						if(isset($qls->App->floorplanObjDetails[$templateType])) {
+							$templateFunction = $qls->App->templateArray[$templateID]['templateFunction'];
+							if($templateFunction == 'Endpoint') {
+								if(isset($qls->App->peerArrayWalljack[$objID])) {
+									foreach($qls->App->peerArrayWalljack[$objID] as $peerEntry) {
+										$rowID = $peerEntry['rowID'];
+										$qls->SQL->delete('app_object_peer', array('id' => array('=', $rowID)));
 									}
 								}
 							}
@@ -229,93 +254,77 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					}
 					
 					// Retrieve old peer port ID so it can have the "populated" class cleared
-					if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
-						$inventoryEntry = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
-						$oldPeerPortID = '4-'.$inventoryEntry['id'].'-'.$inventoryEntry['face'].'-'.$inventoryEntry['depth'].'-'.$inventoryEntry['port'];
+					if($obj) {
+						$oldPeerPortID = '4-'.$obj['id'].'-'.$obj['face'].'-'.$obj['depth'].'-'.$obj['port'];
 					} else {
 						$oldPeerPortID = false;
 					}
 					
-					// Find which ports are already connected
-					if($objEntry and $elementEntry) {
-						$objAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'a' : 'b';
-						$elementAttr = ($elementEntry['a_object_id'] == $elementID) ? 'a' : 'b';
+					// Clear existing connections
+					if($obj and $element) {
+						
+						$objRowID = $obj['rowID'];
+						$elementRowID = $element['rowID'];
 						
 						// Are the ports connected to each other?
-						if($objEntry['id'] == $elementEntry['id']) {
-							$entryID = $objEntry['id'];
-							if($objEntry['a_id'] or $objEntry['b_id']) {
-								clearTableInventory($qls, 'a', $entryID);
-								clearTableInventory($qls, 'b', $entryID);
+						if($obj['rowID'] == $element['rowID']) {
+							if($obj['localEndID'] or $obj['remoteEndID']) {
+								clearTableInventory($qls, 'a', $objRowID);
+								clearTableInventory($qls, 'b', $objRowID);
 							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $entryID)));
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
 							}
 						} else {
-							if($objEntry['a_id'] or $objEntry['b_id']) {
-								clearTableInventory($qls, $objAttr, $objEntry['id']);
+							if($obj['localEndID'] or $obj['remoteEndID']) {
+								clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
 							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $objEntry['id'])));
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
 							}
 							
-							if($elementEntry['a_id'] or $elementEntry['b_id']) {
-								clearTableInventory($qls, $elementAttr, $elementEntry['id']);
+							if($element['localEndID'] or $element['remoteEndID']) {
+								clearTableInventory($qls, $element['localAttrPrefix'], $elementRowID);
 							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $elementEntry['id'])));
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
 							}
 						}
-					} else if($objEntry) {
-						$objAttr = ($objEntry['a_object_id'] == $objID and $objEntry['a_object_face'] == $objFace and $objEntry['a_object_depth'] == $objDepth and $objEntry['a_port_id'] == $objPort) ? 'a' : 'b';
+					} else if($obj) {
 						
-						if($objEntry['a_id'] or $objEntry['b_id']) {
-							clearTableInventory($qls, $objAttr, $objEntry['id']);
+						$objRowID = $obj['rowID'];
+						
+						if($obj['localEndID'] or $obj['remoteEndID']) {
+							clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
 						} else {
-							$qls->SQL->delete('app_inventory', array('id' => array('=', $objEntry['id'])));
+							$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
 						}
 						
-					} else if($elementEntry) {
-						$elementAttr = ($elementEntry['a_object_id'] == $elementID and $elementEntry['a_object_face'] == $elementFace and $elementEntry['a_object_depth'] == $elementDepth and $elementEntry['a_port_id'] == $elementPort) ? 'a' : 'b';
+					} else if($element) {
 						
-						if($elementEntry['a_id'] or $elementEntry['b_id']) {
-							clearTableInventory($qls, $elementAttr, $elementEntry['id']);
+						$elementRowID = $element['rowID'];
+						
+						if($element['localEndID'] or $element['remoteEndID']) {
+							clearTableInventory($qls, $element['localAttrPrefix'], $elementRowID);
 						} else {
-							$qls->SQL->delete('app_inventory', array('id' => array('=', $elementEntry['id'])));
+							$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
 						}
 					}
 					
+					// Clear populated port entry
 					clearTablePopulated($qls, $objID, $objFace, $objDepth, $objPort);
 					clearTablePopulated($qls, $elementID, $elementFace, $elementDepth, $elementPort);
 					
-					if(!$clear) {
-						insertTableInventory($qls, $objID, $objFace, $objDepth, $objPort, $elementID, $elementFace, $elementDepth, $elementPort);
+					// Insert new connection
+					insertTableInventory($qls, $objID, $objFace, $objDepth, $objPort, $elementID, $elementFace, $elementDepth, $elementPort);
 						
-						// Log history
-						$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-						$remotePort = $qls->App->generateObjectPortName($elementID, $elementFace, $elementDepth, $elementPort);
-						$actionString = 'Added connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
-						$qls->App->logAction(3, 1, $actionString);
-						
-					} else {
-						
-						// Log history
-						$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-						$remotePortData = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
-						$remoteObjID = $remotePortData['id'];
-						$remoteObjFace = $remotePortData['face'];
-						$remoteObjDepth = $remotePortData['depth'];
-						$remoteObjPort = $remotePortData['port'];
-						$remotePort = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
-						$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
-						$qls->App->logAction(3, 3, $actionString);
-					
-					}
-					
-					//include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
+					// Log history
+					$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
+					$remotePort = $qls->App->generateObjectPortName($elementID, $elementFace, $elementDepth, $elementPort);
+					$actionString = 'Added connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+					$qls->App->logAction(3, 1, $actionString);
 				
-					//$validate->returnData['success']['pathFull'] = $qls->App->buildPathFull($path, false);
-					$validate->returnData['success']['peerPortID'] = $peerPortID;
-					$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
-					
 				}
+				
+				$validate->returnData['success']['peerPortID'] = $peerPortID;
+				$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
 				
 				break;
 		}
@@ -324,7 +333,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 function validate($data, &$validate, &$qls){
-	$propertiesArray = array('connectorType', 'cableLength', 'cableMediaType', 'cableEditable', 'connectionScan', 'connectionExplore');
+	$propertiesArray = array('connectorType', 'cableLength', 'cableMediaType', 'cableEditable', 'connectionScan', 'connectionExplore', 'connectionExploreClear');
 	
 	//Validate property
 	if($validate->validateInArray($data['property'], $propertiesArray, 'property type')) {
@@ -377,48 +386,74 @@ function validate($data, &$validate, &$qls){
 				}
 			}
 			
+		} else if ($data['property'] == 'connectionExploreClear') {
+			
 		} else if ($data['property'] == 'connectionExplore') {
 			
-			$remotePortArray = explode('-', $data['value']);
-			$remoteID = $remotePortArray[1];
-			$remoteFace = $remotePortArray[2];
-			$remoteDepth = $remotePortArray[3];
-			$remotePort = $remotePortArray[4];
+			$remotePortDataArray = $data['value'];
+			$remotePortArray = array();
+			if(is_array($remotePortDataArray)) {
+				foreach($remotePortDataArray as $remotePortDataString) {
+					$remotePortData = explode('-', $remotePortDataString);
+					$workingArray = array(
+						'remoteID' => $remotePortData[1],
+						'remoteFace' => $remotePortData[2],
+						'remoteDepth' => $remotePortData[3],
+						'remotePort' => $remotePortData[4]
+					);
+					array_push($remotePortArray, $workingArray);
+				}
+			}
 			
 			$localID = $data['objID'];
 			$localFace = $data['objFace'];
 			$localDepth = $data['objDepth'];
 			$localPort = $data['objPort'];
 			
-			if($remoteID == $localID and $remoteFace == $localFace and $remoteDepth == $localDepth and $remotePort == $localPort) {
-				$errMsg = 'Cannot connect port to itself.';
-				array_push($validate->returnData['error'], $errMsg);
-			}
+			foreach($remotePortArray as $remotePortData) {
+				
+				$remoteID = $remotePortData['remoteID'];
+				$remoteFace = $remotePortData['remoteFace'];
+				$remoteDepth = $remotePortData['remoteDepth'];
+				$remotePort = $remotePortData['remotePort'];
+				
+				// Validate port is not connected to itself
+				if($remoteID == $localID and $remoteFace == $localFace and $remoteDepth == $localDepth and $remotePort == $localPort) {
+					$errMsg = 'Cannot connect port to itself.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
 			
-			// Validate connection peers are not endpoints which are trunked
-			$connectionPeerArray = array(
-				array($localID, $localFace, $localDepth, $localPort),
-				array($remoteID, $remoteFace, $remoteDepth, $remotePort)
-			);
-			$validate->validateTrunkedEndpoint($connectionPeerArray);
-			
-			// Validate entitlement
-			$query = $qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
-			$conNum = $qls->SQL->num_rows($query) + 1;
-			
-			if(!$qls->App->checkEntitlement('connection', $conNum)) {
-				$errMsg = 'Exceeded entitled connection count.';
-				array_push($validate->returnData['error'], $errMsg);
-			}
-			
-			if(!isset($data['confirmed'])) {
-				if (isset($qls->App->inventoryArray[$remoteID][$remoteFace][$remoteDepth][$remotePort])) {
-					$validate->returnData['data']['confirmMsg'] = 'Overwrite existing connection?';
-					$validate->returnData['confirm'] = true;
+				// Validate connection peers are not endpoints which are trunked
+				$connectionPeerArray = array(
+					array($localID, $localFace, $localDepth, $localPort),
+					array($remoteID, $remoteFace, $remoteDepth, $remotePort)
+				);
+				$validate->validateTrunkedEndpoint($connectionPeerArray);
+				
+				// Validate no loops will result
+				if($qls->App->loopDetected($localID, $localFace, $localDepth, $localPort, $remoteID, $remoteFace, $remoteDepth, $remotePort)) {
+					$errMsg = 'Loop detected.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+				
+				// Does this action need to be confirmed?
+				if(!isset($data['confirmed'])) {
+					if (isset($qls->App->inventoryArray[$remoteID][$remoteFace][$remoteDepth][$remotePort])) {
+						$validate->returnData['data']['confirmMsg'] = 'Overwrite existing connection?';
+						$validate->returnData['confirm'] = true;
+					}
+				}
+				
+				// Validate entitlement
+				$query = $qls->SQL->select('id', 'app_inventory', array('a_object_id' => array('>', 0), 'AND', 'b_object_id' => array('>', 0)));
+				$conNum = $qls->SQL->num_rows($query) + 1;
+				
+				if(!$qls->App->checkEntitlement('connection', $conNum)) {
+					$errMsg = 'Exceeded entitled connection count.';
+					array_push($validate->returnData['error'], $errMsg);
 				}
 			}
 		}
-		
 	}
 	return;
 }

@@ -706,6 +706,14 @@ function postProcessCable(){
 
 $( document ).ready(function() {
 	
+	$('#checkboxBreakoutCable').on('change', function(){
+		if($(this).is(':checked')) {
+			$('#objTree').jstree(true).settings.core.multiple = true;
+		} else {
+			$('#objTree').jstree(true).settings.core.multiple = false;
+		}
+	});
+	
 	$('#printFullPath').on('click', function(event){
 		event.preventDefault();
 		$('#containerFullPath').printThis({
@@ -943,7 +951,11 @@ $( document ).ready(function() {
 	$('#buttonObjectTreeModalSave').on('click', function(){
 		
 		var selectedNode = $('#objTree').jstree('get_selected', true);
-		var value = selectedNode[0].data.globalID;
+		var value = [];
+		$.each(selectedNode, function(index, node){
+			value.push(node.data.globalID);
+		});
+		//var value = selectedNode[0].data.globalID;
 		var objID = $(document).data('clickedObjID');
 		var objFace = $(document).data('clickedObjFace');
 		var objDepth = $(document).data('clickedObjPartitionDepth');
@@ -959,38 +971,6 @@ $( document ).ready(function() {
 		};
 		
 		postProcessCable.call(data);
-		
-		/* data = JSON.stringify(data);
-		
-		$.post('backend/process_cable.php', {data:data}, function(response){
-			var responseJSON = JSON.parse(response);
-			if (responseJSON.active == 'inactive'){
-				window.location.replace("/");
-			} else if ($(responseJSON.error).size() > 0){
-				displayErrorElement(responseJSON.error, $('#alertMsgObjTree'));
-			} else {
-				var optionText = $('#selectPort').find(':selected').text();
-				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).addClass('populated').data('connectedGlobalId', 'port-'+responseJSON.success.peerPortID);
-				if($('#port-'+responseJSON.success.peerPortID).length) {
-					$('#port-'+responseJSON.success.peerPortID).addClass('populated').data('connectedGlobalId', '#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort);
-				}
-				if($('#port-'+responseJSON.success.oldPeerPortID).length) {
-					$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
-				}
-				var interfaceSelectionElem = $('#selectPort').find(':selected');
-				portDesignation(interfaceSelectionElem, 'add', 'C');
-				$('#checkboxPopulated').prop("checked", true);
-				$('#checkboxPopulated').prop("disabled", true);
-				retrievePortPath(objID, objFace, objDepth, objPort);
-				refreshPathData();
-				redraw();
-				
-				$('#objTree').jstree('deselect_all');
-				$('#objectTreeModal').modal('hide');
-				
-				$(document).data('peerPortID', value);
-			}
-		}); */
 	});
 	
 	$('#buttonObjectTreeModalClear').on('click', function(){
@@ -1006,8 +986,7 @@ $( document ).ready(function() {
 		var objPort = $(document).data('clickedObjPortID');
 		
 		var data = {
-			property: 'connectionExplore',
-			value: 'clear',
+			property: 'connectionExploreClear',
 			objID: objID,
 			objFace: objFace,
 			objDepth: objDepth,
@@ -1023,8 +1002,10 @@ $( document ).ready(function() {
 				displayError(responseJSON.error);
 			} else {
 				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).removeClass('populated').data('connectedGlobalId', 'none');
-				if($('#port-'+responseJSON.success.peerPortID).length) {
-					$('#port-'+responseJSON.success.peerPortID).removeClass('populated').data('connectedGlobalId', 'none');
+				if(responseJSON.success.oldPeerPortID) {
+					if($('#port-'+responseJSON.success.oldPeerPortID).length) {
+						$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
+					}
 				}
 				
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
