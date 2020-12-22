@@ -56,12 +56,13 @@ for($x=0; $x<2; $x++){
 		$workingArray = array(
 			'type' => 'object',
 			'data' => array(
+			array(
 				'id' => $objID,
 				'face' => $objFace,
 				'depth' => $objDepth,
 				'port' => $objPort,
 				'selected' => $selected
-			)
+			))
 		);
 		if($x == 0) {
 			array_push($path, $workingArray);
@@ -71,119 +72,141 @@ for($x=0; $x<2; $x++){
 		
 		// Connection
 		if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
-			
-			$inventory = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
-			$inventoryID = $inventory['rowID'];
-			$localAttrPrefix = $inventory['localAttrPrefix'];
-			$remoteAttrPrefix = $inventory['remoteAttrPrefix'];
-			$connection = $qls->App->inventoryAllArray[$inventoryID];
-			$mediaTypeID = $connection['mediaType'];
-			$length = $connection['length'];
-			$includeUnit = true;
-			$length = $qls->App->calculateCableLength($mediaTypeID, $length, $includeUnit);
-			
-			// Local Connection
-			$workingArray = array(
-				'type' => 'connector',
-				'data' => array(
-					'code39' => $connection[$localAttrPrefix.'_code39'],
-					'connectorType' => $connection[$localAttrPrefix.'_connector']
-				)
+			$objectWorkingArray = array(
+				'type' => 'object',
+				'data' => array()
 			);
-			if($x == 0) {
-				array_push($path, $workingArray);
-			} else {
-				array_unshift($path, $workingArray);
-			}
-			
-			// Cable
-			$workingArray = array(
-				'type' => 'cable',
-				'data' => array(
-					'mediaTypeID' => $mediaTypeID,
-					'length' => $length
-				)
-			);
-			if($x == 0) {
-				array_push($path, $workingArray);
-			} else {
-				array_unshift($path, $workingArray);
-			}
-			
-			// Remote Connection
-			$workingArray = array(
-				'type' => 'connector',
-				'data' => array(
-					'code39' => $connection[$remoteAttrPrefix.'_code39'],
-					'connectorType' => $connection[$remoteAttrPrefix.'_connector']
-				)
-			);
-			if($x == 0) {
-				array_push($path, $workingArray);
-			} else {
-				array_unshift($path, $workingArray);
-			}
-			
-			if($connection[$remoteAttrPrefix.'_object_id'] != 0) {
+			foreach($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort] as $index => $inventory) {
 				
+				$inventoryID = $inventory['rowID'];
+				$localAttrPrefix = $inventory['localAttrPrefix'];
+				$remoteAttrPrefix = $inventory['remoteAttrPrefix'];
+				$connection = $qls->App->inventoryAllArray[$inventoryID];
 				
-				$objID = $connection[$remoteAttrPrefix.'_object_id'];
-				$objFace = $connection[$remoteAttrPrefix.'_object_face'];
-				$objDepth = $connection[$remoteAttrPrefix.'_object_depth'];
-				$objPort = $connection[$remoteAttrPrefix.'_port_id'];
-				
-				// Remote Object
-				$workingArray = array(
-					'type' => 'object',
+				// Local Connection
+				$connector1WorkingArray = array(
+					'type' => 'connector',
 					'data' => array(
-						'id' => $objID,
-						'face' => $objFace,
-						'depth' => $objDepth,
-						'port' => $objPort
+						'code39' => $connection[$localAttrPrefix.'_code39'],
+						'connectorType' => $connection[$localAttrPrefix.'_connector']
 					)
 				);
+				/*
 				if($x == 0) {
 					array_push($path, $workingArray);
 				} else {
 					array_unshift($path, $workingArray);
 				}
+				*/
 				
-				$isTrunked = false;
-				if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
-					$isTrunked = true;
-					// Remote Object Peer
-					$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
-					if($peer['floorplanPeer']) {
-						$isTrunked = isFloorplanTrunked($peer, $objPort);
-					}
+				// Cable
+				$mediaTypeID = $connection['mediaType'];
+				$length = $connection['length'];
+				$includeUnit = true;
+				$length = $qls->App->calculateCableLength($mediaTypeID, $length, $includeUnit);
+				$cableWorkingArray = array(
+					'type' => 'cable',
+					'data' => array(
+						'mediaTypeID' => $mediaTypeID,
+						'length' => $length
+					)
+				);
+				/*
+				if($x == 0) {
+					array_push($path, $workingArray);
+				} else {
+					array_unshift($path, $workingArray);
 				}
+				*/
 				
-				if($isTrunked) {
-					$objID = $peer['peerID'];
-					$objFace = $peer['peerFace'];
-					$objDepth = $peer['peerDepth'];
+				// Remote Connection
+				$connector2WorkingArray = array(
+					'type' => 'connector',
+					'data' => array(
+						'code39' => $connection[$remoteAttrPrefix.'_code39'],
+						'connectorType' => $connection[$remoteAttrPrefix.'_connector']
+					)
+				);
+				/*
+				if($x == 0) {
+					array_push($path, $workingArray);
+				} else {
+					array_unshift($path, $workingArray);
+				}
+				*/
+				
+				// Object
+				if($connection[$remoteAttrPrefix.'_object_id'] != 0) {
 					
-					// Trunk
+					$objID = $connection[$remoteAttrPrefix.'_object_id'];
+					$objFace = $connection[$remoteAttrPrefix.'_object_face'];
+					$objDepth = $connection[$remoteAttrPrefix.'_object_depth'];
+					$objPort = $connection[$remoteAttrPrefix.'_port_id'];
+					
+					// Remote Object
 					$workingArray = array(
-						'type' => 'trunk',
-						'data' => array()
+						'id' => $objID,
+						'face' => $objFace,
+						'depth' => $objDepth,
+						'port' => $objPort
 					);
-					if($x == 0) {
-						array_push($path, $workingArray);
+					array_push($objectWorkingArray['data'], $workingArray);
+					
+					$isTrunked = false;
+					if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
+						$isTrunked = true;
+						// Remote Object Peer
+						$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
+						if($peer['floorplanPeer']) {
+							$isTrunked = isFloorplanTrunked($peer, $objPort);
+						}
+					}
+					
+					if($isTrunked) {
+						$objID = $peer['peerID'];
+						$objFace = $peer['peerFace'];
+						$objDepth = $peer['peerDepth'];
+						
+						// Trunk
+						$trunkWorkingArray = array(
+							'type' => 'trunk',
+							'data' => array()
+						);
+						/*
+						if($x == 0) {
+							array_push($path, $workingArray);
+						} else {
+							array_unshift($path, $workingArray);
+						}
+						*/
 					} else {
-						array_unshift($path, $workingArray);
+						
+						// No trunk peer found
+						$objID = 0;
 					}
 				} else {
 					
-					// No trunk peer found
+					// No connected object
 					$objID = 0;
 				}
-			} else {
-				
-				// No connected object
-				$objID = 0;
 			}
-			
+			if($x == 0) {
+				array_push($path, $connector1WorkingArray);
+				array_push($path, $cableWorkingArray);
+				array_push($path, $connector2WorkingArray);
+				array_push($path, $objectWorkingArray);
+				if($isTrunked) {
+					array_push($path, $trunkWorkingArray);
+				}
+			} else {
+				array_unshift($path, $connector1WorkingArray);
+				array_unshift($path, $cableWorkingArray);
+				array_unshift($path, $connector2WorkingArray);
+				array_unshift($path, $objectWorkingArray);
+				if($isTrunked) {
+					array_unshift($path, $trunkWorkingArray);
+				}
+			}
 			
 		} else if(isset($qls->App-> populatedPortArray[$objID][$objFace][$objDepth][$objPort])) {
 			

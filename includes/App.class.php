@@ -2029,14 +2029,18 @@ var $qls;
 						
 					case 'object':
 					
-						$objID = $object['data']['id'];
-						$objFace = $object['data']['face'];
-						$objDepth = $object['data']['depth'];
-						$objPort = $object['data']['port'];
-						$selected = $object['data']['selected'];
-						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-						$objBox = $this->wrapObject($objID, $objName, $selected);
+						$objName = '';
+						foreach($object['data'] as $item) {
+							$objID = $item['id'];
+							$objFace = $item['face'];
+							$objDepth = $item['depth'];
+							$objPort = $item['port'];
+							$selected = $item['selected'];
+							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+						}
 						
+						$objBox = $this->wrapObject($objID, $objName, $selected);
+							
 						// Wrap in <td> and add to row array
 						$htmlString = '<td>'.$objBox.'</td>';
 						array_push($tableArray[count($tableArray)-1], $htmlString);
