@@ -109,34 +109,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					
 					// Clear any inventory entries
 					if (isset($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort])) {
-						$inventoryEntry = $qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort];
-						$rowID = $inventoryEntry['rowID'];
-						$localAttrPrefix = $inventoryEntry['localAttrPrefix'];
-						
-						if ($inventoryEntry['localEndID'] == 0) {
+						foreach($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort] as $inventoryEntry) {
+							$rowID = $inventoryEntry['rowID'];
+							$localAttrPrefix = $inventoryEntry['localAttrPrefix'];
 							
-							// Found entry is not a managed cable... delete
-							$qls->SQL->delete(
-								'app_inventory',
-								array(
-									'id' => array('=', $rowID)
-								)
-							);
-						} else {
-							
-							// Found entry is a managed cable... zeroize
-							$qls->SQL->update(
-								'app_inventory',
-								array(
-									$localAttrPrefix.'_object_id' => 0,
-									$localAttrPrefix.'_port_id' => 0,
-									$localAttrPrefix.'_object_face' => 0,
-									$localAttrPrefix.'_object_depth' => 0
-								),
-								array(
-									'id' => array('=', $rowID)
-								)
-							);
+							if ($inventoryEntry['localEndID'] == 0) {
+								
+								// Found entry is not a managed cable... delete
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+							} else {
+								
+								// Found entry is a managed cable... zeroize
+								$qls->SQL->update(
+									'app_inventory',
+									array(
+										$localAttrPrefix.'_object_id' => 0,
+										$localAttrPrefix.'_port_id' => 0,
+										$localAttrPrefix.'_object_face' => 0,
+										$localAttrPrefix.'_object_depth' => 0
+									),
+									array(
+										'id' => array('=', $rowID)
+									)
+								);
+							}
 						}
 					}
 					
@@ -175,21 +171,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$objFace = $data['objFace'];
 				$objDepth = $data['objDepth'];
 				$objPort = $data['objPort'];
-				$obj = (isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort] : false;
-				
-				// Retrieve old peer port ID so it can have the "populated" class cleared
-				if($obj) {
-					$oldPeerPortID = '4-'.$obj['id'].'-'.$obj['face'].'-'.$obj['depth'].'-'.$obj['port'];
-				} else {
-					$oldPeerPortID = false;
-				}
-				
-				// Clear inventory table entry
-				$objRowID = $obj['rowID'];
-				if($obj['localEndID'] or $obj['remoteEndID']) {
-					clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
-				} else {
-					$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+				if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+					$port = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+					foreach($port as $connection) {
+						// Clear inventory table entry
+						$rowID = $connection['rowID'];
+						if($connection['localEndID'] or $connection['remoteEndID']) {
+							clearTableInventory($qls, $connection['localAttrPrefix'], $rowID);
+						} else {
+							$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+						}
+					}
 				}
 				
 				// Clear populated port entry
@@ -197,16 +189,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				
 				// Log history
 				$localPort = $qls->App->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-				$remotePortData = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
-				$remoteObjID = $remotePortData['id'];
-				$remoteObjFace = $remotePortData['face'];
-				$remoteObjDepth = $remotePortData['depth'];
-				$remoteObjPort = $remotePortData['port'];
-				$remotePort = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
-				$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePort.'</strong>';
+				$port = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+				$remotePortArray = array();
+				foreach($port as $connection) {
+					$remoteObjID = $connection['id'];
+					$remoteObjFace = $connection['face'];
+					$remoteObjDepth = $connection['depth'];
+					$remoteObjPort = $connection['port'];
+					$remotePortName = $qls->App->generateObjectPortName($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
+					array_push($remotePortArray, $remotePortName);
+				}
+				$remotePortString = implode('<br>', $remotePortArray);
+				$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePortString.'</strong>';
 				$qls->App->logAction(3, 3, $actionString);
-				
-				$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
 			
 				break;
 			
@@ -215,7 +210,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$validate->returnData['success'] = array();
 				$value = $data['value'];
 				$clear = $value == 'clear' ? true : false;
-				$peerPortID = '';
 				
 				foreach($value as $peerPortString) {
 				
@@ -232,8 +226,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$objDepth = $data['objDepth'];
 					$objPort = $data['objPort'];
 					$obj = (isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort] : false;
-
-					$peerPortID = '4-'.$elementID.'-'.$elementFace.'-'.$elementDepth.'-'.$elementPort;
 					
 					// Clear trunk if this is a trunked floorplan object
 					$objIDArray = array($elementID, $objID);
@@ -253,58 +245,59 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						}
 					}
 					
-					// Retrieve old peer port ID so it can have the "populated" class cleared
-					if($obj) {
-						$oldPeerPortID = '4-'.$obj['id'].'-'.$obj['face'].'-'.$obj['depth'].'-'.$obj['port'];
-					} else {
-						$oldPeerPortID = false;
-					}
-					
 					// Clear existing connections
 					if($obj and $element) {
 						
-						$objRowID = $obj['rowID'];
-						$elementRowID = $element['rowID'];
-						
-						// Are the ports connected to each other?
-						if($obj['rowID'] == $element['rowID']) {
-							if($obj['localEndID'] or $obj['remoteEndID']) {
-								clearTableInventory($qls, 'a', $objRowID);
-								clearTableInventory($qls, 'b', $objRowID);
-							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
-							}
-						} else {
-							if($obj['localEndID'] or $obj['remoteEndID']) {
-								clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
-							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
-							}
-							
-							if($element['localEndID'] or $element['remoteEndID']) {
-								clearTableInventory($qls, $element['localAttrPrefix'], $elementRowID);
-							} else {
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
+						foreach($obj as $objConnection) {
+							$objRowID = $objConnection['rowID'];
+							foreach($element as $elementConnection) {
+								$elementRowID = $elementConnection['rowID'];
+								
+								// Are the ports connected to each other?
+								if($objConnection['rowID'] == $elementConnection['rowID']) {
+									if($objConnection['localEndID'] or $objConnection['remoteEndID']) {
+										clearTableInventory($qls, 'a', $objRowID);
+										clearTableInventory($qls, 'b', $objRowID);
+									} else {
+										$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+									}
+								} else {
+									if($objConnection['localEndID'] or $objConnection['remoteEndID']) {
+										clearTableInventory($qls, $objConnection['localAttrPrefix'], $objRowID);
+									} else {
+										$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+									}
+									
+									if($elementConnection['localEndID'] or $elementConnection['remoteEndID']) {
+										clearTableInventory($qls, $elementConnection['localAttrPrefix'], $elementRowID);
+									} else {
+										$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
+									}
+								}
 							}
 						}
 					} else if($obj) {
 						
-						$objRowID = $obj['rowID'];
-						
-						if($obj['localEndID'] or $obj['remoteEndID']) {
-							clearTableInventory($qls, $obj['localAttrPrefix'], $objRowID);
-						} else {
-							$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+						foreach($obj as $objConnection) {
+							$objRowID = $objConnection['rowID'];
+							
+							if($objConnection['localEndID'] or $objConnection['remoteEndID']) {
+								clearTableInventory($qls, $objConnection['localAttrPrefix'], $objRowID);
+							} else {
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $objRowID)));
+							}
 						}
 						
 					} else if($element) {
 						
-						$elementRowID = $element['rowID'];
-						
-						if($element['localEndID'] or $element['remoteEndID']) {
-							clearTableInventory($qls, $element['localAttrPrefix'], $elementRowID);
-						} else {
-							$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
+						foreach($element as $elementConnection) {
+							$elementRowID = $elementConnection['rowID'];
+							
+							if($elementConnection['localEndID'] or $elementConnection['remoteEndID']) {
+								clearTableInventory($qls, $elementConnection['localAttrPrefix'], $elementRowID);
+							} else {
+								$qls->SQL->delete('app_inventory', array('id' => array('=', $elementRowID)));
+							}
 						}
 					}
 					
@@ -322,9 +315,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					$qls->App->logAction(3, 1, $actionString);
 				
 				}
-				
-				$validate->returnData['success']['peerPortID'] = $peerPortID;
-				$validate->returnData['success']['oldPeerPortID'] = $oldPeerPortID;
 				
 				break;
 		}

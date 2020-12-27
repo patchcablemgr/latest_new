@@ -401,9 +401,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// Validate trunk peers are not connected to each other
 			if(isset($qls->App->inventoryArray[$objectID][$objectFace][$objectDepth])) {
 				$peersConnected = false;
-				foreach($qls->App->inventoryArray[$objectID][$objectFace][$objectDepth] as $objConnection) {
-					if($objConnection['id'] == $elementID and $objConnection['face'] == $elementFace and $objConnection['depth'] == $elementDepth) {
-						$peersConnected = true;
+				foreach($qls->App->inventoryArray[$objectID][$objectFace][$objectDepth] as $objPort) {
+					foreach($objPort as $objConnection) {
+						if($objConnection['id'] == $elementID and $objConnection['face'] == $elementFace and $objConnection['depth'] == $elementDepth) {
+							$peersConnected = true;
+						}
 					}
 				}
 				if($peersConnected) {
@@ -509,26 +511,28 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			// Delete peer entries
 			foreach($deleteArray as $entry) {
 				// Delete from inventory table
-				if($inventoryEntry = $qls->App->inventoryArray[$entry['id']][$entry['face']][$entry['depth']][$entry['port']]) {
-					$rowID = $inventoryEntry['rowID'];
-					if($inventoryEntry['localEndID'] === 0 and $inventoryEntry['remoteEndID'] === 0) {
-						// If this is an unmanaged connection, delete the entry
-						$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
-					} else {
-						// If this is a managed connection, just clear the data
-						$attrPrefix = $inventoryEntry['localAttrPrefix'];
-						$set = array(
-							$attrPrefix.'_object_id' => 0,
-							$attrPrefix.'_object_face' => 0,
-							$attrPrefix.'_object_depth' => 0,
-							$attrPrefix.'_port_id' => 0
-						);
-						$qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
-						if(isset($qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']])) {
-							$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['id'] = 0;
-							$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['face'] = 0;
-							$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['depth'] = 0;
-							$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['port'] = 0;
+				if($inventoryPort = $qls->App->inventoryArray[$entry['id']][$entry['face']][$entry['depth']][$entry['port']]) {
+					foreach($inventoryPort as $inventoryEntry) {
+						$rowID = $inventoryEntry['rowID'];
+						if($inventoryEntry['localEndID'] === 0 and $inventoryEntry['remoteEndID'] === 0) {
+							// If this is an unmanaged connection, delete the entry
+							$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+						} else {
+							// If this is a managed connection, just clear the data
+							$attrPrefix = $inventoryEntry['localAttrPrefix'];
+							$set = array(
+								$attrPrefix.'_object_id' => 0,
+								$attrPrefix.'_object_face' => 0,
+								$attrPrefix.'_object_depth' => 0,
+								$attrPrefix.'_port_id' => 0
+							);
+							$qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+							if(isset($qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']])) {
+								$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['id'] = 0;
+								$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['face'] = 0;
+								$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['depth'] = 0;
+								$qls->App->inventoryArray[$inventoryEntry['id']][$inventoryEntry['face']][$inventoryEntry['depth']][$inventoryEntry['port']]['port'] = 0;
+							}
 						}
 					}
 					unset($qls->App->inventoryArray[$entry['id']][$entry['face']][$entry['depth']][$entry['port']]);
@@ -552,21 +556,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 					foreach($qls->App->inventoryArray[$objectID] as $faceID => $face) {
 						foreach($face as $depthID => $depth) {
 							foreach($depth as $portID => $port) {
-								$rowID = $port['rowID'];
-								if($port['localEndID'] == 0 and $port['remoteEndID'] == 0) {
-									// Delete entry if not managed cable
-									$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+								$deleteEntry = false;
+								foreach($port as $connection) {
+									$rowID = $connection['rowID'];
+									if($connection['localEndID'] == 0 and $connection['remoteEndID'] == 0) {
+										// Delete entry if not managed cable
+										$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+										$deleteEntry = true;
+									} else {
+										// Clear entry if managed cable
+										$localAttrPrefix = $connection['localAttrPrefix'];
+										$set = array(
+											$localAttrPrefix.'_object_id' => 0,
+											$localAttrPrefix.'_object_face' => 0,
+											$localAttrPrefix.'_object_depth' => 0,
+											$localAttrPrefix.'_port_id' => 0
+										);
+										$qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
+									}
+								}
+								if($deleteEntry) {
 									unset($qls->App->inventoryArray[$objectID][$faceID][$depthID][$portID]);
-								} else {
-									// Clear entry if managed cable
-									$localAttrPrefix = $port['localAttrPrefix'];
-									$set = array(
-										$localAttrPrefix.'_object_id' => 0,
-										$localAttrPrefix.'_object_face' => 0,
-										$localAttrPrefix.'_object_depth' => 0,
-										$localAttrPrefix.'_port_id' => 0
-									);
-									$qls->SQL->update('app_inventory', $set, array('id' => array('=', $rowID)));
 								}
 							}
 						}

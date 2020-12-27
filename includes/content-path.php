@@ -91,13 +91,6 @@ for($x=0; $x<2; $x++){
 						'connectorType' => $connection[$localAttrPrefix.'_connector']
 					)
 				);
-				/*
-				if($x == 0) {
-					array_push($path, $workingArray);
-				} else {
-					array_unshift($path, $workingArray);
-				}
-				*/
 				
 				// Cable
 				$mediaTypeID = $connection['mediaType'];
@@ -111,13 +104,6 @@ for($x=0; $x<2; $x++){
 						'length' => $length
 					)
 				);
-				/*
-				if($x == 0) {
-					array_push($path, $workingArray);
-				} else {
-					array_unshift($path, $workingArray);
-				}
-				*/
 				
 				// Remote Connection
 				$connector2WorkingArray = array(
@@ -127,13 +113,6 @@ for($x=0; $x<2; $x++){
 						'connectorType' => $connection[$remoteAttrPrefix.'_connector']
 					)
 				);
-				/*
-				if($x == 0) {
-					array_push($path, $workingArray);
-				} else {
-					array_unshift($path, $workingArray);
-				}
-				*/
 				
 				// Object
 				if($connection[$remoteAttrPrefix.'_object_id'] != 0) {
@@ -172,13 +151,6 @@ for($x=0; $x<2; $x++){
 							'type' => 'trunk',
 							'data' => array()
 						);
-						/*
-						if($x == 0) {
-							array_push($path, $workingArray);
-						} else {
-							array_unshift($path, $workingArray);
-						}
-						*/
 					} else {
 						
 						// No trunk peer found

@@ -679,14 +679,42 @@ function postProcessCable(){
 			var objPort = data.objPort;
 			var value = data.value;
 			
-			var optionText = $('#selectPort').find(':selected').text();
-			$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).addClass('populated').data('connectedGlobalId', 'port-'+responseJSON.success.peerPortID);
-			if($('#port-'+responseJSON.success.peerPortID).length) {
-				$('#port-'+responseJSON.success.peerPortID).addClass('populated').data('connectedGlobalId', 'port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort);
-			}
-			if($('#port-'+responseJSON.success.oldPeerPortID).length) {
-				$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
-			}
+			// Compile localPortGlobalID
+			var localPortGlobalID = 'port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort;
+			var localPortGlobalIDBase64 = btoa(JSON.stringify([localPortGlobalID]));
+			
+			// Append each remotePortGlobalID with "port-"
+			var remotePortGlobalIDArray = [];
+			$.each(value, function(index, remotePortGlobalID){
+				var remotePortGlobalID = 'port-'+remotePortGlobalID;
+				remotePortGlobalIDArray.push(remotePortGlobalID);
+			});
+			var remotePortGlobalIDArrayBase64 = btoa(JSON.stringify(remotePortGlobalIDArray));
+			
+			// Compile emptyGlobalIDArrayBase64
+			var emptyGlobalIDArrayBase64 = btoa(JSON.stringify([]));
+			
+			// Clear previous remote port(s)
+			var prevRemotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
+			$.each(prevRemotePortGlobalIDArray, function(index, prevRemotePortGlobalID){
+				if($('#'+prevRemotePortGlobalID).length) {
+					$('#'+prevRemotePortGlobalID).removeClass('populated').data('connectedGlobalId', emptyGlobalIDArrayBase64);
+				}
+			});
+			
+			// Update local port
+			$('#'+localPortGlobalID).addClass('populated').data('connectedGlobalId', remotePortGlobalIDArrayBase64);
+			
+			// Update remote port(s)
+			$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
+				console.log('Debug (remotePortGlobalID): '+remotePortGlobalID);
+				
+				if($('#'+remotePortGlobalID).length) {
+					console.log('Debug (localPortGlobalIDBase64): '+localPortGlobalIDBase64);
+					$('#'+remotePortGlobalID).addClass('populated').data('connectedGlobalId', localPortGlobalIDBase64);
+				}
+			});
+			
 			var interfaceSelectionElem = $('#selectPort').find(':selected');
 			portDesignation(interfaceSelectionElem, 'add', 'C');
 			$('#checkboxPopulated').prop("checked", true);
@@ -1001,15 +1029,20 @@ $( document ).ready(function() {
 			} else if ($(responseJSON.error).size() > 0){
 				displayError(responseJSON.error);
 			} else {
-				$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).removeClass('populated').data('connectedGlobalId', 'none');
-				if(responseJSON.success.oldPeerPortID) {
-					if($('#port-'+responseJSON.success.oldPeerPortID).length) {
-						$('#port-'+responseJSON.success.oldPeerPortID).removeClass('populated').data('connectedGlobalId', 'none');
+				
+				// Compile localPortGlobalID
+				var localPortGlobalID = 'port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort;
+				
+				// Update remote port(s)
+				var remotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
+				$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
+					if($('#'+remotePortGlobalID).length) {
+						$('#'+remotePortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
 					}
-				}
+				});
+				$('#'+localPortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
 				
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
-				//portDesignation(interfaceSelectionElem, 'remove', 'C');
 				$('#checkboxPopulated').prop("checked", false);
 				$('#checkboxPopulated').prop("disabled", false);
 				retrievePortPath(objID, objFace, objDepth, objPort);
