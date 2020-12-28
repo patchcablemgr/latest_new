@@ -443,9 +443,8 @@ function makeCabCloseClickable(){
 }
 
 function resizeCanvas() {
-	$('#canvasBuildSpace').attr('width', $('#canvasBuildSpace').parent().width());
-	$('#canvasBuildSpace').attr('height', $('#canvasBuildSpace').parent().height());
-	//redraw();
+	$('#canvasBuildSpace').attr('width', $(document).width());
+	$('#canvasBuildSpace').attr('height', $(document).height());
 }
 
 function redraw() {

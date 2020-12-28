@@ -17,6 +17,9 @@
 
 <body>
 
+<!-- Canvas for drawing connections -->
+<canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
+
 <?php require 'topbar.php'; ?>
 
 <!-- User Settings -->

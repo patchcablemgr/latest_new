@@ -1952,6 +1952,8 @@ var $qls;
 	
 	function buildPathFull($path, $connectorCode39){
 		
+		error_log('Debug (buildPathFull $path): '.json_encode($path));
+		
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
 		
@@ -1959,6 +1961,7 @@ var $qls;
 		
 		$pathOrientation = $this->qls->user_info['pathOrientation'];
 		
+		// Cable Adjacent
 		if($pathOrientation == 0) {
 			foreach($path as $objectIndex => $object) {
 				$objType = $object['type'];
@@ -1967,12 +1970,16 @@ var $qls;
 					
 					case 'connector':
 						
+						error_log('here1');
 						$addConnector = false;
 						if(isset($path[$objectIndex+1])) {
+							error_log('here2');
 							if($path[$objectIndex+1]['type'] != 'object') {
+								error_log('here3');
 								$addConnector = true;
 							}
 						} else {
+							error_log('here4');
 							$addConnector = true;
 						}
 						
@@ -1985,7 +1992,7 @@ var $qls;
 							$connectorTypeID = $object['data']['connectorType'];
 							
 							if($connectorTypeID != 0) {
-								$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+								$connectorTypeName = $this->portTypeValueArray[$connectorTypeID]['name'];
 								$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
 							} else {
 								$connectorTypeName = 'Unk';
@@ -2045,12 +2052,12 @@ var $qls;
 						$htmlString = '<td>'.$objBox.'</td>';
 						array_push($tableArray[count($tableArray)-1], $htmlString);
 						
-						if($path[$objectIndex+1]['type'] == 'trunk') {
+						if($path[$objectIndex+1]['type'] == 'trunk' or !isset($path[$objectIndex+1])) {
 							if(isset($path[$objectIndex-1])) {
 								$connectorTypeID = $path[$objectIndex-1]['data']['connectorType'];
 								
 								if($connectorTypeID != 0) {
-									$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+									$connectorTypeName = $this->portTypeValueArray[$connectorTypeID]['name'];
 									$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
 								} else {
 									$connectorTypeName = 'Unk';
@@ -2088,6 +2095,7 @@ var $qls;
 				}
 			}
 			
+		// Cable inline
 		} else {
 			
 			foreach($path as $objectIndex => $object) {

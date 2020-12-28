@@ -83,12 +83,25 @@ for($x=0; $x<2; $x++){
 				$remoteAttrPrefix = $inventory['remoteAttrPrefix'];
 				$connection = $qls->App->inventoryAllArray[$inventoryID];
 				
+				// Retrieve local connector type
+				$localObj = $qls->App->objectArray[$objID];
+				$localTemplateID = $localObj['template_id'];
+				$localConnectorType = $qls->App->compatibilityArray[$localTemplateID][$objFace][$objDepth]['portType'];
+				
+				// Retrieve remote connector type
+				$remoteObjID = $inventory['id'];
+				$remoteObjFace = $inventory['face'];
+				$remoteObjDepth = $inventory['depth'];
+				$remoteObj = $qls->App->objectArray[$remoteObjID];
+				$remoteTemplateID = $remoteObj['template_id'];
+				$remoteConnectorType = $qls->App->compatibilityArray[$remoteTemplateID][$remoteObjFace][$remoteObjDepth]['portType'];
+				
 				// Local Connection
 				$connector1WorkingArray = array(
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$localAttrPrefix.'_code39'],
-						'connectorType' => $connection[$localAttrPrefix.'_connector']
+						'connectorType' => $localConnectorType
 					)
 				);
 				
@@ -110,7 +123,7 @@ for($x=0; $x<2; $x++){
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$remoteAttrPrefix.'_code39'],
-						'connectorType' => $connection[$remoteAttrPrefix.'_connector']
+						'connectorType' => $remoteConnectorType
 					)
 				);
 				

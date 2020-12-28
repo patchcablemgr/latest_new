@@ -27,7 +27,6 @@ $qls->Security->check_auth_page('user.php');
 
 <!-- Make server data available to client via hidden inputs -->
 <?php include_once('includes/content-build-serverData.php'); ?>
-<canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 
 <!-- Page-Title -->
 <div class="row">
