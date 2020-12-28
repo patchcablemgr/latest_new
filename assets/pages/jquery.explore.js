@@ -303,7 +303,7 @@ function retrievePortOptions(objID, objFace, partitionDepth, portID){
 				$('#checkboxPopulated').prop("disabled", true);
 			}
 			
-			$(document).data('peerPortID', responseJSON.success.peerPortID);
+			$(document).data('peerPortArray', responseJSON.success.peerPortArray);
 		}
 	});
 }
@@ -335,39 +335,6 @@ function processPortSelection(){
 			$('#pathFinderLocalPort').html(responseJSON.success);
 		}
 	});
-	
-	
-	
-/* 	// Retrieve the selected port details
-	$.post('backend/retrieve_port_details.php', {data:data}, function(response){
-		var responseJSON = JSON.parse(response);
-		if($(responseJSON.error).size() > 0) {
-			displayError(responseJSON.error);
-		} else {
-			$('#checkboxPopulated').prop("checked", responseJSON.success.populatedChecked);
-			$('#checkboxPopulated').prop("disabled", responseJSON.success.populatedDisabled);
-		
-			$('#selectPort').html(responseJSON.success.portOptions);
-			
-			if(responseJSON.success.portOptions != '') {
-				$('#selectPort').prop("disabled", false);
-				$('#selectPort').off('change');
-				$('#selectPort').on('change', function(){
-					var portID = parseInt($(this).children('option:selected').val(), 10);
-					$(document).data('clickedObjPortID', portID);
-					processPortSelection();
-					$(document).data('portClickedFlag', true);
-					handlePathFindButton();
-				});
-			} else {
-				$('#selectPort').prop("disabled", true);
-				$('#checkboxPopulated').prop("checked", false);
-				$('#checkboxPopulated').prop("disabled", true);
-			}
-			
-			$(document).data('peerPortID', responseJSON.success.peerPortID);
-		}
-	}); */
 	
 	// Clear selected object data for pathFinder remote object
 	var data = {
@@ -727,7 +694,7 @@ function postProcessCable(){
 			$('#objTree').jstree('deselect_all');
 			$('#objectTreeModal').modal('hide');
 			
-			$(document).data('peerPortID', value);
+			$(document).data('peerPortArray', value);
 		}
 	});
 }
@@ -1180,10 +1147,10 @@ $( document ).ready(function() {
 		}
 	})
 	.on('refresh.jstree', function(){
-		var peerPortID = $(document).data('peerPortID');
+		var peerPortArray = $(document).data('peerPortArray');
 		
 		$('#objTree').jstree('deselect_all');
-		$('#objTree').jstree('select_node', peerPortID);
+		$('#objTree').jstree('select_node', peerPortArray);
 		
 		var selectedNodes = $('#objTree').jstree('get_selected');
 		if(selectedNodes.length) {

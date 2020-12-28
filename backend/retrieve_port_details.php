@@ -27,11 +27,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objType = $template['templateType'];
 		$objFunction = $template['templateFunction'];
 		
+		$peerPortArray = array();
+		
 		// Retrieve peer port ID
-		if($peerData = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort]) {
-			$peerPortID = '4-'.$peerData['id'].'-'.$peerData['face'].'-'.$peerData['depth'].'-'.$peerData['port'];
-		} else {
-			$peerPortID = '';
+		if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+			$port = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+			foreach($port as $connection) {
+				$peerPortID = '4-'.$connection['id'].'-'.$connection['face'].'-'.$connection['depth'].'-'.$connection['port'];
+				array_push($peerPortArray, $peerPortID);
+			}
 		}
 		
 		// Retrieve trunked state
@@ -86,7 +90,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		// Compile response data
 		$returnData = array(
 			'portOptions' => $portOptions,
-			'peerPortID' => $peerPortID,
+			'peerPortArray' => $peerPortArray,
 			'populatedChecked' => $populatedChecked,
 			'populatedDisabled' => $populatedDisabled
 		);
