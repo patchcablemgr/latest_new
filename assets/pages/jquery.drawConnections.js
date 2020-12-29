@@ -38,7 +38,7 @@ function drawConnection(elementArray){
 	context.strokeStyle = 'LightSkyBlue';
 	context.lineWidth = 3;
 	context.beginPath();
-	console.log('Debug (elementArray): '+JSON.stringify(elementArray));
+	//console.log('Debug (elementArray): '+JSON.stringify(elementArray));
 	
 	$.each(elementArray, function(index, element){
 		var elemA = element[0];
@@ -236,19 +236,15 @@ function crawlPath(selectedPort){
 		}
 		
 		while($(selectedPort).length) {
-			console.log('here1');
 			portArray.push(selectedPort);
 			
 			// Crawl connection peer
 			var connectedPortIDString = $(selectedPort).data('connectedGlobalId');
 			var connectedPortIDArray = JSON.parse(atob(connectedPortIDString));
 			
-			console.log('Debug (connectedPortIDString): '+atob(connectedPortIDString));
-			
 			if(connectedPortIDArray.length) {
 				var peerPortFound = false;
 				$.each(connectedPortIDArray, function(index, connectedPortID){
-					console.log('Debug (connectedPortID): '+connectedPortID);
 					var connectedPort = $('#'+connectedPortID);
 					if($(connectedPort).length) {
 						
@@ -277,14 +273,10 @@ function crawlPath(selectedPort){
 							if(connectedPartitionPeerID != 'none') {
 								trunkArray.push([connectedPartition, connectedPartitionPeerID]);
 							}
-							//selectedPort = false;
-							//return false;
 						}
 						
 					} else {
 						connectionArray.push([selectedPort, connectedPortID]);
-						//selectedPort = false;
-						//return false;
 					}
 				});
 				if(peerPortFound == false) {
@@ -302,6 +294,30 @@ function crawlPath(selectedPort){
 		'portArray': portArray,
 		'connectionArray': connectionArray
 	};
+}
+
+function crawlPathDiagram(){
+	var pathElementArray = {};
+	var connectorElementArray = $('#containerFullPath').find('.port');
+	$.each(connectorElementArray, function(index, element){
+		console.log('here1');
+		if($(element).data('connectionPairId') !== undefined) {
+			console.log('here2');
+			var connectionPairID = $(element).data('connectionPairId');
+			if(pathElementArray[connectionPairID] === undefined) {
+				console.log('here3');
+				pathElementArray[connectionPairID] = [];
+			}
+			pathElementArray[connectionPairID].push($(element));
+		}
+	});
+	return pathElementArray;
+}
+
+function drawPathDiagram(){
+	var pathElementArray = crawlPathDiagram();
+	console.log(JSON.stringify(pathElementArray));
+	drawConnection(pathElementArray);
 }
 
 function makePortsHoverable(){

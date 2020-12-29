@@ -1990,17 +1990,9 @@ var $qls;
 							}
 							
 							$connectorTypeID = $object['data']['connectorType'];
-							
-							if($connectorTypeID != 0) {
-								$connectorTypeName = $this->portTypeValueArray[$connectorTypeID]['name'];
-								$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-							} else {
-								$connectorTypeName = 'Unk';
-								$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-							}
-							
-							// Wrap in <td> and add to row array
-							$htmlString = '<td>'.$connectorHTML.'</td>';
+							$connectionPairID = $object['data']['connectionPairID'];
+							$connectorTypeName = ($connectorTypeID != 0) ? $this->portTypeValueArray[$connectorTypeID]['name'] : 'Unk';
+							$htmlString = '<td><div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'" data-connection-pair-id='.$connectionPairID.'></div></td>';
 							array_push($tableArray[count($tableArray)-1], $htmlString);
 							
 							if($objectIndex == count($path)-1) {
@@ -2055,17 +2047,9 @@ var $qls;
 						if($path[$objectIndex+1]['type'] == 'trunk' or !isset($path[$objectIndex+1])) {
 							if(isset($path[$objectIndex-1])) {
 								$connectorTypeID = $path[$objectIndex-1]['data']['connectorType'];
-								
-								if($connectorTypeID != 0) {
-									$connectorTypeName = $this->portTypeValueArray[$connectorTypeID]['name'];
-									$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-								} else {
-									$connectorTypeName = 'Unk';
-									$connectorHTML = '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'"></div>';
-								}
-								
-								// Wrap in <td> and add to row array
-								$htmlString = '<td>'.$connectorHTML.'</td>';
+								$connectionPairID = $path[$objectIndex-1]['data']['connectionPairID'];
+								$connectorTypeName = ($connectorTypeID != 0) ? $this->portTypeValueArray[$connectorTypeID]['name'] : 'Unk';
+								$htmlString = '<td><div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'" data-connection-pair-id='.$connectionPairID.'></div></td>';
 								array_push($tableArray[count($tableArray)-1], $htmlString);
 								
 								array_push($tableArray[count($tableArray)-1], '<td></td>');

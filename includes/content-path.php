@@ -44,6 +44,8 @@ if($isTrunked) {
 	$reversePortID = 0;
 }
 
+$connectionPairID = 1;
+
 // Discover path elements
 // First look outward from the far end of the cable,
 // then look outward from the near end of the cable.
@@ -83,25 +85,13 @@ for($x=0; $x<2; $x++){
 				$remoteAttrPrefix = $inventory['remoteAttrPrefix'];
 				$connection = $qls->App->inventoryAllArray[$inventoryID];
 				
-				// Retrieve local connector type
-				$localObj = $qls->App->objectArray[$objID];
-				$localTemplateID = $localObj['template_id'];
-				$localConnectorType = $qls->App->compatibilityArray[$localTemplateID][$objFace][$objDepth]['portType'];
-				
-				// Retrieve remote connector type
-				$remoteObjID = $inventory['id'];
-				$remoteObjFace = $inventory['face'];
-				$remoteObjDepth = $inventory['depth'];
-				$remoteObj = $qls->App->objectArray[$remoteObjID];
-				$remoteTemplateID = $remoteObj['template_id'];
-				$remoteConnectorType = $qls->App->compatibilityArray[$remoteTemplateID][$remoteObjFace][$remoteObjDepth]['portType'];
-				
 				// Local Connection
 				$connector1WorkingArray = array(
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$localAttrPrefix.'_code39'],
-						'connectorType' => $localConnectorType
+						'connectorType' => $connection[$localAttrPrefix.'_connector'],
+						'connectionPairID' => $connectionPairID
 					)
 				);
 				
@@ -123,7 +113,8 @@ for($x=0; $x<2; $x++){
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$remoteAttrPrefix.'_code39'],
-						'connectorType' => $remoteConnectorType
+						'connectorType' => $connection[$remoteAttrPrefix.'_connector'],
+						'connectionPairID' => $connectionPairID
 					)
 				);
 				
@@ -217,6 +208,8 @@ for($x=0; $x<2; $x++){
 			// No connected object
 			$objID = 0;
 		}
+		
+		$connectionPairID++;
 	}
 	
 	// Now that we've discovered the far side of the scanned cable,

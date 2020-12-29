@@ -261,6 +261,7 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 		} else {
 			$('#containerFullPath').html(responseJSON.success);
 			makeCableConnectorsClickable();
+			drawPathDiagram();
 		}
 	});
 }
