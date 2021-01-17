@@ -117,6 +117,25 @@ function drawConnection(elementArray){
 	context.stroke();
 }
 
+function drawConnectionDiagram(){
+	var pathDiagramData = $(document).data('pathDiagram');
+	context.strokeStyle = 'LightSkyBlue';
+	context.lineWidth = 3;
+	context.beginPath();
+	
+	$.each(pathDiagramData, function(index, element){
+		var elemA = element[0];
+		var elemB = element[1];
+		
+		var elemADimensions = getDimensions(elemA);
+		var elemBDimensions = getDimensions(elemB);
+		
+		context.moveTo(elemADimensions.centerX, elemADimensions.centerY);
+		context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+	});
+	context.stroke();
+}
+
 function drawTrunk(elementArray){
 	context.strokeStyle = 'MidnightBlue';
 	context.lineWidth = 3;
@@ -297,27 +316,26 @@ function crawlPath(selectedPort){
 }
 
 function crawlPathDiagram(){
-	var pathElementArray = {};
+	var pathDiagram = {};
 	var connectorElementArray = $('#containerFullPath').find('.port');
 	$.each(connectorElementArray, function(index, element){
 		console.log('here1');
 		if($(element).data('connectionPairId') !== undefined) {
 			console.log('here2');
 			var connectionPairID = $(element).data('connectionPairId');
-			if(pathElementArray[connectionPairID] === undefined) {
+			if(pathDiagram[connectionPairID] === undefined) {
 				console.log('here3');
-				pathElementArray[connectionPairID] = [];
+				pathDiagram[connectionPairID] = [];
 			}
-			pathElementArray[connectionPairID].push($(element));
+			pathDiagram[connectionPairID].push($(element));
 		}
 	});
-	return pathElementArray;
+	$(document).data('pathDiagram', pathDiagram);
 }
 
 function drawPathDiagram(){
-	var pathElementArray = crawlPathDiagram();
-	console.log(JSON.stringify(pathElementArray));
-	drawConnection(pathElementArray);
+	crawlPathDiagram();
+	drawConnectionDiagram();
 }
 
 function makePortsHoverable(){
@@ -473,6 +491,7 @@ function redraw() {
 			highlightElement(path['portArray'], 'LightSkyBlue');
 		});
 	}
+	drawConnectionDiagram();
 }
 
 function initializeCanvas() {
@@ -484,6 +503,7 @@ function initializeCanvas() {
 	canvasInset = 10;
 	context.lineWidth = 10;
 	pathData = {};
+	$(document).data('pathDiagram', {});
 	pathID = 0;
 	
 }
