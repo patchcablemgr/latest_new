@@ -34,10 +34,10 @@ function getDimensions(elem){
 	return dimensions;
 }
 
-function drawConnection(elementArray){
-	context.strokeStyle = 'LightSkyBlue';
-	context.lineWidth = 3;
-	context.beginPath();
+function drawCabinetConnections(elementArray){
+	cabinetCtx.strokeStyle = 'LightSkyBlue';
+	cabinetCtx.lineWidth = 3;
+	cabinetCtx.beginPath();
 	//console.log('Debug (elementArray): '+JSON.stringify(elementArray));
 	
 	$.each(elementArray, function(index, element){
@@ -53,7 +53,7 @@ function drawConnection(elementArray){
 		var elemAPartition = $(elemA).closest('.partition');
 		var elemAPartitionDimensions = getDimensions(elemAPartition);
 		
-		context.moveTo(elemADimensions.centerX, elemADimensions.centerY);
+		cabinetCtx.moveTo(elemADimensions.centerX, elemADimensions.centerY);
 		
 		if(typeof elemB == 'object') {
 			var elemBCabinet = $(elemB).closest('.cabinetContainer');
@@ -72,8 +72,8 @@ function drawConnection(elementArray){
 			}
 			
 			if(connectionStyle == 0) {
-				context.lineTo(elemADimensions.centerX, elemAPartHBoundary);
-				context.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartHBoundary);
+				cabinetCtx.lineTo(elemADimensions.centerX, elemAPartHBoundary);
+				cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartHBoundary);
 				
 				if(elemACabinetID != elemBCabinetID) {
 					
@@ -88,25 +88,25 @@ function drawConnection(elementArray){
 						var elemACabinetHBoundary = elemACabinetDimensions.bottom + canvasInset;
 					}
 					
-					context.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetHBoundary);
-					context.lineTo(elemBCabinetDimensions.left - canvasInset, elemACabinetHBoundary);
+					cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetHBoundary);
+					cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemACabinetHBoundary);
 
 				}
-				context.lineTo(elemBCabinetDimensions.left - canvasInset, elemBPartHBoundary);
-				context.lineTo(elemBDimensions.centerX, elemBPartHBoundary);
-				context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+				cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemBPartHBoundary);
+				cabinetCtx.lineTo(elemBDimensions.centerX, elemBPartHBoundary);
+				cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
 			} else if(connectionStyle == 1) {
-				context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+				cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
 			} else if(connectionStyle == 2) {
 				var arcSize = 30;
-				context.bezierCurveTo((elemADimensions.centerX - arcSize), elemADimensions.centerY, (elemBDimensions.centerX - arcSize), elemBDimensions.centerY, elemBDimensions.centerX, elemBDimensions.centerY);
+				cabinetCtx.bezierCurveTo((elemADimensions.centerX - arcSize), elemADimensions.centerY, (elemBDimensions.centerX - arcSize), elemBDimensions.centerY, elemBDimensions.centerX, elemBDimensions.centerY);
 			} else {
-				context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+				cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
 			}
 		} else {
-			context.lineTo(elemADimensions.centerX, elemAPartitionDimensions.top);
-			context.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartitionDimensions.top);
-			context.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetDimensions.top - canvasInset);
+			cabinetCtx.lineTo(elemADimensions.centerX, elemAPartitionDimensions.top);
+			cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartitionDimensions.top);
+			cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetDimensions.top - canvasInset);
 			
 			var left = elemACabinetDimensions.leftOrig - canvasInset;
 			var top = elemACabinetDimensions.topOrig - canvasInset;
@@ -114,32 +114,32 @@ function drawConnection(elementArray){
 		}
 		
 	});
-	context.stroke();
+	cabinetCtx.stroke();
 }
 
-function drawConnectionDiagram(){
-	var pathDiagramData = $(document).data('pathDiagram');
-	context.strokeStyle = 'LightSkyBlue';
-	context.lineWidth = 3;
-	context.beginPath();
+function drawPathConnections(){
+	var pathConections = $(document).data('pathConections');
+	pathCtx.strokeStyle = 'LightSkyBlue';
+	pathCtx.lineWidth = 3;
+	pathCtx.beginPath();
 	
-	$.each(pathDiagramData, function(index, element){
+	$.each(pathConections, function(index, element){
 		var elemA = element[0];
 		var elemB = element[1];
 		
 		var elemADimensions = getDimensions(elemA);
 		var elemBDimensions = getDimensions(elemB);
 		
-		context.moveTo(elemADimensions.centerX, elemADimensions.centerY);
-		context.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+		pathCtx.moveTo(elemADimensions.centerX, elemADimensions.centerY);
+		pathCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
 	});
-	context.stroke();
+	pathCtx.stroke();
 }
 
 function drawTrunk(elementArray){
-	context.strokeStyle = 'MidnightBlue';
-	context.lineWidth = 3;
-	context.beginPath();
+	cabinetCtx.strokeStyle = 'MidnightBlue';
+	cabinetCtx.lineWidth = 3;
+	cabinetCtx.beginPath();
 	
 	$.each(elementArray, function(index, element){
 		
@@ -154,7 +154,7 @@ function drawTrunk(elementArray){
 		var elemACabinetDimensions = getDimensions($(elemA).closest('.cabinetContainer'));
 		var elemADimensions = getDimensions(elemA);
 		
-		context.moveTo(elemADimensions.right, elemADimensions.centerY);
+		cabinetCtx.moveTo(elemADimensions.right, elemADimensions.centerY);
 		
 		if(typeof elemB == 'object') {
 			
@@ -163,7 +163,7 @@ function drawTrunk(elementArray){
 			var elemBCabinetDimensions = getDimensions($(elemB).closest('.cabinetContainer'));
 			var elemBDimensions = getDimensions(elemB);
 			
-			context.lineTo(elemACabinetDimensions.right + vertical, elemADimensions.centerY);
+			cabinetCtx.lineTo(elemACabinetDimensions.right + vertical, elemADimensions.centerY);
 			
 			if(elemACabinetID != elemBCabinetID) {
 				if(elemACabinetDimensions.top <= elemBCabinetDimensions.top) {
@@ -171,16 +171,16 @@ function drawTrunk(elementArray){
 				} else {
 					elemBCabinetHBoundary = elemBCabinetDimensions.bottom + vertical;
 				}
-				context.lineTo(elemACabinetDimensions.right + vertical, elemBCabinetHBoundary);
-				context.lineTo(elemBCabinetDimensions.right + vertical, elemBCabinetHBoundary);
+				cabinetCtx.lineTo(elemACabinetDimensions.right + vertical, elemBCabinetHBoundary);
+				cabinetCtx.lineTo(elemBCabinetDimensions.right + vertical, elemBCabinetHBoundary);
 			}
-			context.lineTo(elemBCabinetDimensions.right + vertical, elemBDimensions.centerY);
-			context.lineTo(elemBDimensions.right, elemBDimensions.centerY);
+			cabinetCtx.lineTo(elemBCabinetDimensions.right + vertical, elemBDimensions.centerY);
+			cabinetCtx.lineTo(elemBDimensions.right, elemBDimensions.centerY);
 
 		} else {
-			context.lineTo(elemACabinetDimensions.right + vertical, elemADimensions.centerY);
-			context.lineTo(elemACabinetDimensions.right + vertical, elemACabinetDimensions.top - vertical);
-			context.strokeRect(elemADimensions.left, elemADimensions.top, elemADimensions.width, elemADimensions.height);
+			cabinetCtx.lineTo(elemACabinetDimensions.right + vertical, elemADimensions.centerY);
+			cabinetCtx.lineTo(elemACabinetDimensions.right + vertical, elemACabinetDimensions.top - vertical);
+			cabinetCtx.strokeRect(elemADimensions.left, elemADimensions.top, elemADimensions.width, elemADimensions.height);
 			
 			var left = elemACabinetDimensions.rightOrig + vertical;
 			var top = elemACabinetDimensions.topOrig - vertical;
@@ -188,7 +188,7 @@ function drawTrunk(elementArray){
 		}
 		
 	});
-	context.stroke();
+	cabinetCtx.stroke();
 }
 
 function addCabButton(left, top, globalID){
@@ -202,20 +202,27 @@ function addCabButton(left, top, globalID){
 
 function highlightElement(elemArray, color){
 	$.each(elemArray, function(index, elem){
-		context.strokeStyle = color;
-		context.beginPath();
+		cabinetCtx.strokeStyle = color;
+		cabinetCtx.beginPath();
 		
 		var elemDimensions = getDimensions(elem);
 		
-		context.strokeRect(elemDimensions.left, elemDimensions.top, elemDimensions.width, elemDimensions.height);
+		cabinetCtx.strokeRect(elemDimensions.left, elemDimensions.top, elemDimensions.width, elemDimensions.height);
 	});
 }
 
 function clearPaths(){
 	var canvasHeight = $('#canvasBuildSpace').height();
 	var canvasWidth = $('#canvasBuildSpace').width();
-	context.clearRect(0, 0, canvasWidth, canvasHeight);
+	cabinetCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 	$('a.addCabButton').remove();
+	drawPathConnections();
+}
+
+function clearPathConnections(){
+	var canvasHeight = $('#canvasBuildSpace').height();
+	var canvasWidth = $('#canvasBuildSpace').width();
+	pathCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 }
 
 function crawlPath(selectedPort){
@@ -315,27 +322,26 @@ function crawlPath(selectedPort){
 	};
 }
 
-function crawlPathDiagram(){
-	var pathDiagram = {};
+function crawlPathConnections(){
+	var pathConections = {};
 	var connectorElementArray = $('#containerFullPath').find('.port');
 	$.each(connectorElementArray, function(index, element){
-		console.log('here1');
 		if($(element).data('connectionPairId') !== undefined) {
-			console.log('here2');
 			var connectionPairID = $(element).data('connectionPairId');
-			if(pathDiagram[connectionPairID] === undefined) {
+			if(pathConections[connectionPairID] === undefined) {
 				console.log('here3');
-				pathDiagram[connectionPairID] = [];
+				pathConections[connectionPairID] = [];
 			}
-			pathDiagram[connectionPairID].push($(element));
+			pathConections[connectionPairID].push($(element));
 		}
 	});
-	$(document).data('pathDiagram', pathDiagram);
+	$(document).data('pathConections', pathConections);
 }
 
-function drawPathDiagram(){
-	crawlPathDiagram();
-	drawConnectionDiagram();
+function drawPath(){
+	clearPathConnections();
+	crawlPathConnections();
+	drawPathConnections();
 }
 
 function makePortsHoverable(){
@@ -354,7 +360,7 @@ function makePortsHoverable(){
 			highlightElement(pathElementArray['partitionArray'], 'black');
 			drawTrunk(pathElementArray['trunkArray']);
 			highlightElement(pathElementArray['portArray'], 'LightSkyBlue');
-			drawConnection(pathElementArray['connectionArray']);
+			drawCabinetConnections(pathElementArray['connectionArray']);
 			
 		}, function(){
 			redraw();
@@ -371,8 +377,8 @@ function makePortsHoverable(){
 				//pathID++;
 				// This allows only 1 persistant path at a time
 				pathID = 0;
-				if(typeof pathData[pathID] != 'undefined') {
-					$.each(pathData[pathID]['portArray'], function(){
+				if(typeof $(document).data('cabinetConnections')[pathID] != 'undefined') {
+					$.each($(document).data('cabinetConnections')[pathID]['portArray'], function(){
 						$(this).removeData('pathID');
 					});
 				}
@@ -389,17 +395,18 @@ function makePortsHoverable(){
 					'trunkArray': pathElementArray['trunkArray'],
 					'partitionArray': pathElementArray['partitionArray']
 				};
-				pathData[pathID] = workingPathData;
+				$(document).data('cabinetConnections')[pathID] = workingPathData;
+				
 			} else {
 				
 				// Clear pathIDs from ports
 				var thisPathID = $(this).data('pathID');
-				$.each(pathData[thisPathID]['portArray'], function(){
+				$.each($(document).data('cabinetConnections')[thisPathID]['portArray'], function(){
 					$(this).removeData('pathID');
 				});
 				
 				// Clear connection path
-				delete pathData[thisPathID];
+				delete $(document).data('cabinetConnections')[thisPathID];
 			}
 		});
 	});
@@ -407,34 +414,32 @@ function makePortsHoverable(){
 }
 
 function refreshPathData(){
-	if(typeof pathData != 'undefined') {
-		pathDataOrig = pathData;
-		pathData = {};
-		$.each(pathDataOrig, function(pathID, path){
-			$.each(path['portArray'], function(portIndex, port){
-				var portID = $(port).attr('id');
-				if($('#'+portID).length) {
-					var pathElementArray = crawlPath($('#'+portID));
-					
-					// Associate ports to pathIDs
-					$.each(pathElementArray['portArray'], function(){
-						$(this).data('pathID', pathID);
-					});
-					
-					// Store connection path
-					var workingPathData = {
-						'portArray': pathElementArray['portArray'],
-						'connectionArray': pathElementArray['connectionArray'],
-						'trunkArray': pathElementArray['trunkArray'],
-						'partitionArray': pathElementArray['partitionArray']
-					};
-					pathData[pathID] = workingPathData;
-					
-					return false;
-				}
-			});
+	var cabinetConnections = $(document).data('cabinetConnections');
+	pathDataOrig = pathData;
+	$.each(pathDataOrig, function(pathID, path){
+		$.each(path['portArray'], function(portIndex, port){
+			var portID = $(port).attr('id');
+			if($('#'+portID).length) {
+				var pathElementArray = crawlPath($('#'+portID));
+				
+				// Associate ports to pathIDs
+				$.each(pathElementArray['portArray'], function(){
+					$(this).data('pathID', pathID);
+				});
+				
+				// Store connection path
+				var workingCabinetConnections = {
+					'portArray': pathElementArray['portArray'],
+					'connectionArray': pathElementArray['connectionArray'],
+					'trunkArray': pathElementArray['trunkArray'],
+					'partitionArray': pathElementArray['partitionArray']
+				};
+				$(document).data('cabinetConnections', workingCabinetConnections);
+				
+				return false;
+			}
 		});
-	}
+	});
 }
 
 function makeCabArrowsClickable(){
@@ -483,27 +488,33 @@ function resizeCanvas() {
 
 function redraw() {
 	clearPaths();
-	if(typeof pathData != 'undefined') {
-		$.each(pathData, function(pathID, path){
+	var cabinetConnections = $(document).data('cabinetConnections');
+	if(typeof cabinetConnections != 'undefined') {
+		$.each(cabinetConnections, function(pathID, path){
 			drawTrunk(path['trunkArray']);
 			highlightElement(path['partitionArray'], 'MidnightBlue');
-			drawConnection(path['connectionArray']);
+			drawCabinetConnections(path['connectionArray']);
 			highlightElement(path['portArray'], 'LightSkyBlue');
 		});
 	}
-	drawConnectionDiagram();
 }
 
 function initializeCanvas() {
-	// Register an event listener to call the resizeCanvas() function 
-	// each time the window is resized.
+	
 	window.addEventListener('resize', resizeCanvas, false);
 	htmlCanvas = document.getElementById('canvasBuildSpace');
-	context = htmlCanvas.getContext('2d');
+	var lineWidth = 10;
+	
+	// Cabinet connections
+	cabinetCtx = htmlCanvas.getContext('2d');
+	cabinetCtx.lineWidth = lineWidth;
+	$(document).data('cabinetConnections', {});
 	canvasInset = 10;
-	context.lineWidth = 10;
-	pathData = {};
-	$(document).data('pathDiagram', {});
 	pathID = 0;
+	
+	// Path connections
+	pathCtx = htmlCanvas.getContext('2d');
+	pathCtx.lineWidth = lineWidth;
+	$(document).data('pathConections', {});
 	
 }

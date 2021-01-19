@@ -261,7 +261,7 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 		} else {
 			$('#containerFullPath').html(responseJSON.success);
 			makeCableConnectorsClickable();
-			drawPathDiagram();
+			drawPath();
 		}
 	});
 }
@@ -713,6 +713,7 @@ $( document ).ready(function() {
 	$('#printFullPath').on('click', function(event){
 		event.preventDefault();
 		$('#containerFullPath').printThis({
+			canvas: true,
 			importStyle: true,
 			removeInline: true,
 			removeInlineSelector: "img"
