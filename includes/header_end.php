@@ -17,13 +17,14 @@
 
 <body>
 
-<!-- Canvas for drawing connections -->
-<canvas id="canvasBuildSpace" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
+<!-- Canvas for drawing cabinet connections -->
+<canvas id="canvasCabinet" class="connectionCanvas" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 
 <?php require 'topbar.php'; ?>
 
 <!-- User Settings -->
 <input id="connectionStyle" type="hidden" value="<?php echo $qls->user_info['connectionStyle']; ?>">
+<input id="pathOrientation" type="hidden" value="<?php echo $qls->user_info['pathOrientation']; ?>">
 	
 <!-- Error Messages -->
 <div class="row">

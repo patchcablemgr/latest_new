@@ -1952,8 +1952,6 @@ var $qls;
 	
 	function buildPathFull($path, $connectorCode39){
 		
-		error_log('Debug (buildPathFull $path): '.json_encode($path));
-		
 		$htmlPathFull = '';
 		$htmlPathFull .= '<table>';
 		
@@ -1970,16 +1968,15 @@ var $qls;
 					
 					case 'connector':
 						
-						error_log('here1');
 						$addConnector = false;
 						if(isset($path[$objectIndex+1])) {
-							error_log('here2');
+							
 							if($path[$objectIndex+1]['type'] != 'object') {
-								error_log('here3');
+								
 								$addConnector = true;
 							}
 						} else {
-							error_log('here4');
+							
 							$addConnector = true;
 						}
 						
@@ -2028,6 +2025,7 @@ var $qls;
 						
 					case 'object':
 					
+						$trunkPairID = $object['trunkPairID'];
 						$objName = '';
 						foreach($object['data'] as $item) {
 							$objID = $item['id'];
@@ -2038,7 +2036,7 @@ var $qls;
 							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
 						}
 						
-						$objBox = $this->wrapObject($objID, $objName, $selected);
+						$objBox = $this->wrapObject($objID, $objName, $selected, $trunkPairID);
 							
 						// Wrap in <td> and add to row array
 						$htmlString = '<td>'.$objBox.'</td>';
@@ -2099,13 +2097,17 @@ var $qls;
 						}
 						$topTableTag = '<tr><td>';
 						$htmlPathFull .= $topTableTag;
-						$objID = $object['data']['id'];
-						$objFace = $object['data']['face'];
-						$objDepth = $object['data']['depth'];
-						$objPort = $object['data']['port'];
-						$selected = $object['data']['selected'];
-						$objName = $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort);
-						$objBox = $this->wrapObject($objID, $objName, $selected);
+						$trunkPairID = $object['trunkPairID'];
+						$objName = '';
+						foreach($object['data'] as $item) {
+							$objID = $item['id'];
+							$objFace = $item['face'];
+							$objDepth = $item['depth'];
+							$objPort = $item['port'];
+							$selected = $item['selected'];
+							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+						}
+						$objBox = $this->wrapObject($objID, $objName, $selected, $trunkPairID);
 						
 						$htmlPathFull .= $objBox;
 						$htmlPathFull .= $bottomTableTag;
@@ -2114,20 +2116,19 @@ var $qls;
 					case 'connector':
 						$htmlPathFull .= '<tr><td>';
 						$connectorTypeID = $object['data']['connectorType'];
+						$connectionPairID = $object['data']['connectionPairID'];
 						
 						if($connectorTypeID != 0) {
 							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
 							$code39 = $object['data']['code39'];
 							$connectorClass = $code39 != 0 ? 'cableConnector cursorPointer' : '';
 							
-							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.' '.$connectorClass.'" data-code39="'.$code39.'"></div>';
-							//$htmlPathFull .= '</div>';
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.' '.$connectorClass.'" data-code39="'.$code39.'" data-connection-pair-id='.$connectionPairID.'></div>';
 							
 						} else {
 							$connectorTypeName = 'Unk';
 							
-							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'">';
-							//$htmlPathFull .= '</div>';
+							$htmlPathFull .= '<div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'" data-connection-pair-id='.$connectionPairID.'>';
 							
 						}
 						$htmlPathFull .= '</td><td></td></tr>';
@@ -2915,7 +2916,7 @@ var $qls;
 		return true;
 	}
 	
-	function wrapObject($objID, $objName, $selected=false) {
+	function wrapObject($objID, $objName, $selected=false, $trunkPairID=0) {
 		$objName = str_replace('-', '&#8209;', $objName);
 		$classArray = array('objectBox');
 		if($objID) {
@@ -2941,7 +2942,7 @@ var $qls;
 		$selectedIcon = $selected ? '<i class="fa fa-map-marker" title="Selected"></i>&nbsp;' : '';
 		$html = '';
 		$html .= ($objID) ? '<a href="/explore.php?parentID='.$parentID.'&objID='.$objID.'">' : '';
-		$html .= '<div class="'.$class.'">';
+		$html .= '<div class="'.$class.'" data-trunk-pair-id="'.$trunkPairID.'">';
 		$html .= $endpointIcon.$selectedIcon.$objName;
 		$html .= '</div>';
 		$html .= ($objID) ? '</a>' : '';

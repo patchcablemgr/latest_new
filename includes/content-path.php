@@ -45,6 +45,7 @@ if($isTrunked) {
 }
 
 $connectionPairID = 1;
+$trunkPairID = 1;
 
 // Discover path elements
 // First look outward from the far end of the cable,
@@ -55,8 +56,10 @@ for($x=0; $x<2; $x++){
 		
 		// Object
 		$selected = ($objID == $selectedObjID and $objFace == $selectedObjFace and $objDepth == $selectedObjDepth and $objPort == $selectedObjPort) ? true : false;
+		$trunkPairID = (isset($qls->App->peerArray[$objID][$objFace][$objDepth])) ? $qls->App->peerArray[$objID][$objFace][$objDepth]['id'] : 0;
 		$workingArray = array(
 			'type' => 'object',
+			'trunkPairID' => $trunkPairID,
 			'data' => array(
 			array(
 				'id' => $objID,
@@ -125,6 +128,9 @@ for($x=0; $x<2; $x++){
 					$objFace = $connection[$remoteAttrPrefix.'_object_face'];
 					$objDepth = $connection[$remoteAttrPrefix.'_object_depth'];
 					$objPort = $connection[$remoteAttrPrefix.'_port_id'];
+					
+					$trunkPairID = (isset($qls->App->peerArray[$objID][$objFace][$objDepth])) ? $qls->App->peerArray[$objID][$objFace][$objDepth]['id'] : 0;
+					$objectWorkingArray['trunkPairID'] = $trunkPairID;
 					
 					// Remote Object
 					$workingArray = array(
@@ -210,6 +216,7 @@ for($x=0; $x<2; $x++){
 		}
 		
 		$connectionPairID++;
+		$trunkPairID++;
 	}
 	
 	// Now that we've discovered the far side of the scanned cable,

@@ -54,7 +54,7 @@ function clearSelectionDetails(){
 	$('#checkboxPopulated').prop("checked", false);
 	$('#selectPort').empty();
 	
-	clearPaths();
+	clearCabinetConnections();
 }
 
 function makeRackObjectsClickable(){
@@ -712,11 +712,10 @@ $( document ).ready(function() {
 	
 	$('#printFullPath').on('click', function(event){
 		event.preventDefault();
-		$('#containerFullPath').printThis({
+		$('#containerFullPath').parent().printThis({
 			canvas: true,
 			importStyle: true,
-			removeInline: true,
-			removeInlineSelector: "img"
+			removeInline: true
 		});
 	});
 	

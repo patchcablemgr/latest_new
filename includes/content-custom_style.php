@@ -146,7 +146,7 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 }
 
 .trunk.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-trunk.png");
+	/*background-image: url("/assets/images/cableIcons/stacked-trunk.png");*/
 	height: 50px;
 	width: 30px;
 	margin: auto;
@@ -157,7 +157,7 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 }
 
 .trunk.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-trunk.png");
+	/*background-image: url("/assets/images/cableIcons/adjacent-trunk.png");*/
 	height: 30px;
 	margin: auto;
 	background-size: 15px 30px;
@@ -167,45 +167,45 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 }
 
 .cable.Unk.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-Unk-black.png");
+	/*background-image: url("/assets/images/cableIcons/stacked-Unk-black.png");*/
 	background-position: center center;
 }
 
 .cable.SM-OS1.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-SM-yellow.png");
+	/*background-image: url("/assets/images/cableIcons/stacked-SM-yellow.png");*/
 	background-position: center center;
 }
 
 .cable.MM-OM3.stacked, .cable.MM-OM4.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-MM-aqua.png");
+	/*background-image: url("/assets/images/cableIcons/stacked-MM-aqua.png");*/
 	background-position: center center;
 }
 
 .cable.Cat5e.stacked, .cable.Cat6.stacked, .cable.Cat6a.stacked {
-	background-image: url("/assets/images/cableIcons/stacked-Eth-green.png");
+	/*background-image: url("/assets/images/cableIcons/stacked-Eth-green.png");*/
 	background-position: center center;
 }
 
 .cable.Unk.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-Unk-black.png");
+	/*background-image: url("/assets/images/cableIcons/adjacent-Unk-black.png");*/
 	background-position: left;
 	width: 150px;
 }
 
 .cable.SM-OS1.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-SM-yellow.png");
+	/*background-image: url("/assets/images/cableIcons/adjacent-SM-yellow.png");*/
 	background-position: left;
 	width: 150px;
 }
 
 .cable.MM-OM3.adjacent, .cable.MM-OM4.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-MM-aqua.png");
+	/*background-image: url("/assets/images/cableIcons/adjacent-MM-aqua.png");*/
 	background-position: left;
 	width: 150px;
 }
 
 .cable.Cat5e.adjacent, .cable.Cat6.adjacent, .cable.Cat6a.adjacent {
-	background-image: url("/assets/images/cableIcons/adjacent-Eth-green.png");
+	/*background-image: url("/assets/images/cableIcons/adjacent-Eth-green.png");*/
 	background-position: left;
 	width: 150px;
 }
