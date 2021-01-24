@@ -689,8 +689,9 @@ function postProcessCable(){
 			$('#checkboxPopulated').prop("disabled", true);
 			retrievePortPath(objID, objFace, objDepth, objPort);
 			retrievePortOptions(objID, objFace, objDepth, objPort);
-			refreshPathData();
-			redraw();
+			drawCabinet();
+			//refreshPathData();
+			//redraw();
 			
 			$('#objTree').jstree('deselect_all');
 			$('#objectTreeModal').modal('hide');
@@ -714,8 +715,7 @@ $( document ).ready(function() {
 		event.preventDefault();
 		$('#containerFullPath').parent().printThis({
 			canvas: true,
-			importStyle: true,
-			removeInline: true
+			importStyle: true
 		});
 	});
 	
@@ -1015,8 +1015,9 @@ $( document ).ready(function() {
 				$('#checkboxPopulated').prop("disabled", false);
 				retrievePortPath(objID, objFace, objDepth, objPort);
 				retrievePortOptions(objID, objFace, objDepth, objPort);
-				refreshPathData();
-				redraw();
+				drawCabinet();
+				//refreshPathData();
+				//redraw();
 				
 				$('#objTree').jstree('deselect_all');
 				$('#objectTreeModal').modal('hide');
