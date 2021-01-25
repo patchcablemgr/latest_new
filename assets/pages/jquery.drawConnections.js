@@ -291,8 +291,10 @@ function crawlPathConnections(){
 	
 	var pathConnections = {};
 	var connectorElementArray = $('#containerFullPath').find('.port');
+	
+	// Sort ports by connectionPairId
 	$.each(connectorElementArray, function(index, element){
-		if($(element).data('connectionPairId') !== undefined) {
+		if($(element).data('connectionPairId') !== '') {
 			var connectionPairID = $(element).data('connectionPairId');
 			if(pathConnections[connectionPairID] === undefined) {
 				pathConnections[connectionPairID] = [];
@@ -300,6 +302,8 @@ function crawlPathConnections(){
 			pathConnections[connectionPairID].push($(element));
 		}
 	});
+	
+	// Store path connection data
 	$(document).data('pathConnections', pathConnections);
 }
 

@@ -48,11 +48,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$mediaCategoryTable[$row['value']] = $row;
 		}
 
-		// Create endpointA object
-		// If object is an endpoint
+		// Create endpoint objects
 		$endpointAObj = $qls->App->objectArray[$endpointAObjID];
-		
-		// If object is an endpoint
 		$endpointBObj = $qls->App->objectArray[$endpointBObjID];
 
 		$endpointAObj['face'] = $endpointAObjFace;
@@ -324,6 +321,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			findPaths2($qls, $maxResults, $maxDepth, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
 		}
 		
+		error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
 		foreach($finalPathArray as $mediaType => &$pathData) {
 			foreach($pathData as &$path) {
 				$path['pathHTML'] = $qls->App->buildPathFull($path['pathArray'], null);
@@ -377,13 +375,13 @@ function findPaths2(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$end
 	
 	array_push($workingArray, array(
 		'type' => 'object',
-		'data' => array(
+		'data' => array(array(
 			'id' => $focusID,
 			'face' => $focusFace,
 			'depth' => $focusDepth,
 			'port' => $focusPort,
 			'selected' => false
-		)
+		))
 	));
 	
 	// If focus is endpointB, add it to finalPathArray
