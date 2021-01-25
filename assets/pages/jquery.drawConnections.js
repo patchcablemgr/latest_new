@@ -1,7 +1,7 @@
 // ### Cabinet Functions ###
 function drawCabinet(){
-	console.log('drawCabinet');
-	resizeCanvas();
+	
+	resizeCabinetCanvas();
 	clearCabinetConnections();
 	crawlCabinet();
 	drawCabinetConnections();
@@ -9,7 +9,7 @@ function drawCabinet(){
 }
 
 function crawlCabinet(){
-	console.log('crawlCabinet');
+	
 	var pathSourceArray = {
 		'selected': $(document).data('selectedPort'),
 		'hovered': $(document).data('hoveredPort')
@@ -36,7 +36,6 @@ function crawlCabinet(){
 					if($('#'+selectedPartitionPeerID).length) {
 						var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
 						trunkArray.push([selectedPartition, selectedPartitionPeer]);
-						//partitionArray.push(selectedPartition, selectedPartitionPeer);
 						
 						var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
 						var peerID = selectedPartitionPeerIDArray[2];
@@ -74,7 +73,6 @@ function crawlCabinet(){
 									
 									var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
 									trunkArray.push([connectedPartition, connectedPartitionPeer]);
-									//partitionArray.push(connectedPartition, connectedPartitionPeer);
 									
 									var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
 									var peerID = connectedPartitionPeerIDArray[2];
@@ -111,7 +109,7 @@ function crawlCabinet(){
 }
 
 function drawCabinetConnections(){
-	console.log('drawCabinetConnections');
+	
 	pathDataTypeArray = [
 		'cabinetSelectedConnections',
 		'cabinetHoveredConnections'
@@ -204,7 +202,7 @@ function drawCabinetConnections(){
 }
 
 function drawCabinetTrunks(){
-	console.log('drawCabinetTrunks');
+	
 	pathDataTypeArray = [
 		'cabinetSelectedTrunks',
 		'cabinetHoveredTrunks'
@@ -270,7 +268,7 @@ function drawCabinetTrunks(){
 }
 
 function clearCabinetConnections(){
-	console.log('clearCabinetConnections');
+	
 	var canvasHeight = $('#canvasCabinet').height();
 	var canvasWidth = $('#canvasCabinet').width();
 	cabinetCtx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -280,8 +278,8 @@ function clearCabinetConnections(){
 
 // ### Path Functions ###
 function drawPath(){
-	console.log('drawPath');
-	resizeCanvas();
+	
+	resizePathCanvas();
 	clearPathConnections();
 	crawlPathConnections();
 	crawlPathTrunks();
@@ -290,7 +288,7 @@ function drawPath(){
 }
 
 function crawlPathConnections(){
-	console.log('crawlPathConnections');
+	
 	var pathConnections = {};
 	var connectorElementArray = $('#containerFullPath').find('.port');
 	$.each(connectorElementArray, function(index, element){
@@ -306,7 +304,7 @@ function crawlPathConnections(){
 }
 
 function crawlPathTrunks(){
-	console.log('crawlPathTrunks');
+	
 	var pathTrunks = {};
 	var connectorElementArray = $('#containerFullPath').find('.objectBox');
 	
@@ -326,7 +324,7 @@ function crawlPathTrunks(){
 }
 
 function drawPathConnections(){
-	console.log('drawPathConnections');
+	
 	var pathConnections = $(document).data('pathConnections');
 	pathCtx.strokeStyle = 'LightSkyBlue';
 	pathCtx.lineWidth = 3;
@@ -342,13 +340,13 @@ function drawPathConnections(){
 		
 		pathCtx.moveTo(elemADimensions.centerX, elemADimensions.bottom);
 		pathCtx.bezierCurveTo(elemADimensions.centerX + 20, elemADimensions.bottom, elemBDimensions.centerX + 20, elemBDimensions.top, elemBDimensions.centerX, elemBDimensions.top);
-		//pathCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+		
 	});
 	pathCtx.stroke();
 }
 
 function drawPathTrunks(){
-	console.log('drawPathTrunks');
+	
 	var pathTrunks = $(document).data('pathTrunks');
 	pathCtx.strokeStyle = 'MidnightBlue';
 	pathCtx.lineWidth = 3;
@@ -392,7 +390,7 @@ function drawPathTrunks(){
 }
 
 function clearPathConnections(){
-	console.log('clearPathConnections');
+	
 	var canvasHeight = $('#canvasPath').height();
 	var canvasWidth = $('#canvasPath').width();
 	pathCtx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -400,6 +398,16 @@ function clearPathConnections(){
 
 
 // ### Common Functions ###
+function resetConnectionData(){
+	$(document).data('selectedPort', false);
+	$(document).data('cabinetSelectedConnections', []);
+	$(document).data('cabinetHoveredConnections', []);
+	$(document).data('cabinetSelectedTrunks', []);
+	$(document).data('cabinetHoveredTrunks', []);
+	$(document).data('pathConnections', {});
+	$(document).data('pathTrunks', {});
+}
+
 function getDimensions(elem, canvas=false){
 	
 	if(canvas == false) {
@@ -461,10 +469,10 @@ function highlightElement(elemArray, color){
 }
 
 function makePortsHoverable(){
-	console.log('makePortsHoverable');
 	
-	//resizeCanvas();
-	//redraw();
+	resetConnectionData();
+	clearPathConnections();
+	clearCabinetConnections();
 	
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).unbind('mouseenter mouseleave click.drawConnections');
@@ -517,7 +525,7 @@ function makeCabArrowsClickable(){
 			$(cabinet).insertAfter($(cabinet).next());
 		}
 		drawCabinet();
-		//redraw();
+		
 	});
 }
 
@@ -539,24 +547,28 @@ function makeCabCloseClickable(){
 		});
 		
 		drawCabinet();
-		
-		// Refresh all paths
-		//refreshPathData();
-		//redraw();
+
 	});
 }
 
-function resizeCanvas() {
-	$('#canvasCabinet').attr('width', $(document).width());
-	$('#canvasCabinet').attr('height', $(document).height());
-	
+function resizePathCanvas() {
 	$('#canvasPath').attr('width', $('#canvasPath').parent().width());
 	$('#canvasPath').attr('height', $('#canvasPath').parent().height());
 }
 
+function resizeCabinetCanvas() {
+	$('#canvasCabinet').attr('width', $(document).width());
+	$('#canvasCabinet').attr('height', $(document).height());
+}
+
+function drawPathAndCabinet() {
+	drawPath();
+	drawCabinet();
+}
+
 function initializeCanvas() {
 	
-	window.addEventListener('resize', resizeCanvas, false);
+	window.addEventListener('resize', drawPathAndCabinet, false);
 	canvasCabinet = document.getElementById('canvasCabinet');
 	canvasPath = document.getElementById('canvasPath');
 	var lineWidth = 10;
@@ -569,7 +581,6 @@ function initializeCanvas() {
 	$(document).data('cabinetSelectedTrunks', []);
 	$(document).data('cabinetHoveredTrunks', []);
 	canvasInset = 10;
-	pathID = 0;
 	
 	// Path connections
 	pathCtx = canvasPath.getContext('2d');

@@ -54,7 +54,6 @@ function clearSelectionDetails(){
 	$('#checkboxPopulated').prop("checked", false);
 	$('#selectPort').empty();
 	
-	clearCabinetConnections();
 }
 
 function makeRackObjectsClickable(){
@@ -292,11 +291,11 @@ function retrievePortOptions(objID, objFace, partitionDepth, portID){
 				$('#selectPort').prop("disabled", false);
 				$('#selectPort').off('change');
 				$('#selectPort').on('change', function(){
-					var portID = parseInt($(this).children('option:selected').val(), 10);
-					$(document).data('clickedObjPortID', portID);
-					processPortSelection();
-					$(document).data('portClickedFlag', true);
-					handlePathFindButton();
+					var objID = $(document).data('clickedObjID');
+					var objFace = $(document).data('clickedObjFace');
+					var objDepth = $(document).data('clickedObjPartitionDepth');
+					var objPort = parseInt($(this).children('option:selected').val(), 10);
+					$('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort).click();
 				});
 			} else {
 				$('#selectPort').prop("disabled", true);
@@ -393,7 +392,6 @@ function retrieveCabinet(cabinetID, cabinetFace, cabinetView){
 			setObjectSize($('.rackObj:not(.insert)'));
 			
 			makePortsHoverable();
-			//makePartitionsHoverable();
 			
 			if($('#objID').length) {
 				selectObject($('#cabinetTable'));
@@ -690,8 +688,6 @@ function postProcessCable(){
 			retrievePortPath(objID, objFace, objDepth, objPort);
 			retrievePortOptions(objID, objFace, objDepth, objPort);
 			drawCabinet();
-			//refreshPathData();
-			//redraw();
 			
 			$('#objTree').jstree('deselect_all');
 			$('#objectTreeModal').modal('hide');
@@ -1016,8 +1012,6 @@ $( document ).ready(function() {
 				retrievePortPath(objID, objFace, objDepth, objPort);
 				retrievePortOptions(objID, objFace, objDepth, objPort);
 				drawCabinet();
-				//refreshPathData();
-				//redraw();
 				
 				$('#objTree').jstree('deselect_all');
 				$('#objectTreeModal').modal('hide');
