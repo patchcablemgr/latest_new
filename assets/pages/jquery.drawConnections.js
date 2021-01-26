@@ -115,8 +115,8 @@ function drawCabinetConnections(){
 		'cabinetHoveredConnections'
 	];
 	
-	cabinetCtx.strokeStyle = 'LightSkyBlue';
-	cabinetCtx.lineWidth = 3;
+	cabinetCtx.strokeStyle = connectionLineColor;
+	cabinetCtx.lineWidth = connectionLineWidth;
 	cabinetCtx.beginPath();
 	
 	$.each(pathDataTypeArray, function(pathDataTypeIndex, pathDataType){
@@ -208,8 +208,8 @@ function drawCabinetTrunks(){
 		'cabinetHoveredTrunks'
 	];
 	
-	cabinetCtx.strokeStyle = 'MidnightBlue';
-	cabinetCtx.lineWidth = 3;
+	cabinetCtx.strokeStyle = trunkLineColor;
+	cabinetCtx.lineWidth = trunkLineWidth;
 	cabinetCtx.beginPath();
 	
 	$.each(pathDataTypeArray, function(pathDataTypeIndex, pathDataType){
@@ -289,127 +289,139 @@ function drawPath(){
 
 function crawlPathConnections(){
 	
-	var pathConnections = [];
-	var workingPathConnections = {};
-	var connectorElementArray = $('#containerFullPath').find('.port');
-	
-	// Group connection peers
-	$.each(connectorElementArray, function(index, element){
-		var connectionPairID = $(element).data('connectionPairId');
-		if(workingPathConnections[connectionPairID] === undefined) {
-			workingPathConnections[connectionPairID] = [];
-		}
-		workingPathConnections[connectionPairID].push($(element));
+	$.each(pathArray, function(pathName, path){
+		var pathConnections = [];
+		var workingPathConnections = {};
+		var connectorElementArray = $(path['container']).find('.port');
+		
+		// Group connection peers
+		$.each(connectorElementArray, function(index, element){
+			var connectionPairID = $(element).data('connectionPairId');
+			if(workingPathConnections[connectionPairID] === undefined) {
+				workingPathConnections[connectionPairID] = [];
+			}
+			workingPathConnections[connectionPairID].push($(element));
+		});
+		
+		// Filter out singles
+		$.each(workingPathConnections, function(index, element){
+			if(element.length == 2) {
+				pathConnections.push(element);
+			}
+		});
+		
+		// Store path connection data
+		pathArray[pathName]['connections'] = pathConnections;
 	});
-	
-	// Filter out singles
-	$.each(workingPathConnections, function(index, element){
-		if(element.length == 2) {
-			pathConnections.push(element);
-		}
-	});
-	
-	// Store path connection data
-	$(document).data('pathConnections', pathConnections);
 }
 
 function crawlPathTrunks(){
 	
-	var pathTrunks = [];
-	var workingPathTrunks = {};
-	var connectorElementArray = $('#containerFullPath').find('.objectBox');
-	
-	// Group trunk peers
-	$.each(connectorElementArray, function(index, element){
-		var trunkPairID = $(element).data('trunkPairId');
-		if(workingPathTrunks[trunkPairID] === undefined) {
-			workingPathTrunks[trunkPairID] = [];
-		}
-		workingPathTrunks[trunkPairID].push($(element));
+	$.each(pathArray, function(pathName, path){
+		var pathTrunks = [];
+		var workingPathTrunks = {};
+		var connectorElementArray = $(path['container']).find('.objectBox');
+		
+		// Group trunk peers
+		$.each(connectorElementArray, function(index, element){
+			var trunkPairID = $(element).data('trunkPairId');
+			if(workingPathTrunks[trunkPairID] === undefined) {
+				workingPathTrunks[trunkPairID] = [];
+			}
+			workingPathTrunks[trunkPairID].push($(element));
+		});
+		
+		// Filter out singles
+		$.each(workingPathTrunks, function(index, element){
+			if(element.length == 2) {
+				pathTrunks.push(element);
+			}
+		});
+		
+		// Store path trunk data
+		pathArray[pathName]['trunks'] = pathTrunks;
 	});
-	
-	// Filter out singles
-	$.each(workingPathTrunks, function(index, element){
-		if(element.length == 2) {
-			pathTrunks.push(element);
-		}
-	});
-	
-	// Store path trunk data
-	$(document).data('pathTrunks', pathTrunks);
 }
 
 function drawPathConnections(){
 	
-	var pathConnections = $(document).data('pathConnections');
-	pathCtx.strokeStyle = 'LightSkyBlue';
-	pathCtx.lineWidth = 3;
-	pathCtx.beginPath();
-	
-	$.each(pathConnections, function(index, element){
-		var elemA = element[0];
-		var elemB = element[1];
+	$.each(pathArray, function(pathName, path){
 		
-		var canvas = $('#canvasPath');
-		var elemADimensions = getDimensions(elemA, canvas);
-		var elemBDimensions = getDimensions(elemB, canvas);
+		var canvas = path['canvas'];
+		var connections = path['connections'];
+		pathArray[pathName]['context'].strokeStyle = connectionLineColor;
+		pathArray[pathName]['context'].lineWidth = connectionLineWidth;
+		pathArray[pathName]['context'].beginPath();
 		
-		pathCtx.moveTo(elemADimensions.centerX, elemADimensions.bottom);
-		pathCtx.bezierCurveTo(elemADimensions.centerX + 20, elemADimensions.bottom, elemBDimensions.centerX + 20, elemBDimensions.top, elemBDimensions.centerX, elemBDimensions.top);
-		
+		$.each(connections, function(index, element){
+			var elemA = element[0];
+			var elemB = element[1];
+			
+			var elemADimensions = getDimensions(elemA, canvas);
+			var elemBDimensions = getDimensions(elemB, canvas);
+			
+			pathArray[pathName]['context'].moveTo(elemADimensions.centerX, elemADimensions.bottom);
+			pathArray[pathName]['context'].bezierCurveTo(elemADimensions.centerX + 20, elemADimensions.bottom, elemBDimensions.centerX + 20, elemBDimensions.top, elemBDimensions.centerX, elemBDimensions.top);
+			
+		});
+		pathArray[pathName]['context'].stroke();
 	});
-	pathCtx.stroke();
 }
 
 function drawPathTrunks(){
 	
-	var pathTrunks = $(document).data('pathTrunks');
-	pathCtx.strokeStyle = 'MidnightBlue';
-	pathCtx.lineWidth = 3;
-	pathCtx.beginPath();
-	
-	$.each(pathTrunks, function(index, element){
+	$.each(pathArray, function(pathName, path){
+		var pathTrunks = path['trunks'];
+		var canvas = path['canvas'];
+		pathArray[pathName]['context'].strokeStyle = trunkLineColor;
+		pathArray[pathName]['context'].lineWidth = trunkLineWidth;
+		pathArray[pathName]['context'].beginPath();
 		
-		var pathOrientation = $('#pathOrientation').val();
-		
-		var elemA = element[0];
-		var elemB = element[1];
-		
-		var canvas = $('#canvasPath');
-		var elemADimensions = getDimensions(elemA, canvas);
-		var elemBDimensions = getDimensions(elemB, canvas);
-		
-		if(elemADimensions.right > elemBDimensions.right) {
-			var rightBoundary = elemADimensions.right;
-		} else {
-			var rightBoundary = elemBDimensions.right;
-		}
-		
-		if(pathOrientation == "0") {
+		$.each(pathTrunks, function(index, element){
 			
-			// Patch Cable Adjacent
-			pathCtx.moveTo(elemADimensions.centerX, elemADimensions.bottom);
-			pathCtx.lineTo(elemADimensions.centerX, elemBDimensions.top);
+			var pathOrientation = $('#pathOrientation').val();
 			
-		} else {
+			var elemA = element[0];
+			var elemB = element[1];
 			
-			// Patch Cable Inline
-			pathCtx.moveTo(elemADimensions.right, elemADimensions.centerY);
-			pathCtx.lineTo((rightBoundary + 20), elemADimensions.centerY);
-			pathCtx.lineTo((rightBoundary + 20), elemBDimensions.centerY);
-			pathCtx.lineTo(elemBDimensions.right, elemBDimensions.centerY);
+			var elemADimensions = getDimensions(elemA, canvas);
+			var elemBDimensions = getDimensions(elemB, canvas);
 			
-		}
-		
+			if(elemADimensions.right > elemBDimensions.right) {
+				var rightBoundary = elemADimensions.right;
+			} else {
+				var rightBoundary = elemBDimensions.right;
+			}
+			
+			if(pathOrientation == "0") {
+				
+				// Patch Cable Adjacent
+				pathArray[pathName]['context'].moveTo(elemADimensions.centerX, elemADimensions.bottom);
+				pathArray[pathName]['context'].lineTo(elemADimensions.centerX, elemBDimensions.top);
+				
+			} else {
+				
+				// Patch Cable Inline
+				pathArray[pathName]['context'].moveTo(elemADimensions.right, elemADimensions.centerY);
+				pathArray[pathName]['context'].lineTo((rightBoundary + 20), elemADimensions.centerY);
+				pathArray[pathName]['context'].lineTo((rightBoundary + 20), elemBDimensions.centerY);
+				pathArray[pathName]['context'].lineTo(elemBDimensions.right, elemBDimensions.centerY);
+				
+			}
+			
+		});
+		pathArray[pathName]['context'].stroke();
 	});
-	pathCtx.stroke();
 }
 
 function clearPathConnections(){
 	
-	var canvasHeight = $('#canvasPath').height();
-	var canvasWidth = $('#canvasPath').width();
-	pathCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+	$.each(pathArray, function(pathName, path){
+		var canvas = path['canvas'];
+		var canvasHeight = $(canvas).height();
+		var canvasWidth = $(canvas).width();
+		pathArray[pathName]['context'].clearRect(0, 0, canvasWidth, canvasHeight);
+	});
 }
 
 
@@ -420,8 +432,10 @@ function resetConnectionData(){
 	$(document).data('cabinetHoveredConnections', []);
 	$(document).data('cabinetSelectedTrunks', []);
 	$(document).data('cabinetHoveredTrunks', []);
-	$(document).data('pathConnections', {});
-	$(document).data('pathTrunks', {});
+	$.each(pathArray, function(pathName, path){
+		pathArray[pathName]['connections'] = {};
+		pathArray[pathName]['trunks'] = {};
+	});
 }
 
 function getDimensions(elem, canvas=false){
@@ -568,13 +582,22 @@ function makeCabCloseClickable(){
 }
 
 function resizePathCanvas() {
-	$('#canvasPath').attr('width', $('#canvasPath').parent().width());
-	$('#canvasPath').attr('height', $('#canvasPath').parent().height());
+	
+	$.each(pathArray, function(pathName, path){
+		var canvas = path['canvas'];
+		$(canvas).attr('width', $(canvas).parent().width());
+		$(canvas).attr('height', $(canvas).parent().height());
+	});
 }
 
 function resizeCabinetCanvas() {
-	$('#canvasCabinet').attr('width', $(document).width());
-	$('#canvasCabinet').attr('height', $(document).height());
+	
+	var canvas = $('#canvasCabinet');
+	
+	if($(canvas).length) {
+		$(canvas).attr('width', $(document).width());
+		$(canvas).attr('height', $(document).height());
+	}
 }
 
 function drawPathAndCabinet() {
@@ -585,23 +608,33 @@ function drawPathAndCabinet() {
 function initializeCanvas() {
 	
 	window.addEventListener('resize', drawPathAndCabinet, false);
-	canvasCabinet = document.getElementById('canvasCabinet');
-	canvasPath = document.getElementById('canvasPath');
-	var lineWidth = 10;
+	connectionLineWidth = 3;
+	connectionLineColor = 'LightSkyBlue';
+	trunkLineWidth = 6;
+	trunkLineColor = 'MidnightBlue';
 	
 	// Cabinet connections
-	cabinetCtx = canvasCabinet.getContext('2d');
-	cabinetCtx.lineWidth = lineWidth;
-	$(document).data('cabinetSelectedConnections', []);
-	$(document).data('cabinetHoveredConnections', []);
-	$(document).data('cabinetSelectedTrunks', []);
-	$(document).data('cabinetHoveredTrunks', []);
-	canvasInset = 10;
+	if($('#canvasCabinet').length) {
+		canvasCabinet = document.getElementById('canvasCabinet');
+		cabinetCtx = canvasCabinet.getContext('2d');
+		$(document).data('cabinetSelectedConnections', []);
+		$(document).data('cabinetHoveredConnections', []);
+		$(document).data('cabinetSelectedTrunks', []);
+		$(document).data('cabinetHoveredTrunks', []);
+		canvasInset = 10;
+	}
 	
 	// Path connections
-	pathCtx = canvasPath.getContext('2d');
-	pathCtx.lineWidth = lineWidth;
-	$(document).data('pathConnections', {});
-	$(document).data('pathTrunks', {});
+	pathArray = {};
+	if($('#canvasPath').length) {
+		canvasPath = document.getElementById('canvasPath');
+		pathArray['path'] = {
+			'context': canvasPath.getContext('2d'),
+			'canvas': $('#canvasPath'),
+			'container' : $('#containerFullPath'),
+			'connections': {},
+			'trunks': {}
+		};
+	}
 	
 }
