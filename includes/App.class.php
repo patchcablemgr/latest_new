@@ -1959,6 +1959,9 @@ var $qls;
 		
 		$pathOrientation = $this->qls->user_info['pathOrientation'];
 		
+		$connectionPairID = 1;
+		$trunkPairID = 1;
+		
 		// Cable Adjacent
 		if($pathOrientation == 0) {
 			foreach($path as $objectIndex => $object) {
@@ -1968,15 +1971,10 @@ var $qls;
 					
 					case 'connector':
 						
-						$addConnector = false;
+						// Should connector be added?
 						if(isset($path[$objectIndex+1])) {
-							
-							if($path[$objectIndex+1]['type'] != 'object') {
-								
-								$addConnector = true;
-							}
+							$addConnector = ($path[$objectIndex+1]['type'] != 'object') ? true : false;
 						} else {
-							
 							$addConnector = true;
 						}
 						
@@ -1986,8 +1984,8 @@ var $qls;
 								array_push($tableArray[count($tableArray)-1], '<td>'.$this->wrapObject(0, 'None').'</td>');
 							}
 							
+							// Generate and push connector HTML
 							$connectorTypeID = $object['data']['connectorType'];
-							$connectionPairID = $object['data']['connectionPairID'];
 							$connectorTypeName = ($connectorTypeID != 0) ? $this->portTypeValueArray[$connectorTypeID]['name'] : 'Unk';
 							$htmlString = '<td><div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'" data-connection-pair-id='.$connectionPairID.'></div></td>';
 							array_push($tableArray[count($tableArray)-1], $htmlString);
@@ -2000,6 +1998,8 @@ var $qls;
 						break;
 						
 					case 'cable':
+					
+						$trunkPairID++;
 					
 						$cableTypeID = $object['data']['mediaTypeID'];
 						if($cableTypeID != 0) {
@@ -2025,7 +2025,6 @@ var $qls;
 						
 					case 'object':
 					
-						$trunkPairID = $object['trunkPairID'];
 						$objName = '';
 						foreach($object['data'] as $item) {
 							$objID = $item['id'];
@@ -2045,7 +2044,6 @@ var $qls;
 						if($path[$objectIndex+1]['type'] == 'trunk' or !isset($path[$objectIndex+1])) {
 							if(isset($path[$objectIndex-1])) {
 								$connectorTypeID = $path[$objectIndex-1]['data']['connectorType'];
-								$connectionPairID = $path[$objectIndex-1]['data']['connectionPairID'];
 								$connectorTypeName = ($connectorTypeID != 0) ? $this->portTypeValueArray[$connectorTypeID]['name'] : 'Unk';
 								$htmlString = '<td><div title="'.$connectorTypeName.'" class="port '.$connectorTypeName.'" data-connection-pair-id='.$connectionPairID.'></div></td>';
 								array_push($tableArray[count($tableArray)-1], $htmlString);
@@ -2063,6 +2061,8 @@ var $qls;
 						break;
 						
 					case 'trunk':
+					
+						$connectionPairID++;
 						
 						$htmlString = '<div title="Trunk" class="trunk adjacent">';
 						
@@ -2116,7 +2116,6 @@ var $qls;
 					case 'connector':
 						$htmlPathFull .= '<tr><td>';
 						$connectorTypeID = $object['data']['connectorType'];
-						$connectionPairID = $object['data']['connectionPairID'];
 						
 						if($connectorTypeID != 0) {
 							$connectorTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
@@ -2152,6 +2151,9 @@ var $qls;
 						break;
 						
 					case 'trunk':
+					
+						$connectionPairID++;
+					
 						$htmlPathFull .= '<td rowspan="2">';
 						$htmlPathFull .= '<div title="Trunk" class="trunk stacked">';
 						$htmlPathFull .= '</td>';

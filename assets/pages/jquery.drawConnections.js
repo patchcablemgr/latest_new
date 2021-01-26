@@ -289,17 +289,23 @@ function drawPath(){
 
 function crawlPathConnections(){
 	
-	var pathConnections = {};
+	var pathConnections = [];
+	var workingPathConnections = {};
 	var connectorElementArray = $('#containerFullPath').find('.port');
 	
-	// Sort ports by connectionPairId
+	// Group connection peers
 	$.each(connectorElementArray, function(index, element){
-		if($(element).data('connectionPairId') !== '') {
-			var connectionPairID = $(element).data('connectionPairId');
-			if(pathConnections[connectionPairID] === undefined) {
-				pathConnections[connectionPairID] = [];
-			}
-			pathConnections[connectionPairID].push($(element));
+		var connectionPairID = $(element).data('connectionPairId');
+		if(workingPathConnections[connectionPairID] === undefined) {
+			workingPathConnections[connectionPairID] = [];
+		}
+		workingPathConnections[connectionPairID].push($(element));
+	});
+	
+	// Filter out singles
+	$.each(workingPathConnections, function(index, element){
+		if(element.length == 2) {
+			pathConnections.push(element);
 		}
 	});
 	
@@ -309,21 +315,27 @@ function crawlPathConnections(){
 
 function crawlPathTrunks(){
 	
-	var pathTrunks = {};
+	var pathTrunks = [];
+	var workingPathTrunks = {};
 	var connectorElementArray = $('#containerFullPath').find('.objectBox');
 	
+	// Group trunk peers
 	$.each(connectorElementArray, function(index, element){
-		
-		if($(element).data('trunkPairId') !== 0) {
-			
-			var trunkPairID = $(element).data('trunkPairId');
-			
-			if(pathTrunks[trunkPairID] === undefined) {
-				pathTrunks[trunkPairID] = [];
-			}
-			pathTrunks[trunkPairID].push($(element));
+		var trunkPairID = $(element).data('trunkPairId');
+		if(workingPathTrunks[trunkPairID] === undefined) {
+			workingPathTrunks[trunkPairID] = [];
+		}
+		workingPathTrunks[trunkPairID].push($(element));
+	});
+	
+	// Filter out singles
+	$.each(workingPathTrunks, function(index, element){
+		if(element.length == 2) {
+			pathTrunks.push(element);
 		}
 	});
+	
+	// Store path trunk data
 	$(document).data('pathTrunks', pathTrunks);
 }
 

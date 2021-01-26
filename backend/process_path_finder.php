@@ -321,7 +321,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			findPaths2($qls, $maxResults, $maxDepth, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
 		}
 		
-		error_log('Debug (finalPathArray): '.json_encode($finalPathArray));
 		foreach($finalPathArray as $mediaType => &$pathData) {
 			foreach($pathData as &$path) {
 				$path['pathHTML'] = $qls->App->buildPathFull($path['pathArray'], null);

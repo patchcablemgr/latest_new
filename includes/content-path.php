@@ -44,9 +44,6 @@ if($isTrunked) {
 	$reversePortID = 0;
 }
 
-$connectionPairID = 1;
-$trunkPairID = 1;
-
 // Discover path elements
 // First look outward from the far end of the cable,
 // then look outward from the near end of the cable.
@@ -56,10 +53,8 @@ for($x=0; $x<2; $x++){
 		
 		// Object
 		$selected = ($objID == $selectedObjID and $objFace == $selectedObjFace and $objDepth == $selectedObjDepth and $objPort == $selectedObjPort) ? true : false;
-		$trunkPairID = (isset($qls->App->peerArray[$objID][$objFace][$objDepth])) ? $qls->App->peerArray[$objID][$objFace][$objDepth]['id'] : 0;
 		$workingArray = array(
 			'type' => 'object',
-			'trunkPairID' => $trunkPairID,
 			'data' => array(
 			array(
 				'id' => $objID,
@@ -93,8 +88,7 @@ for($x=0; $x<2; $x++){
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$localAttrPrefix.'_code39'],
-						'connectorType' => $connection[$localAttrPrefix.'_connector'],
-						'connectionPairID' => $connectionPairID
+						'connectorType' => $connection[$localAttrPrefix.'_connector']
 					)
 				);
 				
@@ -116,8 +110,7 @@ for($x=0; $x<2; $x++){
 					'type' => 'connector',
 					'data' => array(
 						'code39' => $connection[$remoteAttrPrefix.'_code39'],
-						'connectorType' => $connection[$remoteAttrPrefix.'_connector'],
-						'connectionPairID' => $connectionPairID
+						'connectorType' => $connection[$remoteAttrPrefix.'_connector']
 					)
 				);
 				
@@ -128,9 +121,6 @@ for($x=0; $x<2; $x++){
 					$objFace = $connection[$remoteAttrPrefix.'_object_face'];
 					$objDepth = $connection[$remoteAttrPrefix.'_object_depth'];
 					$objPort = $connection[$remoteAttrPrefix.'_port_id'];
-					
-					$trunkPairID = (isset($qls->App->peerArray[$objID][$objFace][$objDepth])) ? $qls->App->peerArray[$objID][$objFace][$objDepth]['id'] : 0;
-					$objectWorkingArray['trunkPairID'] = $trunkPairID;
 					
 					// Remote Object
 					$workingArray = array(
@@ -214,9 +204,6 @@ for($x=0; $x<2; $x++){
 			// No connected object
 			$objID = 0;
 		}
-		
-		$connectionPairID++;
-		$trunkPairID++;
 	}
 	
 	// Now that we've discovered the far side of the scanned cable,
