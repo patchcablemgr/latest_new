@@ -2097,7 +2097,6 @@ var $qls;
 						}
 						$topTableTag = '<tr><td>';
 						$htmlPathFull .= $topTableTag;
-						$trunkPairID = $object['trunkPairID'];
 						$objName = '';
 						foreach($object['data'] as $item) {
 							$objID = $item['id'];
@@ -2134,6 +2133,9 @@ var $qls;
 						break;
 						
 					case 'cable':
+					
+						$trunkPairID++;
+					
 						$htmlPathFull .= '<tr><td>';
 						$cableTypeID = $object['data']['mediaTypeID'];
 						if($cableTypeID != 0) {
