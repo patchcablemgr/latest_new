@@ -18,7 +18,7 @@
 <body>
 
 <!-- Canvas for drawing cabinet connections -->
-<canvas id="canvasCabinet" class="connectionCanvas" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
+<canvas id="canvasCabinet" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 
 <?php require 'topbar.php'; ?>
 

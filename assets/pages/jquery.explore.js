@@ -58,6 +58,7 @@ function clearSelectionDetails(){
 
 function makeRackObjectsClickable(){
 	$('.port').click(function(event){
+		
 		$(document).data('portClickedFlag', true);
 		
 		var portIndex = $(this).data('portIndex');
@@ -74,7 +75,13 @@ function makeRackObjectsClickable(){
 
 		if ($(document).data('portClickedFlag') === false) {
 			if ($(this).data('partitionType') == 'Connectable') {
+				
+				// Default port selection
 				$(document).data('clickedObjPortID', 0);
+				
+				// Draw cabinet connection path
+				$(document).data('selectedPort', $(this).find('.port').first());
+				drawCabinet();
 			} else {
 				$(document).data('clickedObjPortID', null);
 			}
@@ -717,10 +724,9 @@ $( document ).ready(function() {
 	
 	$('#printPathFinder	').on('click', function(event){
 		event.preventDefault();
-		$('#containerCablePath').printThis({
-			importStyle: true,
-			removeInline: true,
-			removeInlineSelector: "img"
+		$('#containerCablePath').parent().printThis({
+			canvas: true,
+			importStyle: true
 		});
 	});
 	
@@ -873,6 +879,9 @@ $( document ).ready(function() {
 					});
 				});
 				
+				// Clear path connections
+				drawPath();
+				
 				var table = '';
 				var pathID = 0;
 				$.each(responseJSON.success, function(pathType, pathTypeArray){
@@ -906,12 +915,19 @@ $( document ).ready(function() {
 					if($(this).hasClass('tableRowHighlight')) {
 						$(this).removeClass('tableRowHighlight');
 						$('.containerCablePath').hide();
+						
+						// Clear path connections
+						drawPath();
 					} else {
 						pathTable.$('tr.tableRowHighlight').removeClass('tableRowHighlight');
 						$(this).addClass('tableRowHighlight');
 						var pathIndex = $(this).attr('data-pathid');
 						$('.containerCablePath').hide();
 						$('#containerCablePath'+pathIndex).show();
+						
+						// Draw path connections
+						initializeCanvasPathFinder($('#containerCablePath'+pathIndex));
+						drawPath();
 					}
 				});
 				

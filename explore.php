@@ -304,7 +304,7 @@ $qls->Security->check_auth_page('user.php');
 										<blockquote class="card-blockquote">
 											<div class="row">
 												<!-- Canvas for drawing cabinet connections -->
-												<canvas id="canvasPath" class="connectionCanvas" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
+												<canvas id="canvasPath" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 												<div id="containerFullPath"></div>
 											</div>
 										</blockquote>

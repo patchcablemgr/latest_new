@@ -584,6 +584,7 @@ function makeCabCloseClickable(){
 function resizePathCanvas() {
 	
 	$.each(pathArray, function(pathName, path){
+		
 		var canvas = path['canvas'];
 		$(canvas).attr('width', $(canvas).parent().width());
 		$(canvas).attr('height', $(canvas).parent().height());
@@ -627,14 +628,25 @@ function initializeCanvas() {
 	// Path connections
 	pathArray = {};
 	if($('#canvasPath').length) {
-		canvasPath = document.getElementById('canvasPath');
+		var canvas = $('#canvasPath');
 		pathArray['path'] = {
-			'context': canvasPath.getContext('2d'),
-			'canvas': $('#canvasPath'),
+			'context': $(canvas)[0].getContext('2d'),
+			'canvas': canvas,
 			'container' : $('#containerFullPath'),
 			'connections': {},
 			'trunks': {}
 		};
 	}
 	
+}
+
+function initializeCanvasPathFinder(container) {
+	var canvas = $('#canvasPathFinder');
+	pathArray['pathFinder'] = {
+		'context': $(canvas)[0].getContext('2d'),
+		'canvas': canvas,
+		'container' : container,
+		'connections': {},
+		'trunks': {}
+	};
 }

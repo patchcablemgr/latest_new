@@ -161,6 +161,7 @@
 								</div>
 								<div class="card-block">
 									<blockquote class="card-blockquote">
+										<canvas id="canvasPathFinder" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
 										<div id="containerCablePath"></div>
 									</blockquote>
 								</div>
