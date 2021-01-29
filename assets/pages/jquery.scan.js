@@ -61,7 +61,8 @@ function buildFullPath(localConnectorCode39){
 		} else if ($(responseJSON.error).size() > 0){
 			displayError(responseJSON.error);
 		} else {
-			$('#pathContainer').html(responseJSON.success);
+			$('#containerFullPath').html(responseJSON.success);
+			drawPath();
 			$('.cableArrow').on('click', function(){
 				var data = {codeResult: {code: $(this).attr('data-Code39')}};
 				scanCallback(data);
@@ -685,12 +686,14 @@ function postProcessCable(){
 $(document).ready(function() {
 
 	$('#printFullPath').on('click', function(){
-		$('#pathContainer').printThis({
-			importStyle: true,
-			removeInline: true,
-			removeInlineSelector: "img"
+		$('#containerFullPath').parent().printThis({
+			canvas: true,
+			importStyle: true
 		});
 	});
+	
+	// requires jquery.drawConnections.js
+	initializeCanvas();
 
 	$(document).data('verified', 'unknown');
 	$(document).data('localConnectorType', false);

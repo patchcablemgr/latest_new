@@ -141,7 +141,8 @@ $qls->Security->check_auth_page('operator.php');
 						</div>
 						<div class="card-block">
 							<blockquote class="card-blockquote">
-								<div id="pathContainer"></div>
+								<canvas id="canvasPath" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
+								<div id="containerFullPath"></div>
 							</blockquote>
 						</div>
 					</div>
@@ -161,6 +162,9 @@ $qls->Security->check_auth_page('operator.php');
 
 <!-- printThis Plugin -->
 <script src="assets/plugins/printThis/printThis.js"></script>
+
+<!-- draw connections functions -->
+<script src="assets/pages/jquery.drawConnections.js"></script>
 
 <!-- Quagga Plugin -->
 <script type="text/javascript" src="assets/plugins/quagga/dist/quagga.js"></script>

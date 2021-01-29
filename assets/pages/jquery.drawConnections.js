@@ -4,8 +4,8 @@ function drawCabinet(){
 	resizeCabinetCanvas();
 	clearCabinetConnections();
 	crawlCabinet();
-	drawCabinetConnections();
 	drawCabinetTrunks();
+	drawCabinetConnections();
 }
 
 function crawlCabinet(){
@@ -97,6 +97,7 @@ function crawlCabinet(){
 							selectedPort = false;
 						}
 					} else {
+						connectionArray.push([selectedPort]);
 						selectedPort = false;
 					}
 				}
@@ -124,78 +125,88 @@ function drawCabinetConnections(){
 		var pathData = $(document).data(pathDataType);
 		
 		$.each(pathData, function(index, element){
-			var elemA = element[0];
-			var elemB = element[1];
 			
-			var connectionStyle = $('#connectionStyle').val();
-			
-			var elemACabinet = $(elemA).closest('.cabinetContainer');
-			var elemACabinetID = $(elemACabinet).data('cabinetId');
-			var elemACabinetDimensions = getDimensions(elemACabinet);
-			var elemADimensions = getDimensions(elemA);
-			var elemAPartition = $(elemA).closest('.partition');
-			var elemAPartitionDimensions = getDimensions(elemAPartition);
-			
-			cabinetCtx.moveTo(elemADimensions.centerX, elemADimensions.centerY);
-			
-			if(typeof elemB == 'object') {
-				var elemBCabinet = $(elemB).closest('.cabinetContainer');
-				var elemBCabinetID = $(elemBCabinet).data('cabinetId');
-				var elemBCabinetDimensions = getDimensions(elemBCabinet);
-				var elemBDimensions = getDimensions(elemB);
-				var elemBPartition = $(elemB).closest('.partition');
-				var elemBPartitionDimensions = getDimensions(elemBPartition);
-
-				if(elemBDimensions.top >= elemADimensions.top) {
-					var elemAPartHBoundary = elemAPartitionDimensions.bottom;
-					var elemBPartHBoundary = elemBPartitionDimensions.top;
-				} else {
-					var elemAPartHBoundary = elemAPartitionDimensions.top;
-					var elemBPartHBoundary = elemBPartitionDimensions.bottom;
-				}
+			// Is pathData element a pair of ports?
+			if(element.length == 2) {
+				var elemA = element[0];
+				var elemB = element[1];
 				
-				if(connectionStyle == 0) {
-					cabinetCtx.lineTo(elemADimensions.centerX, elemAPartHBoundary);
-					cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartHBoundary);
-					
-					if(elemACabinetID != elemBCabinetID) {
-						
-						// Ports are in different cabinets
-						if(elemACabinetDimensions.top >= elemBCabinetDimensions.top) {
-							
-							// Connection should be routed up
-							var elemACabinetHBoundary = elemACabinetDimensions.top - canvasInset;
-						} else {
-							
-							// Connection should be routed down
-							var elemACabinetHBoundary = elemACabinetDimensions.bottom + canvasInset;
-						}
-						
-						cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetHBoundary);
-						cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemACabinetHBoundary);
+				var connectionStyle = $('#connectionStyle').val();
+				
+				var elemACabinet = $(elemA).closest('.cabinetContainer');
+				var elemACabinetID = $(elemACabinet).data('cabinetId');
+				var elemACabinetDimensions = getDimensions(elemACabinet);
+				var elemADimensions = getDimensions(elemA);
+				var elemAPartition = $(elemA).closest('.partition');
+				var elemAPartitionDimensions = getDimensions(elemAPartition);
+				
+				cabinetCtx.moveTo(elemADimensions.centerX, elemADimensions.centerY);
+				
+				if(typeof elemB == 'object') {
+					var elemBCabinet = $(elemB).closest('.cabinetContainer');
+					var elemBCabinetID = $(elemBCabinet).data('cabinetId');
+					var elemBCabinetDimensions = getDimensions(elemBCabinet);
+					var elemBDimensions = getDimensions(elemB);
+					var elemBPartition = $(elemB).closest('.partition');
+					var elemBPartitionDimensions = getDimensions(elemBPartition);
 
+					if(elemBDimensions.top >= elemADimensions.top) {
+						var elemAPartHBoundary = elemAPartitionDimensions.bottom;
+						var elemBPartHBoundary = elemBPartitionDimensions.top;
+					} else {
+						var elemAPartHBoundary = elemAPartitionDimensions.top;
+						var elemBPartHBoundary = elemBPartitionDimensions.bottom;
 					}
-					cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemBPartHBoundary);
-					cabinetCtx.lineTo(elemBDimensions.centerX, elemBPartHBoundary);
-					cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
-				} else if(connectionStyle == 1) {
-					cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
-				} else if(connectionStyle == 2) {
-					var arcSize = 30;
-					cabinetCtx.bezierCurveTo((elemADimensions.centerX - arcSize), elemADimensions.centerY, (elemBDimensions.centerX - arcSize), elemBDimensions.centerY, elemBDimensions.centerX, elemBDimensions.centerY);
+					
+					if(connectionStyle == 0) {
+						cabinetCtx.lineTo(elemADimensions.centerX, elemAPartHBoundary);
+						cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartHBoundary);
+						
+						if(elemACabinetID != elemBCabinetID) {
+							
+							// Ports are in different cabinets
+							if(elemACabinetDimensions.top >= elemBCabinetDimensions.top) {
+								
+								// Connection should be routed up
+								var elemACabinetHBoundary = elemACabinetDimensions.top - canvasInset;
+							} else {
+								
+								// Connection should be routed down
+								var elemACabinetHBoundary = elemACabinetDimensions.bottom + canvasInset;
+							}
+							
+							cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetHBoundary);
+							cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemACabinetHBoundary);
+
+						}
+						cabinetCtx.lineTo(elemBCabinetDimensions.left - canvasInset, elemBPartHBoundary);
+						cabinetCtx.lineTo(elemBDimensions.centerX, elemBPartHBoundary);
+						cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+					} else if(connectionStyle == 1) {
+						cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+					} else if(connectionStyle == 2) {
+						var arcSize = 30;
+						cabinetCtx.bezierCurveTo((elemADimensions.centerX - arcSize), elemADimensions.centerY, (elemBDimensions.centerX - arcSize), elemBDimensions.centerY, elemBDimensions.centerX, elemBDimensions.centerY);
+					} else {
+						cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+					}
 				} else {
-					cabinetCtx.lineTo(elemBDimensions.centerX, elemBDimensions.centerY);
+					cabinetCtx.lineTo(elemADimensions.centerX, elemAPartitionDimensions.top);
+					cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartitionDimensions.top);
+					cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetDimensions.top - canvasInset);
+					
+					var left = elemACabinetDimensions.leftOrig - canvasInset;
+					var top = elemACabinetDimensions.topOrig - canvasInset;
+					addCabButton(left, top, elemB);
 				}
-			} else {
-				cabinetCtx.lineTo(elemADimensions.centerX, elemAPartitionDimensions.top);
-				cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemAPartitionDimensions.top);
-				cabinetCtx.lineTo(elemACabinetDimensions.left - canvasInset, elemACabinetDimensions.top - canvasInset);
-				
-				var left = elemACabinetDimensions.leftOrig - canvasInset;
-				var top = elemACabinetDimensions.topOrig - canvasInset;
-				addCabButton(left, top, elemB);
 			}
 			
+			// Highlight ports
+			$.each(element, function(portIndex, portObject){
+				if(typeof portObject == 'object') {
+					highlightElement(portObject, connectionLineColor);
+				}
+			});
 		});
 	});
 	cabinetCtx.stroke();
@@ -228,6 +239,7 @@ function drawCabinetTrunks(){
 			var elemACabinetID = $(elemACabinet).data('cabinetId');
 			var elemACabinetDimensions = getDimensions($(elemA).closest('.cabinetContainer'));
 			var elemADimensions = getDimensions(elemA);
+			highlightElement(elemA, trunkLineColor);
 			
 			cabinetCtx.moveTo(elemADimensions.right, elemADimensions.centerY);
 			
@@ -237,6 +249,7 @@ function drawCabinetTrunks(){
 				var elemBCabinetID = $(elemBCabinet).data('cabinetId');
 				var elemBCabinetDimensions = getDimensions($(elemB).closest('.cabinetContainer'));
 				var elemBDimensions = getDimensions(elemB);
+				highlightElement(elemB, trunkLineColor);
 				
 				cabinetCtx.lineTo(elemACabinetDimensions.right + vertical, elemADimensions.centerY);
 				
@@ -283,8 +296,8 @@ function drawPath(){
 	clearPathConnections();
 	crawlPathConnections();
 	crawlPathTrunks();
-	drawPathConnections();
 	drawPathTrunks();
+	drawPathConnections();
 }
 
 function crawlPathConnections(){
@@ -487,15 +500,20 @@ function addCabButton(left, top, globalID){
 	makeAddCabButtonClickable(addCab);
 }
 
-function highlightElement(elemArray, color){
-	$.each(elemArray, function(index, elem){
-		cabinetCtx.strokeStyle = color;
-		cabinetCtx.beginPath();
-		
-		var elemDimensions = getDimensions(elem);
-		
-		cabinetCtx.strokeRect(elemDimensions.left, elemDimensions.top, elemDimensions.width, elemDimensions.height);
-	});
+function highlightElement(elem, color){
+	
+	// Store current line width
+	var origLineWidth = cabinetCtx.lineWidth;
+	
+	// Set port highlight properties
+	cabinetCtx.strokeStyle = color;
+	cabinetCtx.lineWidth = connectionLineWidth;
+	
+	var elemDimensions = getDimensions(elem);
+	cabinetCtx.strokeRect(elemDimensions.left, elemDimensions.top, elemDimensions.width, elemDimensions.height);
+	
+	// Restore line width
+	cabinetCtx.lineWidth = origLineWidth;
 }
 
 function makePortsHoverable(){
