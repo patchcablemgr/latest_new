@@ -34,7 +34,9 @@ Contents
 **Changes introduced in 0.3.12
 [Fix]		Corrected nested insert size as displayed in "Available Templates" box
 [Fix]		Template port ID add/remove field not refreshing when shown for different connectable partitions
+[Fix]		Fresh install inserted data in a way that would cause a "duplicate cabinet order" error on backup restore
 [Enhance]	When configuring template port ID, show last port ID in long abreviated list
+[Enhance]	Cable path connections generated programatically instead of static images
 
 **Changes introduced in 0.3.11
 [Enhance]	Added ability to create inserts with enclosure partitions

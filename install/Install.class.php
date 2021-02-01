@@ -498,11 +498,11 @@ var $install_error = array();
 			
 			$env_tree = array(
 				"'Location', '#', 'location', 42, NULL, 0, 1",
-				"'Sub-Location', '1', 'location', 42, NULL, 0, 1",
-				"'Pod', '2', 'pod', 42, NULL, 0, 1",
-				"'Cab1', '3', 'cabinet', 42, NULL, 0, 1",
-				"'Cab2', '3', 'cabinet', 42, NULL, 0, 1",
-				"'Cab3', '3', 'cabinet', 42, NULL, 0, 1"
+				"'Sub-Location', '1', 'location', 42, NULL, 0, 2",
+				"'Pod', '2', 'pod', 42, NULL, 0, 3",
+				"'Cab1', '3', 'cabinet', 42, NULL, 0, 4",
+				"'Cab2', '3', 'cabinet', 42, NULL, 0, 5",
+				"'Cab3', '3', 'cabinet', 42, NULL, 0, 6"
 			);
 			
 			// Add environment tree data

@@ -26,14 +26,6 @@
 			<div class="modal-body">
 				<div class="row">
 					<div class="col-sm-12">
-						<?php if($page == 'explore.php') { ?>
-						<div class="checkbox">
-							<input id="checkboxBreakoutCable" type="checkbox">
-							<label for="checkboxBreakoutCable">
-								Breakout Cable
-							</label>
-						</div>
-						<?php } ?>
 						<div class="card-box">
 							<div id="objTree" class="navTree"></div>
 						</div>

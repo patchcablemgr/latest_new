@@ -706,14 +706,6 @@ function postProcessCable(){
 
 $( document ).ready(function() {
 	
-	$('#checkboxBreakoutCable').on('change', function(){
-		if($(this).is(':checked')) {
-			$('#objTree').jstree(true).settings.core.multiple = true;
-		} else {
-			$('#objTree').jstree(true).settings.core.multiple = false;
-		}
-	});
-	
 	$('#printFullPath').on('click', function(event){
 		event.preventDefault();
 		$('#containerFullPath').parent().printThis({
@@ -1173,7 +1165,7 @@ $( document ).ready(function() {
 	})
 	.jstree({
 		'core' : {
-			'multiple': false,
+			'multiple': true,
 			'check_callback': function(operation, node, node_parent, node_position, more){
 				if(operation == 'move_node'){
 					return node_parent.type === 'location';

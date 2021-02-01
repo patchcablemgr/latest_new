@@ -60,11 +60,13 @@ function crawlCabinet(){
 					
 					if(connectedPortIDArray.length) {
 						var peerPortFound = false;
+						var sourceSelectedPort = selectedPort;
+						var tempTrunkArray = [];
 						$.each(connectedPortIDArray, function(index, connectedPortID){
 							var connectedPort = $('#'+connectedPortID);
 							if($(connectedPort).length) {
 								
-								connectionArray.push([selectedPort, connectedPort]);
+								connectionArray.push([sourceSelectedPort, connectedPort]);
 								
 								var connectedPartition = $(connectedPort).closest('.partition');
 								var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
@@ -72,7 +74,8 @@ function crawlCabinet(){
 								if($('#'+connectedPartitionPeerID).length) {
 									
 									var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
-									trunkArray.push([connectedPartition, connectedPartitionPeer]);
+									tempTrunkArray = [connectedPartition, connectedPartitionPeer];
+									//trunkArray.push([connectedPartition, connectedPartitionPeer]);
 									
 									var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
 									var peerID = connectedPartitionPeerIDArray[2];
@@ -85,7 +88,8 @@ function crawlCabinet(){
 									peerPortFound = true;
 								} else {
 									if(connectedPartitionPeerID != 'none') {
-										trunkArray.push([connectedPartition, connectedPartitionPeerID]);
+										tempTrunkArray = [connectedPartition, connectedPartitionPeerID];
+										//trunkArray.push([connectedPartition, connectedPartitionPeerID]);
 									}
 								}
 								
@@ -93,6 +97,9 @@ function crawlCabinet(){
 								connectionArray.push([selectedPort, connectedPortID]);
 							}
 						});
+						if(tempTrunkArray.length) {
+							trunkArray.push(tempTrunkArray);
+						}
 						if(peerPortFound == false) {
 							selectedPort = false;
 						}

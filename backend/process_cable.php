@@ -172,10 +172,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$objDepth = $data['objDepth'];
 				$objPort = $data['objPort'];
 				if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+					$deleteRowArray = array();
 					$port = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
 					foreach($port as $connection) {
-						// Clear inventory table entry
-						$rowID = $connection['rowID'];
+						
+						$peerID = $connection['id'];
+						$peerFace = $connection['face'];
+						$peerDepth = $connection['depth'];
+						$peerPort = $connection['port'];
+						// Account for remote port being breakout cable
+						if(isset($qls->App->inventoryArray[$peerID][$peerFace][$peerDepth][$peerPort])) {
+							$peerPort = $qls->App->inventoryArray[$peerID][$peerFace][$peerDepth][$peerPort];
+							foreach($peerPort as $peerConnection) {
+								array_push($deleteRowArray, $peerConnection['rowID']);
+							}
+						} else {
+							array_push($deleteRowArray, $peerConnection['rowID']);
+						}
+					}
+					
+					// Delete inventory entries
+					foreach($deleteRowArray as $rowID) {
 						if($connection['localEndID'] or $connection['remoteEndID']) {
 							clearTableInventory($qls, $connection['localAttrPrefix'], $rowID);
 						} else {
@@ -201,6 +218,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 				$remotePortString = implode('<br>', $remotePortArray);
 				$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePortString.'</strong>';
+				error_log('Debug (actionString): '.$actionString);
 				$qls->App->logAction(3, 3, $actionString);
 			
 				break;
@@ -440,6 +458,34 @@ function validate($data, &$validate, &$qls){
 				
 				if(!$qls->App->checkEntitlement('connection', $conNum)) {
 					$errMsg = 'Exceeded entitled connection count.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
+			}
+			
+			if(count($remotePortArray) > 1) {
+				
+				$breakoutCableValid = true;
+				$localObj = $qls->App->objectArray[$localID];
+				$localTemplateID = $localObj['template_id'];
+				$localTemplate = $qls->App->templateArray[$localTemplateID];
+				$localTemplateFunction = $localTemplate['templateFunction'];
+				if($remoteTemplateFunction != 'Endpoint') {
+					$localTemplateFunction = false;
+				}
+				
+				foreach($remotePortArray as $remotePortData) {
+					$remoteID = $remotePortData['remoteID'];
+					$remoteObj = $qls->App->objectArray[$remoteID];
+					$remoteTemplateID = $remoteObj['template_id'];
+					$remoteTemplate = $qls->App->templateArray[$remoteTemplateID];
+					$remoteTemplateFunction = $remoteTemplate['templateFunction'];
+					if($remoteTemplateFunction != 'Endpoint') {
+						$breakoutCableValid = false;
+					}
+				}
+				
+				if(!$breakoutCableValid) {
+					$errMsg = 'One-to-many connections must be between two endpoints.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 			}

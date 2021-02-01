@@ -1638,6 +1638,7 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 		
 		// Check to see if object port exists
 		$portNameHash = $connection['portNameHash'];
+		$peerPortNameHash = $connection['peerPortNameHash'];
 		if(isset($portArray[$portNameHash]) or isset($importedTrunkArray[$portNameHash])) {
 			if(!in_array($portNameHash, $portNameHashArray)) {
 				array_push($portNameHashArray, $portNameHash);
@@ -1725,8 +1726,47 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 					}
 				}
 			} else {
-				$errMsg = 'PortA on line '.$connection['line'].' of file "'.$connection['fileName'].'" is a duplicate.';
-				array_push($validate->returnData['error'], $errMsg);
+				
+				$validOneToManyConnection = false;
+				
+				$port = $portArray[$portNameHash];
+				$objID = $port['objID'];
+				$face = $port['face'];
+				$depth = $port['depth'];
+				$portID = $port['portID'];
+				$obj = $qls->App->objectArray[$objID];
+				$templateID = $obj['template_id'];
+				$template = $qls->App->templateArray[$templateID];
+				$templateFunction = $template['templateFunction'];
+				
+				if(isset($portArray[$peerPortNameHash])) {
+					$peerPort = $portArray[$peerPortNameHash];
+					$peerObjID = $peerPort['objID'];
+					$peerFace = $peerPort['face'];
+					$peerDepth = $peerPort['depth'];
+					$peerPortID = $peerPort['portID'];
+					$peerObj = $qls->App->objectArray[$peerObjID];
+					$peerTemplateID = $peerObj['template_id'];
+					$peerTemplate = $qls->App->templateArray[$peerTemplateID];
+					$peerTemplateFunction = $peerTemplate['templateFunction'];
+					
+					if($templateFunction == 'Endpoint' and $peerTemplateFunction == 'Endpoint') {
+						$connection['objID'] = $objID;
+						$connection['face'] = $face;
+						$connection['depth'] = $depth;
+						$connection['portID'] = $portID;
+						$connection['peerObjID'] = $peerObjID;
+						$connection['peerFace'] = $peerFace;
+						$connection['peerDepth'] = $peerDepth;
+						$connection['peerPortID'] = $peerPortID;
+						$validOneToManyConnection = true;
+					}
+				}
+				
+				if(!$validOneToManyConnection) {
+					$errMsg = 'PortA on line '.$connection['line'].' of file "'.$connection['fileName'].'" is a duplicate.';
+					array_push($validate->returnData['error'], $errMsg);
+				}
 			}
 		} else {
 			if($connection['code39']) {
