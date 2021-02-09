@@ -139,13 +139,18 @@ $qls->Security->check_auth_page('administrator.php');
 					<span class="btn-label"><i class="fa fa-check"></i></span>Check
 				</button>
 			</div>
-			
+			<div>
+				<button id="entitlementPaymentPortal" type="button" class="btn btn-sm btn-success waves-effect waves-light m-t-10">
+					<span class="btn-label"><i class="fa fa-credit-card"></i></span>Payment Portal
+				</button>
+			</div>
+			<!--
 			<div>
 				<button id="entitlementCancel" type="button" class="btn btn-sm btn-danger waves-effect waves-light m-t-10" data-toggle="modal" data-target="#cancelEntitlementModal" >
 					<span class="btn-label"><i class="fa fa-times"></i></span>Cancel
 				</button>
 			</div>
-			
+			-->
 		</div>
 	</div>
 </div>

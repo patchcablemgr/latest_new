@@ -1945,6 +1945,11 @@ var $qls;
 	}
 	
 	function logAction($function, $actionType, $actionString){
+		
+		if(strlen($actionString) > 200) {
+			$actionString = substr($actionString, 0 , 200).'...';
+		}
+		
 		$columns = array('date', 'function', 'action_type', 'user_id', 'action');
 		$values = array(time(), $function, $actionType, $this->qls->user_info['id'], $actionString);
 		$this->qls->SQL->insert('app_history', $columns, $values);
@@ -2376,7 +2381,6 @@ var $qls;
 		$POSTData = array('data' => $dataJSON);
 		
 		$ch = curl_init('https://patchcablemgr.com/public/process_subscription.php');
-		//curl_setopt($ch, CURLOPT_HTTPHEADER, array('Cookie: BACKDOOR=yes'));
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);

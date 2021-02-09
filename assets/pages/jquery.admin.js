@@ -269,6 +269,28 @@ $( document ).ready(function() {
 		});
 	});
 	
+	$('#entitlementPaymentPortal').on('click', function(event){
+		
+		var data = {
+			action: 'portal'
+		};
+		
+		data = JSON.stringify(data);
+		
+		// Process mail settings
+		$.post("backend/process_entitlement.php", {data:data}, function(response){
+			var responseJSON = JSON.parse(response);
+			if (responseJSON.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(responseJSON.error).size() > 0){
+				displayError(responseJSON.error);
+			} else {
+				displaySuccess(responseJSON.success.customerPortalURL);
+				window.open(responseJSON.success.customerPortalURL, '_blank');
+			}
+		});
+	});
+	
 	$('#confirmEntitlementCancellation').on('click', function(event){
 		event.preventDefault();
 		var entitlementID = $('#inline-entitlement').editable('getValue')['inline-entitlement'];

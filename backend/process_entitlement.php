@@ -40,13 +40,61 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			$qls->App->cancelEntitlement();
 			$qls->App->gatherEntitlementData();
 			$validate->returnData['success'] = $qls->App->entitlementArray;
+			
+		} else if($action == 'portal') {
+			$entitlementID = $qls->App->entitlementArray['id'];
+		
+			// POST Request
+			$data = array(
+				'action' => 'portal',
+				'entitlementID' => $entitlementID
+			);
+			$dataJSON = json_encode($data);
+			$POSTData = array('data' => $dataJSON);
+			
+			$ch = curl_init('https://patchcablemgr.com/public/process_subscription.php');
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $POSTData);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, "/etc/ssl/certs/");
+			
+			// Submit the POST request
+			$responseJSON = curl_exec($ch);
+			
+			//Check for request errors.
+			$errMsg = false;
+			if(!curl_errno($ch)) {
+				error_log('Debug (responseJSON): '.$responseJSON);
+				if($response = json_decode($responseJSON, true)) {
+					if(!count($response['error'])) {
+						if($response['success'] != '') {
+							$validate->returnData['success']['customerPortalURL'] = $response['success'];
+						} else {
+							$errMsg = 'Entitlement not found, please contact support@patchcablemgr.com';
+						}
+					} else {
+						$errMsg = $response['error'][0];
+					}
+				} else {
+					$errMsg = 'Invalid server response, please contact support@patchcablemgr.com';
+				}
+			} else {
+				$errMsg = 'Unable to contact server, please contact support@patchcablemgr.com';
+			}
+			
+			if($errMsg) {
+				array_push($validate->returnData['error'], $errMsg);
+			}
+			
+			// Close cURL session handle
+			curl_close($ch);
 		}
 	}
 	echo json_encode($validate->returnData);
 }
 
 function validate($data, &$validate, &$qls){
-	$actionsArray = array('update', 'check', 'cancel');
+	$actionsArray = array('update', 'check', 'cancel', 'portal');
 	$action = strtolower($data['action']);
 	
 	//Validate action
@@ -57,6 +105,7 @@ function validate($data, &$validate, &$qls){
 			// Validate entitlement ID
 			$entitlementID = strtolower($data['entitlementID']);
 			$validate->validateSHA($entitlementID, 'Invalid entitlement ID.');
+			
 		}
 	}
 }
