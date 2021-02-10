@@ -2855,10 +2855,10 @@ function processTrunks(&$qls, $importedTrunkArray, $importedObjectArray, $portAr
 				$trunk['aDepth'],
 				$trunk['aPortID'],
 				$aEndpoint,
-				$trunk['bObjID'],
-				$trunk['bFace'],
-				$trunk['bDepth'],
-				$trunk['bPortID'],
+				$trunkPeer['aObjID'],
+				$trunkPeer['aFace'],
+				$trunkPeer['aDepth'],
+				$trunkPeer['aPortID'],
 				$bEndpoint,
 				$floorplanPeer
 			);
