@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.13
 	- Changes Introduced In 0.3.12
 	- Changes Introduced In 0.3.11
 	- Changes Introduced In 0.3.10
@@ -30,6 +31,9 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.13
+[Fix]		Failure to import trunk data correctly on backup restore
 
 **Changes introduced in 0.3.12
 [Enhance]	When configuring template port ID, show last port ID in long abreviated list
