@@ -99,7 +99,7 @@ var $qls;
 		} else if($this->currentVersion == '0.3.11') {
 			$this->update_0311_to_0312();
 		} else if($this->currentVersion == '0.3.12') {
-			$this->update_0313_to_0313();
+			$this->update_0312_to_0313();
 		} else {
 			return true;
 		}
