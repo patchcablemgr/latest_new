@@ -21,119 +21,12 @@ function crawlCabinet(){
 	}
 	
 	$.each(pathSourceArray, function(pathSourceType, pathSource){
-		var connectionArray = [];
-		var trunkArray = [];
-		var visitedPartitionArray = [];
 		
 		if(pathSource !== undefined && pathSource !== false) {
-			//var selectedPort = $(pathSource);
-			var selectedPortArray = [];
-			selectedPortArray.push($(pathSource));
 			
 			// -=# TESTING #=-
 			var testConnectionArray = crawlCabinetConnections($(pathSource));
 			var testTrunkArray = crawlCabinetTrunks($(pathSource));
-			
-			for(x=0; x<2; x++) {
-				if(x == 1) {
-					// Crawl trunk peer
-					var selectedPartition = $(pathSource).closest('.partition');
-					var selectedPartitionPeerID = $(selectedPartition).data('peerGlobalId');
-					
-					if($('#'+selectedPartitionPeerID).length) {
-						var selectedPartitionPeer = $('#'+selectedPartitionPeerID);
-						trunkArray.push([selectedPartition, selectedPartitionPeer]);
-						
-						var selectedPartitionPeerIDArray = selectedPartitionPeerID.split('-');
-						var peerID = selectedPartitionPeerIDArray[2];
-						var peerFace = selectedPartitionPeerIDArray[3];
-						var peerDepth = selectedPartitionPeerIDArray[4];
-						var peerPort = $(pathSource).data('portIndex');
-						
-						var selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-						//
-						selectedPortArray = [selectedPort];
-					} else {
-						if(selectedPartitionPeerID != 'none') {
-							trunkArray.push([selectedPartition, selectedPartitionPeerID]);
-						}
-						//var selectedPort = false;
-						selectedPortArray = [];
-					}
-				}
-				
-				//while($(selectedPort).length) {
-				while($(selectedPortArray).length) {
-					var workingSelectedPortArray = selectedPortArray;
-					$.each(workingSelectedPortArray, function(selectedPortIndex, selectedPort){
-						
-						// Crawl connection peer
-						var connectedPortIDString = $(selectedPort).data('connectedGlobalId');
-						var connectedPortIDArray = JSON.parse(atob(connectedPortIDString));
-						
-						if(connectedPortIDArray.length) {
-							var peerPortFound = false;
-							var sourceSelectedPort = selectedPort;
-							var tempTrunkArray = [];
-							
-							$.each(connectedPortIDArray, function(index, connectedPortID){
-								var connectedPort = $('#'+connectedPortID);
-								if($(connectedPort).length) {
-									
-									connectionArray.push([sourceSelectedPort, connectedPort]);
-									
-									var connectedPartition = $(connectedPort).closest('.partition');
-									var connectedPartitionID = $(connectedPartition).attr('id');
-									var connectedPartitionPeerID = $(connectedPartition).data('peerGlobalId');
-									
-									if($('#'+connectedPartitionPeerID).length) {
-										
-										var connectedPartitionPeer = $('#'+connectedPartitionPeerID);
-										if(!visitedPartitionArray.includes(connectedPartitionID)) {
-											tempTrunkArray = [connectedPartition, connectedPartitionPeer];
-											visitedPartitionArray.push(connectedPartitionID);
-										}
-										
-										var connectedPartitionPeerIDArray = connectedPartitionPeerID.split('-');
-										var peerID = connectedPartitionPeerIDArray[2];
-										var peerFace = connectedPartitionPeerIDArray[3];
-										var peerDepth = connectedPartitionPeerIDArray[4];
-										
-										var connectedPortIDArray = connectedPortID.split('-');
-										var peerPort = connectedPortIDArray[5];
-										selectedPort = $('#port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort);
-										//
-										selectedPortArray.push(selectedPort);
-										peerPortFound = true;
-									} else {
-										if(connectedPartitionPeerID != 'none') {
-											// Do not add duplicate trunk pairs
-											if(!visitedPartitionArray.includes(connectedPartitionID)) {
-												tempTrunkArray = [connectedPartition, connectedPartitionPeerID];
-												visitedPartitionArray.push(connectedPartitionID);
-											}
-										}
-									}
-									
-								} else {
-									connectionArray.push([selectedPort, connectedPortID]);
-								}
-							});
-							if(tempTrunkArray.length) {
-								trunkArray.push(tempTrunkArray);
-							}
-							if(peerPortFound == false) {
-								//selectedPort = false;
-								selectedPortArray = [];
-							}
-						} else {
-							connectionArray.push([selectedPort]);
-							//selectedPort = false;
-							selectedPortArray = [];
-						}
-					});
-				}
-			}
 		}
 		
 		//$(document).data(sourceTypeMap[pathSourceType][0], connectionArray);
@@ -144,10 +37,14 @@ function crawlCabinet(){
 
 function crawlCabinetConnections(localPort, connectionArray = [], visitedPortArray = []){
 	
-	// Prevent loops
-	if(!visitedPortArray.includes($(localPort).attr('id'))) {
+	var localPortID = $(localPort).attr('id');
 	
-		visitedPortArray.push($(localPort).attr('id'));
+	// Prevent loops
+	if(!visitedPortArray.includes(localPortID)) {
+		
+		connectionArray.push([localPort]);
+	
+		visitedPortArray.push(localPortID);
 	
 		// Gather local peer ports
 		var localRemotePortString = $(localPort).data('connectedGlobalId');
@@ -169,10 +66,7 @@ function crawlCabinetConnections(localPort, connectionArray = [], visitedPortArr
 				
 				// Loop over each remote peer port
 				$.each(remoteRemoteConnectedArray, function(remoteRemotePortIndex, remoteRemotePort){
-					if(remoteRemotePort !== localRemotePort) {
-						console.log(remoteRemotePort+' - '+localRemotePort);
-						crawlCabinetConnections($('#'+remoteRemotePort), connectionArray, visitedPortArray);
-					}
+					crawlCabinetConnections($('#'+remoteRemotePort), connectionArray, visitedPortArray);
 				});
 				
 				// Store remote partition trunk peer ID
@@ -196,6 +90,26 @@ function crawlCabinetConnections(localPort, connectionArray = [], visitedPortArr
 				}
 			}
 		});
+		
+		// Store local partition trunk peer ID
+		var localPartition = $(localPort).closest('.partition');
+		var localPartitionPeerID = $(localPartition).data('peerGlobalId');
+		
+		// Does local partition trunk peer exist?
+		if($('#'+localPartitionPeerID).length) {
+			
+			// Extract remote partition trunk peer ID, Face, & Depth
+			var localPartitionPeerIDArray = localPartitionPeerID.split('-');
+			var peerID = localPartitionPeerIDArray[2];
+			var peerFace = localPartitionPeerIDArray[3];
+			var peerDepth = localPartitionPeerIDArray[4];
+			
+			// Extract localRemote
+			var localPortIDArray = localPortID.split('-');
+			var peerPort = localPortIDArray[5];
+			var trunkPeerPort = 'port-4-'+peerID+'-'+peerFace+'-'+peerDepth+'-'+peerPort;
+			crawlCabinetConnections($('#'+trunkPeerPort), connectionArray, visitedPortArray);
+		}
 	}
 	
 	return connectionArray;
@@ -244,8 +158,34 @@ function crawlCabinetTrunks(localPort, trunkArray = [], visitedPartitionArray = 
 			var remotePartitionPort = $('#'+remotePartitionPortID);
 			if($(remotePartitionPort).length) {
 				
+				// Gather remote partition port peer ports
+				var remotePartitionPortPeerPortString = $(remotePartitionPort).data('connectedGlobalId');
+				var remotePartitionPortPeerPortArray = JSON.parse(atob(remotePartitionPortPeerPortString));
+				
+				// Loop over each local peer port
+				$.each(remotePartitionPortPeerPortArray, function(remotePartitionPortPeerPortIndex, remotePartitionPortPeerPort){
+					// Does port exist?
+					var remotePort = $('#'+remotePartitionPortPeerPort);
+					if($(remotePort).length) {
+						crawlCabinetTrunks(remotePort, trunkArray, visitedPartitionArray);
+					}
+				});
 			}
 		}
+		
+		// Gather local peer ports
+		var localRemotePortString = $(localPort).data('connectedGlobalId');
+		var localRemotePortArray = JSON.parse(atob(localRemotePortString));
+		
+		// Loop over each local peer port
+		$.each(localRemotePortArray, function(localRemotePortIndex, localRemotePort){
+			
+			// Does peer port exist?
+			var remotePort = $('#'+localRemotePort);
+			if($(remotePort).length) {
+				crawlCabinetTrunks(remotePort, trunkArray, visitedPartitionArray);
+			}
+		});
 	}
 	
 	return trunkArray;
