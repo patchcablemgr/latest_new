@@ -480,7 +480,8 @@ function validate($data, &$validate, &$qls){
 					$remoteTemplate = $qls->App->templateArray[$remoteTemplateID];
 					$remoteTemplateFunction = $remoteTemplate['templateFunction'];
 					if($remoteTemplateFunction != 'Endpoint') {
-						$breakoutCableValid = false;
+						//$breakoutCableValid = false;
+						$breakoutCableValid = true;
 					}
 				}
 				
