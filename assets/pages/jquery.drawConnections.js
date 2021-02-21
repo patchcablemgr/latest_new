@@ -1,6 +1,5 @@
 // ### Cabinet Functions ###
 function drawCabinet(){
-	
 	resizeCabinetCanvas();
 	clearCabinetConnections();
 	crawlCabinet();
@@ -23,13 +22,13 @@ function crawlCabinet(){
 	$.each(pathSourceArray, function(pathSourceType, pathSource){
 		
 		if(pathSource !== undefined && pathSource !== false) {
-			
-			// -=# TESTING #=-
 			var testConnectionArray = crawlCabinetConnections($(pathSource));
 			var testTrunkArray = crawlCabinetTrunks($(pathSource));
+		} else {
+			var testConnectionArray = [];
+			var testTrunkArray = [];
 		}
 		
-		//$(document).data(sourceTypeMap[pathSourceType][0], connectionArray);
 		$(document).data(sourceTypeMap[pathSourceType][0], testConnectionArray);
 		$(document).data(sourceTypeMap[pathSourceType][1], testTrunkArray);
 	});
@@ -171,6 +170,8 @@ function crawlCabinetTrunks(localPort, trunkArray = [], visitedPartitionArray = 
 					}
 				});
 			}
+		} else if(localRemotePartitionID.toLowerCase() != 'none') {
+			trunkArray.push([localPartition, localRemotePartitionID]);
 		}
 		
 		// Gather local peer ports
@@ -598,11 +599,13 @@ function highlightElement(elem, color){
 	cabinetCtx.lineWidth = origLineWidth;
 }
 
-function makePortsHoverable(){
+function makePortsHoverable(clearPaths=true){
 	
-	resetConnectionData();
-	clearPathConnections();
-	clearCabinetConnections();
+	if(clearPaths) {
+		resetConnectionData();
+		clearPathConnections();
+		clearCabinetConnections();
+	}
 	
 	$('#buildSpaceContent').find('.port').each(function(){
 		$(this).unbind('mouseenter mouseleave click.drawConnections');
@@ -650,7 +653,7 @@ function makeCabArrowsClickable(){
 		var direction = $(this).data('cabMoveDirection');
 		var cabinet = $(this).closest('.diagramCabinetContainer');
 		if(direction == 'left') {
-			$(cabinet).insertBefore($(cabinet).prev()).animate();
+			$(cabinet).insertBefore($(cabinet).prev());
 		} else {
 			$(cabinet).insertAfter($(cabinet).next());
 		}

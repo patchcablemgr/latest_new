@@ -61,11 +61,10 @@ function addCab(elementID, elementFace, elementType){
 			});
 			
 			if(elementType == 'object') {
-				refreshPathData();
-				redraw();
+				drawCabinet();
 			}
 			
-			makePortsHoverable();
+			makePortsHoverable(false);
 			makeCabArrowsClickable();
 			makeCabCloseClickable();
 			$('#objectTreeModal').modal('hide');
