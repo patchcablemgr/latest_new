@@ -61,19 +61,19 @@ function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=
 		'objPort' => $objPort,
 	);
 	
-	error_log('Debug: '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
-	error_log('Debug (inventoryArray): '.json_encode($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort]));
+	// Add port info to connection set
+	array_push($connSet[$connSetID], $workingArray);
+	
 	// Is local port connected?
 	if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
 		
 		// Flip the connection set ID
 		$connSetID = ($connSetID == 0) ? 1 : 0;
 		
-		error_log('here5');
 		// Loop over each local port connection
 		$inventoryEntry = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
 		foreach($inventoryEntry as $connection) {
-			error_log('here2');
+			
 			// Collect remote object data
 			$remoteObjID = $connection['id'];
 			$remoteObjFace = $connection['face'];
@@ -83,9 +83,7 @@ function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=
 			// Verify this node has not been visited already
 			$alreadySeen = false;
 			foreach($connSet as $conn) {
-				error_log('here3');
 				foreach($conn as $port) {
-					error_log('here4');
 					if($port['objID'] == $remoteObjID and $port['objFace'] == $remoteObjFace and $port['objDepth'] == $remoteObjDepth and $port['objPort'] == $remoteObjPort) {
 						$alreadySeen = true;
 					}
@@ -93,14 +91,13 @@ function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=
 			}
 			
 			if(!$alreadySeen) {
+				error_log('Debug: '.$remoteObjID.'-'.$remoteObjFace.'-'.$remoteObjDepth.'-'.$remoteObjPort);
 				crawlConnSet($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
 			}
 			
 		}
 		
-		// Add port info to connection set
-		error_log('here1');
-		array_push($connSet[$connSetID], $workingArray);
+		
 	}
 	
 	return $connSet;
