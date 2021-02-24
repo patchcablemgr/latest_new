@@ -1,23 +1,57 @@
 <?php
 
-$path = array();
+$path2 = array();
 
 if($connectorCode39) {
-	$connectorID = base_convert($connectorCode39, 36, 10);
-	$rootCable = $qls->App->inventoryByIDArray[$connectorID];
+	$connectorID2 = base_convert($connectorCode39, 36, 10);
+	$rootCable2 = $qls->App->inventoryByIDArray[$connectorID2];
 	
-	$objID = $rootCable['local_object_id'];
-	$objFace = $rootCable['local_object_face'];
-	$objDepth = $rootCable['local_object_depth'];
-	$objPort = $rootCable['local_object_port'];
+	$objID2 = $rootCable2['local_object_id'];
+	$objFace2 = $rootCable2['local_object_face'];
+	$objDepth2 = $rootCable2['local_object_depth'];
+	$objPort2 = $rootCable2['local_object_port'];
 }
 
-$selectedObjID = $objID;
-$selectedObjFace = $objFace;
-$selectedObjDepth = $objDepth;
-$selectedObjPort = $objPort;
+$selectedObjID2 = $objID;
+$selectedObjFace2 = $objFace;
+$selectedObjDepth2 = $objDepth;
+$selectedObjPort2 = $objPort;
 
-function crawlConnSet($objID, $objFace, $objDepth, $objPort, $connSetID=0, $connSet=array(array(),array())) {
+$connSet = crawlConnSet($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+
+function crawlTrunk($connSet) {
+	
+}
+
+function detectDivergence($connSet) {
+	// Detect path divergence
+	foreach($connSet as $conn) {
+		foreach($conn as $portIndex => $port) {
+			
+			// Identify parent object ID
+			$portObjID = $port['objID'];
+			$portObj = $qls->App->objectArray[$portObjID];
+			$portObjParentID = $portObj['parent_id'];
+			while($portObjParentID != 0) {
+				$portObj = $qls->App->objectArray[$portObjParentID];
+				$portObjParentID = $portObj['parent_id'];
+			}
+			
+			// Determine path divergence
+			if($portIndex == 0) {
+				$baselineParentID = $portObjParentID;
+			} else {
+				if($portObjParentID == $baselineParentID) {
+					// Path does not diverge
+				} else {
+					// Path does diverge
+				}
+			}
+		}
+	}
+}
+
+function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=0, &$connSet=array(array(),array())) {
 	
 	// Store port details
 	$workingArray = array(
@@ -27,38 +61,49 @@ function crawlConnSet($objID, $objFace, $objDepth, $objPort, $connSetID=0, $conn
 		'objPort' => $objPort,
 	);
 	
-	// Verify this node has not been visited already
-	$alreadySeen = false;
-	foreach($connSet as $conn) {
-		foreach($conn as $port) {
-			if($port['objID'] == $objID and $port['objFace'] == $objFace and $port['objDepth'] == $objDepth and $port['objPort'] == $objPort) {
-				$alreadySeen = true;
-			}
-		}
-	}
-	
+	error_log('Debug: '.$objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort);
+	error_log('Debug (inventoryArray): '.json_encode($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort]));
 	// Is local port connected?
-	if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort]) and !$alreadySeen) {
+	if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
 		
-		// Add port info to connection set
-		array_push($connSet[$connSetID], $workingArray);
+		// Flip the connection set ID
+		$connSetID = ($connSetID == 0) ? 1 : 0;
 		
+		error_log('here5');
 		// Loop over each local port connection
 		$inventoryEntry = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
 		foreach($inventoryEntry as $connection) {
-			
+			error_log('here2');
 			// Collect remote object data
 			$remoteObjID = $connection['id'];
 			$remoteObjFace = $connection['face'];
 			$remoteObjDepth = $connection['depth'];
 			$remoteObjPort = $connection['port'];
 			
-			// Flip the connection set ID
-			$connSetID = ($connSetID == 0) ? 1 : 0;
-			crawlConnSet($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
+			// Verify this node has not been visited already
+			$alreadySeen = false;
+			foreach($connSet as $conn) {
+				error_log('here3');
+				foreach($conn as $port) {
+					error_log('here4');
+					if($port['objID'] == $remoteObjID and $port['objFace'] == $remoteObjFace and $port['objDepth'] == $remoteObjDepth and $port['objPort'] == $remoteObjPort) {
+						$alreadySeen = true;
+					}
+				}
+			}
+			
+			if(!$alreadySeen) {
+				crawlConnSet($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
+			}
 			
 		}
+		
+		// Add port info to connection set
+		error_log('here1');
+		array_push($connSet[$connSetID], $workingArray);
 	}
+	
+	return $connSet;
 }
 
 ?>
