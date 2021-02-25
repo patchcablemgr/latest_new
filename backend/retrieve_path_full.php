@@ -24,9 +24,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objDepth = isset($data['partitionDepth']) ? $data['partitionDepth'] : false;
 
 		// Create $path
-		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
 		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path2.php';
-		error_log('Debug (connSet): '.json_encode($connSet));
+		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path.php';
 		$validate->returnData['success'] = $qls->App->buildPathFull($path, $connectorCode39);
 	}
 	echo json_encode($validate->returnData);

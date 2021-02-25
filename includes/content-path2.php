@@ -17,48 +17,88 @@ $selectedObjFace2 = $objFace;
 $selectedObjDepth2 = $objDepth;
 $selectedObjPort2 = $objPort;
 
-$connSet = crawlConnSet($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+$connSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+detectDivergence($connSet);
 
-function crawlTrunk($connSet) {
+while(count($connSet[0]) or count($connSet[1])){
 	
-}
-
-function detectDivergence($connSet) {
-	// Detect path divergence
-	foreach($connSet as $conn) {
-		foreach($conn as $portIndex => $port) {
+	$trunkSet = crawlTrunk($qls, $connSet);
+	detectDivergence($trunkSet);
+	
+	foreach($trunkSet as $trunk) {
+		foreach($trunk as $port) {
 			
-			// Identify parent object ID
-			$portObjID = $port['objID'];
-			$portObj = $qls->App->objectArray[$portObjID];
-			$portObjParentID = $portObj['parent_id'];
-			while($portObjParentID != 0) {
-				$portObj = $qls->App->objectArray[$portObjParentID];
-				$portObjParentID = $portObj['parent_id'];
-			}
+			$selectedObjID2 = $port['objID'];
+			$selectedObjFace2 = $port['objFace'];
+			$selectedObjDepth2 = $port['objDepth'];
+			$selectedObjPort2 = $port['objDepth'];
 			
-			// Determine path divergence
-			if($portIndex == 0) {
-				$baselineParentID = $portObjParentID;
-			} else {
-				if($portObjParentID == $baselineParentID) {
-					// Path does not diverge
-				} else {
-					// Path does diverge
-				}
+			$workingConnSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+			detectDivergence($workingConnSet);
+			
+			foreach($workingConnSet as $workingConn) {
+				
 			}
 		}
 	}
 }
 
-function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=0, &$connSet=array(array(),array())) {
+error_log('Debug (connSet): '.json_encode($connSet));
+error_log('Debug (trunkSet): '.json_encode($trunkSet));
+
+function crawlTrunk(&$qls, $connSet) {
+	
+	$trunkSet = array(array(),array());
+	
+	// Loop over each side of $connSet
+	foreach($connSet as $connSetID => $conn) {
+		
+		// Loop over each port of $conn
+		foreach($conn as $connID => $port) {
+			
+			// Gather port data
+			$objID = $port['objID'];
+			$objFace = $port['objFace'];
+			$objDepth = $port['objDepth'];
+			$objPort = $port['objPort'];
+			
+			// Gather trunk peer data
+			if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
+				
+				// Gather trunk peer object
+				$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
+				
+				// Gather trunk peer data
+				$peerObjID = $peer['peerID'];
+				$peerObjFace = $peer['peerFace'];
+				$peerObjDepth = $peer['peerDepth'];
+				$peerObjPort = $objPort;
+				
+				// Create a working array for cleanliness
+				$workingArray = array(
+					'objID' => $peerObjID,
+					'objFace' => $peerObjFace,
+					'objDepth' => $peerObjDepth,
+					'objPort' => $peerObjPort
+				);
+				
+				// Store trunk data
+				$trunkSet[$connSetID][$connID] = $workingArray;
+			}
+		}
+	}
+	
+	return $trunkSet;
+}
+
+function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, $connSetID=0, &$connSet=array(array(),array())) {
 	
 	// Store port details
 	$workingArray = array(
 		'objID' => $objID,
 		'objFace' => $objFace,
 		'objDepth' => $objDepth,
-		'objPort' => $objPort,
+		'objPort' => $objPort
 	);
 	
 	// Add port info to connection set
@@ -91,16 +131,49 @@ function crawlConnSet(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSetID=
 			}
 			
 			if(!$alreadySeen) {
-				error_log('Debug: '.$remoteObjID.'-'.$remoteObjFace.'-'.$remoteObjDepth.'-'.$remoteObjPort);
-				crawlConnSet($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
+				crawlConn($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
 			}
-			
 		}
-		
-		
 	}
 	
 	return $connSet;
+}
+
+function detectDivergence(&$dataSet) {
+	
+	$pathDiverges = false;
+	
+	// Detect path divergence
+	foreach($dataSet as &$data) {
+		foreach($data as $portIndex => $port) {
+			
+			// Identify parent object ID
+			$portObjID = $port['objID'];
+			$portObj = $qls->App->objectArray[$portObjID];
+			$portObjParentID = $portObj['parent_id'];
+			while($portObjParentID != 0) {
+				$portObj = $qls->App->objectArray[$portObjParentID];
+				$portObjParentID = $portObj['parent_id'];
+			}
+			
+			// Determine path divergence
+			if($portIndex == 0) {
+				$baselineParentID = $portObjParentID;
+			} else {
+				if($portObjParentID != $baselineParentID) {
+					
+					// Flag this path as divergent
+					$pathDiverges = true;
+					
+					// Remove divergent connection
+					unset($data[$portIndex]);
+				}
+			}
+		}
+	}
+	unset($data);
+	
+	return $pathDiverges;
 }
 
 ?>
