@@ -53,6 +53,7 @@ for($direction=0; $direction<2; $direction++) {
 					array_push($pathArray, $workingConnSet);
 				}
 		}
+		error_log('Debug (pathArray): '.json_encode($pathArray));
 	}
 }
 
