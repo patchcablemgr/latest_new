@@ -1,6 +1,7 @@
 <?php
 
-$path2 = array();
+// $pathArray contains all necessary path data
+$pathArray = array();
 
 if($connectorCode39) {
 	$connectorID2 = base_convert($connectorCode39, 36, 10);
@@ -17,81 +18,89 @@ $selectedObjFace2 = $objFace;
 $selectedObjDepth2 = $objDepth;
 $selectedObjPort2 = $objPort;
 
+// Retrieve initial connection set
 $connSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
 detectDivergence($connSet);
+array_push($pathArray, $connSet);
 
-while(count($connSet[0]) or count($connSet[1])){
+for($direction=0; $direction<2; $direction++) {
 	
-	$trunkSet = crawlTrunk($qls, $connSet);
-	detectDivergence($trunkSet);
-	
-	foreach($trunkSet as $trunk) {
-		foreach($trunk as $port) {
-			
-			$selectedObjID2 = $port['objID'];
-			$selectedObjFace2 = $port['objFace'];
-			$selectedObjDepth2 = $port['objDepth'];
-			$selectedObjPort2 = $port['objDepth'];
-			
-			$workingConnSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
-			detectDivergence($workingConnSet);
-			
-			foreach($workingConnSet as $workingConn) {
+	// Set path array pointer
+	// 0 for up, -1 for down
+	$pathArrayPointer = ($direction == 0) ? 0 : -1;
+
+	while(count($pathArray[$pathArrayPointer][$direction])){
+		
+		// Get port trunk peer
+		error_log('Debug (crawlTrunkData): '.json_encode($pathArray[$pathArrayPointer][$direction]));
+		//$trunkSet = crawlTrunk($qls, $pathArray[$pathArrayPointer][$direction]);
+		$trunkSet = array();
+		detectDivergence($trunkSet);
+		
+		foreach($trunkSet as $port) {
 				
-			}
+				$selectedObjID2 = $port['objID'];
+				$selectedObjFace2 = $port['objFace'];
+				$selectedObjDepth2 = $port['objDepth'];
+				$selectedObjPort2 = $port['objDepth'];
+				
+				$workingConnSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+				detectDivergence($workingConnSet);
+				
+				if($direction == 0) {
+					array_unshift($pathArray, $workingConnSet);
+				} else {
+					array_push($pathArray, $workingConnSet);
+				}
 		}
 	}
 }
 
-error_log('Debug (connSet): '.json_encode($connSet));
+error_log('Debug (pathArray): '.json_encode($pathArray));
 error_log('Debug (trunkSet): '.json_encode($trunkSet));
 
-function crawlTrunk(&$qls, $connSet) {
+function crawlTrunk(&$qls, $portSet) {
 	
-	$trunkSet = array(array(),array());
-	
-	// Loop over each side of $connSet
-	foreach($connSet as $connSetID => $conn) {
+	$trunkSet = array();
 		
-		// Loop over each port of $conn
-		foreach($conn as $connID => $port) {
+	// Loop over each port of $conn
+	foreach($portSet as $portSetID => $port) {
+		
+		// Gather port data
+		$objID = $port['objID'];
+		$objFace = $port['objFace'];
+		$objDepth = $port['objDepth'];
+		$objPort = $port['objPort'];
+		
+		// Gather trunk peer data
+		if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
 			
-			// Gather port data
-			$objID = $port['objID'];
-			$objFace = $port['objFace'];
-			$objDepth = $port['objDepth'];
-			$objPort = $port['objPort'];
+			// Gather trunk peer object
+			$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
 			
 			// Gather trunk peer data
-			if(isset($qls->App->peerArray[$objID][$objFace][$objDepth])) {
-				
-				// Gather trunk peer object
-				$peer = $qls->App->peerArray[$objID][$objFace][$objDepth];
-				
-				// Gather trunk peer data
-				$peerObjID = $peer['peerID'];
-				$peerObjFace = $peer['peerFace'];
-				$peerObjDepth = $peer['peerDepth'];
-				$peerObjPort = $objPort;
-				
-				// Create a working array for cleanliness
-				$workingArray = array(
-					'objID' => $peerObjID,
-					'objFace' => $peerObjFace,
-					'objDepth' => $peerObjDepth,
-					'objPort' => $peerObjPort
-				);
-				
-				// Store trunk data
-				$trunkSet[$connSetID][$connID] = $workingArray;
-			}
+			$peerObjID = $peer['peerID'];
+			$peerObjFace = $peer['peerFace'];
+			$peerObjDepth = $peer['peerDepth'];
+			$peerObjPort = $objPort;
+			
+			// Create a working array for cleanliness
+			$workingArray = array(
+				'objID' => $peerObjID,
+				'objFace' => $peerObjFace,
+				'objDepth' => $peerObjDepth,
+				'objPort' => $peerObjPort
+			);
+			
+			// Store trunk data
+			$trunkSet[$portSetID] = $workingArray;
 		}
 	}
 	
 	return $trunkSet;
 }
 
-function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, $connSetID=0, &$connSet=array(array(),array())) {
+function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
 	
 	// Store port details
 	$workingArray = array(
@@ -131,7 +140,7 @@ function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, $connSetID=0, &
 			}
 			
 			if(!$alreadySeen) {
-				crawlConn($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSetID, $connSet);
+				crawlConn($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSet, $connSetID);
 			}
 		}
 	}
