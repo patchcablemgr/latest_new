@@ -19,19 +19,25 @@ $selectedObjDepth2 = $objDepth;
 $selectedObjPort2 = $objPort;
 
 // Retrieve initial connection set
-$connSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+$selected = true;
+$connSet = crawlConn($qls, $selected, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
 detectDivergence($connSet[0]);
 detectDivergence($connSet[1]);
+//$connSet[0]['selected'] = true;
 array_push($pathArray, $connSet);
 
 for($direction=0; $direction<2; $direction++) {
 
-	$trunkFound = true;
-	while($trunkFound){
+	do {
 		
 		// Set path array pointer
 		// 0 for up, -1 for down
 		$pathArrayPointer = ($direction == 0) ? 0 : count($pathArray)-1;
+		
+		error_log('Debug (pathArray): '.json_encode($pathArray));
+		error_log('Debug (pathArrayPointer): '.$pathArrayPointer);
+		error_log('Debug (direction): '.$direction);
+		error_log('Debug (crawlTrunk data): '.json_encode($pathArray[$pathArrayPointer][$direction]));
 		
 		// Get port trunk peer
 		$trunkSet = crawlTrunk($qls, $pathArray[$pathArrayPointer][$direction]);
@@ -49,16 +55,27 @@ for($direction=0; $direction<2; $direction++) {
 			$selectedObjPort2 = $port['objPort'];
 			
 			// Find connections
-			$connSet = crawlConn($qls, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
+			$selected = false;
+			$connSet = crawlConn($qls, $selected, $selectedObjID2, $selectedObjFace2, $selectedObjDepth2, $selectedObjPort2);
 			detectDivergence($connSet[0]);
 			detectDivergence($connSet[1]);
 			
 			// Add ports to workingConnSet
-			foreach($connSet[0] as $port) {
-				array_push($workingConnSet[0], $port);
-			}
-			foreach($connSet[1] as $port) {
-				array_push($workingConnSet[1], $port);
+			if($direction == 0) {
+				foreach($connSet[0] as $port) {
+					array_push($workingConnSet[1], $port);
+				}
+				foreach($connSet[1] as $port) {
+					array_push($workingConnSet[0], $port);
+				}
+			} else {
+				foreach($connSet[0] as $port) {
+					array_push($workingConnSet[0], $port);
+				}
+				foreach($connSet[1] as $port) {
+					array_push($workingConnSet[1], $port);
+				}
+
 			}
 		}
 		
@@ -70,8 +87,10 @@ for($direction=0; $direction<2; $direction++) {
 				array_push($pathArray, $workingConnSet);
 			}
 		}
-	}
+	} while($trunkFound);
 }
+
+error_log('Debug (FINAL pathArray): '.json_encode($pathArray));
 
 function crawlTrunk(&$qls, $portSet) {
 	
@@ -114,14 +133,15 @@ function crawlTrunk(&$qls, $portSet) {
 	return $trunkSet;
 }
 
-function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
+function crawlConn(&$qls, $selected, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
 	
 	// Store port details
 	$workingArray = array(
 		'objID' => $objID,
 		'objFace' => $objFace,
 		'objDepth' => $objDepth,
-		'objPort' => $objPort
+		'objPort' => $objPort,
+		'selected' => $selected
 	);
 	
 	// Add port info to connection set
@@ -154,7 +174,8 @@ function crawlConn(&$qls, $objID, $objFace, $objDepth, $objPort, &$connSet=array
 			}
 			
 			if(!$alreadySeen) {
-				crawlConn($qls, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSet, $connSetID);
+				$selected = false;
+				crawlConn($qls, $selected, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSet, $connSetID);
 			}
 		}
 	}

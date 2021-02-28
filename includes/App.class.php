@@ -1955,6 +1955,84 @@ var $qls;
 		$this->qls->SQL->insert('app_history', $columns, $values);
 	}
 	
+	function buildPathFull2($pathArray){
+		
+		$pathOrientation = $this->qls->user_info['pathOrientation'];
+		$trunkPairID = 0;
+		
+		$htmlPathFull = '';
+		$htmlPathFull .= '<table>';
+		
+		// Cable Adjacent
+		if($pathOrientation == 0) {
+			
+			foreach($pathArray as $pathArrayIndex => $connection) {
+				
+				// Set connectionPairID so connection can be drawn
+				$connectionPairID = $pathArrayIndex;
+				
+				foreach($connection as $connectionIndex => $connectionSide) {
+					
+					if(count($connectionSide)) {
+					
+						// Set trunkPairID so trunk can be drawn
+						if($connectionIndex == 1) {
+							$trunkPairID++;
+						}
+						
+						// Generate port name(s)
+						$objName = '';
+						$selected = false;
+						foreach($connectionSide as $port) {
+							
+							$objID = $port['objID'];
+							$objFace = $port['objFace'];
+							$objDepth = $port['objDepth'];
+							$objPort = $port['objPort'];
+							$selected = ($port['selected'] == true) ? true : $selected;
+							
+							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+						}
+						
+						// Compile port name(s) in an object box
+						$htmlPort = $this->wrapObject($objID, $objName, $selected, $trunkPairID);
+						
+						// Gather connector data
+						$obj = $this->objectArray[$objID];
+						$objTemplateID = $obj['template_id'];
+						$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+						$portTypeID = $objCompatibility['portType'];
+						$portTypeName = $this->portTypeValueArray[$portTypeID]['name'];
+						
+						// Compile connector div
+						$htmlConnector = '<div title="'.$portTypeName.'" class="port '.$portTypeName.'" data-connection-pair-id='.$connectionPairID.'></div>';
+						
+						$mediaTypeID = $objCompatibility['mediaType'];
+						$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
+						$cableLength = 0;
+						
+						$htmlCable = '<div style="width:100%;text-align:left;" title="'.$mediaTypeName.'" class="cable '.$mediaTypeName.' adjacent">'.$cableLength.'<br>'.$mediaTypeName.'</div>';
+						
+						$htmlPathFull .= '<tr>';
+						$htmlPathFull .= '<td>'.$htmlPort.'</td>';
+						$htmlPathFull .= '<td>'.$htmlConnector.'</td>';
+						if($connectionIndex == 0) {
+							$htmlPathFull .= '<td rowspan="2">'.$htmlCable.'</td>';
+						}
+						$htmlPathFull .= '</tr>';
+					}
+				}
+			}
+			
+		// Cable inline
+		} else {
+			
+		}
+		
+		$htmlPathFull .= '<table>';
+		return $htmlPathFull;
+	}
+	
 	function buildPathFull($path, $connectorCode39){
 		
 		$htmlPathFull = '';
