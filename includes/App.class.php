@@ -1983,6 +1983,7 @@ var $qls;
 						// Generate port name(s)
 						$objName = '';
 						$selected = false;
+						$populated = false;
 						foreach($connectionSide as $port) {
 							
 							$objID = $port['objID'];
@@ -1990,6 +1991,10 @@ var $qls;
 							$objDepth = $port['objDepth'];
 							$objPort = $port['objPort'];
 							$selected = ($port['selected'] == true) ? true : $selected;
+							$cableLength = $port['length'];
+							$mediaTypeID = $port['mediaTypeID'];
+							$connectorTypeID = $port['connectorTypeID'];
+							$populated = (isset($this->populatedPortArray[$objID][$objFace][$objDepth][$objPort])) ? true : $populated;
 							
 							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
 						}
@@ -1998,20 +2003,44 @@ var $qls;
 						$htmlPort = $this->wrapObject($objID, $objName, $selected, $trunkPairID);
 						
 						// Gather connector data
-						$obj = $this->objectArray[$objID];
-						$objTemplateID = $obj['template_id'];
-						$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
-						$portTypeID = $objCompatibility['portType'];
-						$portTypeName = $this->portTypeValueArray[$portTypeID]['name'];
+						if($connectorTypeID) {
+							$portTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+						} else {
+							$obj = $this->objectArray[$objID];
+							$objTemplateID = $obj['template_id'];
+							$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+							$portTypeID = $objCompatibility['portType'];
+							$portTypeName = $this->portTypeValueArray[$portTypeID]['name'];
+						}
 						
-						// Compile connector div
-						$htmlConnector = '<div title="'.$portTypeName.'" class="port '.$portTypeName.'" data-connection-pair-id='.$connectionPairID.'></div>';
+						// Determine if this port is connected to another
+						if($connectionIndex == 1) {
+							$connected = (count($connection[0])) ? true : false;
+						} else {
+							$connected = (count($connection[1])) ? true : false;
+						}
 						
-						$mediaTypeID = $objCompatibility['mediaType'];
-						$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
-						$cableLength = 0;
-						
-						$htmlCable = '<div style="width:100%;text-align:left;" title="'.$mediaTypeName.'" class="cable '.$mediaTypeName.' adjacent">'.$cableLength.'<br>'.$mediaTypeName.'</div>';
+						if($connected or $populated) {
+							// Compile connector div
+							$htmlConnector = '<div title="'.$portTypeName.'" class="port '.$portTypeName.'" data-connection-pair-id='.$connectionPairID.'></div>';
+							
+							// Gather cable data
+							if($mediaTypeID) {
+								$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
+							} else {
+								$obj = $this->objectArray[$objID];
+								$objTemplateID = $obj['template_id'];
+								$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+								$mediaTypeID = $objCompatibility['mediaType'];
+								$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
+							}
+							
+							// Compile cable div
+							$htmlCable = '<div style="width:100%;text-align:left;" title="'.$mediaTypeName.'" class="cable '.$mediaTypeName.' adjacent">'.$cableLength.'<br>'.$mediaTypeName.'</div>';
+						} else {
+							$htmlConnector = '';
+							$htmlCable = '';
+						}
 						
 						$htmlPathFull .= '<tr>';
 						$htmlPathFull .= '<td>'.$htmlPort.'</td>';

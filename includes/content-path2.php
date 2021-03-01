@@ -4,8 +4,8 @@
 $pathArray = array();
 
 if($connectorCode39) {
-	$connectorID2 = base_convert($connectorCode39, 36, 10);
-	$rootCable2 = $qls->App->inventoryByIDArray[$connectorID2];
+	$managedCableID = base_convert($connectorCode39, 36, 10);
+	$rootCable2 = $qls->App->inventoryByIDArray[$managedCableID];
 	
 	$objID2 = $rootCable2['local_object_id'];
 	$objFace2 = $rootCable2['local_object_face'];
@@ -135,13 +135,31 @@ function crawlTrunk(&$qls, $portSet) {
 
 function crawlConn(&$qls, $selected, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
 	
+	$managedCableID = (isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort][0]['localEndID'] : 0;
+	if($managedCableID != 0) {
+		$managedCable = $qls->App->inventoryByIDArray[$managedCableID];
+		$managedCableMediaTypeID = $managedCable['mediaType'];
+		$managedCableLength = $managedCable['length'];
+		$includeUnit = true;
+		$length = $qls->App->calculateCableLength($managedCableMediaTypeID, $managedCableLength, $includeUnit);
+		$mediaTypeID = $managedCable['mediaType'];
+		$connectorTypeID = $managedCable['localConnector'];
+	} else {
+		$length = 'Unk. Length';
+		$mediaTypeID = false;
+		$connectorTypeID = false;
+	}
+	
 	// Store port details
 	$workingArray = array(
 		'objID' => $objID,
 		'objFace' => $objFace,
 		'objDepth' => $objDepth,
 		'objPort' => $objPort,
-		'selected' => $selected
+		'selected' => $selected,
+		'length' => $length,
+		'mediaTypeID' => $mediaTypeID,
+		'connectorTypeID' => $connectorTypeID
 	);
 	
 	// Add port info to connection set
@@ -162,6 +180,7 @@ function crawlConn(&$qls, $selected, $objID, $objFace, $objDepth, $objPort, &$co
 			$remoteObjFace = $connection['face'];
 			$remoteObjDepth = $connection['depth'];
 			$remoteObjPort = $connection['port'];
+			$managedCableID = $connection['localEndID'];
 			
 			// Verify this node has not been visited already
 			$alreadySeen = false;
