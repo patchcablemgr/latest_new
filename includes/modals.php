@@ -668,7 +668,7 @@
 </div><!-- /.modal -->
 
 <!-- image upload modal -->
-<div id="modalImageUpload" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelImageUpload" aria-hidden="true">
+<div id="modalTemplateImageUpload" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelImageUpload" aria-hidden="true">
 	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">

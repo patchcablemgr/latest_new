@@ -3232,6 +3232,263 @@ var $qls;
 		return str_replace('&#8209;', '-', $string);
 	}
 	
+	function crawlPath($objID, $objFace, $objDepth, $objPort, $detectDivergence=false){
+		
+		// pathArray contains all necessary path data
+		$pathArray = array();
+		
+		// Retrieve initial connection set
+		$selected = true;
+		$connSet = $this->crawlConn($selected, $objID, $objFace, $objDepth, $objPort);
+		$selected = false;
+		if($detectDivergence) {
+			$this->detectDivergence($connSet[0]);
+			$this->detectDivergence($connSet[1]);
+		}
+		array_push($pathArray, $connSet);
+
+		for($direction=0; $direction<2; $direction++) {
+
+			do {
+				
+				// Set path array pointer
+				// 0 for up, -1 for down
+				$pathArrayPointer = ($direction == 0) ? 0 : count($pathArray)-1;
+				
+				// Get port trunk peer
+				$trunkSet = $this->crawlTrunk($pathArray[$pathArrayPointer][$direction]);
+				if($detectDivergence) {
+					$this->detectDivergence($trunkSet);
+				}
+				$trunkFound = (count($trunkSet)) ? true : false;
+				
+				// Find connections for each trunked port
+				$workingConnSet = array(array(),array());
+				foreach($trunkSet as $port) {
+					
+					// Store port info
+					$remoteObjID = $port['objID'];
+					$remoteObjFace = $port['objFace'];
+					$remoteObjDepth = $port['objDepth'];
+					$remoteObjPort = $port['objPort'];
+					
+					// Find connections
+					$connSet = $this->crawlConn($selected, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort);
+					if($detectDivergence) {
+						$this->detectDivergence($connSet[0]);
+						$this->detectDivergence($connSet[1]);
+					}
+					
+					// Add ports to workingConnSet
+					if($direction == 0) {
+						foreach($connSet[0] as $port) {
+							array_push($workingConnSet[1], $port);
+						}
+						foreach($connSet[1] as $port) {
+							array_push($workingConnSet[0], $port);
+						}
+					} else {
+						foreach($connSet[0] as $port) {
+							array_push($workingConnSet[0], $port);
+						}
+						foreach($connSet[1] as $port) {
+							array_push($workingConnSet[1], $port);
+						}
+
+					}
+				}
+				
+				// Add connection set to appropriate end of pathArray
+				if($trunkFound) {
+					if($direction == 0) {
+						array_unshift($pathArray, $workingConnSet);
+					} else {
+						array_push($pathArray, $workingConnSet);
+					}
+				}
+			} while($trunkFound);
+		}
+		return $pathArray;
+	}
+	
+	function crawlTrunk($portSet) {
+	
+		$trunkSet = array();
+			
+		// Loop over each port of $conn
+		foreach($portSet as $portSetID => $port) {
+			
+			// Gather port data
+			$objID = $port['objID'];
+			$objFace = $port['objFace'];
+			$objDepth = $port['objDepth'];
+			$objPort = $port['objPort'];
+			
+			// Gather trunk peer data
+			if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
+				
+				// Gather trunk peer object
+				$peer = $this->peerArray[$objID][$objFace][$objDepth];
+				
+				// Gather trunk peer data
+				$peerObjID = $peer['peerID'];
+				$peerObjFace = $peer['peerFace'];
+				$peerObjDepth = $peer['peerDepth'];
+				$peerObjPort = $objPort;
+				
+				// Create a working array for cleanliness
+				$workingArray = array(
+					'objID' => $peerObjID,
+					'objFace' => $peerObjFace,
+					'objDepth' => $peerObjDepth,
+					'objPort' => $peerObjPort
+				);
+				
+				// Store trunk data
+				$trunkSet[$portSetID] = $workingArray;
+			}
+		}
+		
+		return $trunkSet;
+	}
+
+	function crawlConn($selected, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
+		
+		$managedCableID = (isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $this->inventoryArray[$objID][$objFace][$objDepth][$objPort][0]['localEndID'] : 0;
+		if($managedCableID != 0) {
+			$managedCable = $this->inventoryByIDArray[$managedCableID];
+			$managedCableMediaTypeID = $managedCable['mediaType'];
+			$managedCableLength = $managedCable['length'];
+			$includeUnit = true;
+			$length = $this->calculateCableLength($managedCableMediaTypeID, $managedCableLength, $includeUnit);
+			$mediaTypeID = $managedCable['mediaType'];
+			$connectorTypeID = $managedCable['localConnector'];
+		} else {
+			$length = 'Unk. Length';
+			$mediaTypeID = false;
+			$connectorTypeID = false;
+		}
+		
+		// Store port details
+		$workingArray = array(
+			'objID' => $objID,
+			'objFace' => $objFace,
+			'objDepth' => $objDepth,
+			'objPort' => $objPort,
+			'selected' => $selected,
+			'length' => $length,
+			'mediaTypeID' => $mediaTypeID,
+			'connectorTypeID' => $connectorTypeID
+		);
+		
+		// Add port info to connection set
+		array_push($connSet[$connSetID], $workingArray);
+		
+		// Is local port connected?
+		if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+			
+			// Flip the connection set ID
+			$connSetID = ($connSetID == 0) ? 1 : 0;
+			
+			// Loop over each local port connection
+			$inventoryEntry = $this->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+			foreach($inventoryEntry as $connection) {
+				
+				// Collect remote object data
+				$remoteObjID = $connection['id'];
+				$remoteObjFace = $connection['face'];
+				$remoteObjDepth = $connection['depth'];
+				$remoteObjPort = $connection['port'];
+				$managedCableID = $connection['localEndID'];
+				
+				// Verify this node has not been visited already
+				$alreadySeen = false;
+				foreach($connSet as $conn) {
+					foreach($conn as $port) {
+						if($port['objID'] == $remoteObjID and $port['objFace'] == $remoteObjFace and $port['objDepth'] == $remoteObjDepth and $port['objPort'] == $remoteObjPort) {
+							$alreadySeen = true;
+						}
+					}
+				}
+				
+				if(!$alreadySeen) {
+					$selected = false;
+					$this->crawlConn($selected, $remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $connSet, $connSetID);
+				}
+			}
+		}
+		
+		return $connSet;
+	}
+	
+	function detectDivergence(&$dataSet) {
+	
+		$pathDiverges = false;
+		
+		// Detect path divergence
+		foreach($dataSet as $portIndex => $port) {
+			
+			// Identify parent object ID
+			$portObjID = $port['objID'];
+			$portObj = $this->objectArray[$portObjID];
+			$portObjParentID = $portObj['parent_id'];
+			while($portObjParentID != 0) {
+				$portObj = $this->objectArray[$portObjParentID];
+				$portObjParentID = $portObj['parent_id'];
+			}
+			
+			// Determine path divergence
+			if($portIndex == 0) {
+				$baselineParentID = $portObjParentID;
+			} else {
+				if($portObjParentID != $baselineParentID) {
+					
+					// Flag this path as divergent
+					$pathDiverges = true;
+					
+					// Remove divergent connection
+					unset($dataSet[$portIndex]);
+				}
+			}
+		}
+		
+		return $pathDiverges;
+	}
+	
+	function loopDetected2($aID, $aFace, $aDepth, $aPort, $bID, $bFace, $bDepth, $bPort){
+		
+		$visitedArray = array();
+		$loopDetected = false;
+		$pathArrayA = $this->crawlPath($aID, $aFace, $aDepth, $aPort);
+		$pathArrayB = $this->crawlPath($bID, $bFace, $bDepth, $bPort);
+		$pathArray = array($pathArrayA, $pathArrayB);
+		
+		foreach($pathArray as $path) {
+			foreach($path as $connection) {
+				foreach($connection as $connectionSide) {
+					foreach($connectionSide as $port) {
+						
+						$objID = $port['objID'];
+						$objFace = $port['objFace'];
+						$objDepth = $port['objDepth'];
+						$objPort = $port['objPort'];
+						
+						$portString = $objID.'-'.$objFace.'-'.$objDepth.'-'.$objPort;
+						$portStringHash = md5($portString);
+						
+						if(in_array($portStringHash, $visitedArray)) {
+							$loopDetected = true;
+						}
+						
+						array_push($visitedArray, $portStringHash);
+						
+					}
+				}
+			}
+		}
+		return $loopDetected;
+	}
+	
 	function loopDetected($aID, $aFace, $aDepth, $aPort, $bID, $bFace, $bDepth, $bPort){
 		
 		// If cable is connected to an object

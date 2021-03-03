@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.14
 	- Changes Introduced In 0.3.13
 	- Changes Introduced In 0.3.12
 	- Changes Introduced In 0.3.11
@@ -31,6 +32,10 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.14
+[Enhance]	Added support for point-to-multipoint connections to represent breakout cables
+[Fix]		Broken template image upload
 
 **Changes introduced in 0.3.13
 [Fix]		Failure to import trunk data correctly on backup restore

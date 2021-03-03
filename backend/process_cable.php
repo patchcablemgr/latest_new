@@ -439,7 +439,7 @@ function validate($data, &$validate, &$qls){
 				$validate->validateTrunkedEndpoint($connectionPeerArray);
 				
 				// Validate no loops will result
-				if($qls->App->loopDetected($localID, $localFace, $localDepth, $localPort, $remoteID, $remoteFace, $remoteDepth, $remotePort)) {
+				if($qls->App->loopDetected2($localID, $localFace, $localDepth, $localPort, $remoteID, $remoteFace, $remoteDepth, $remotePort)) {
 					$errMsg = 'Loop detected.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
@@ -458,35 +458,6 @@ function validate($data, &$validate, &$qls){
 				
 				if(!$qls->App->checkEntitlement('connection', $conNum)) {
 					$errMsg = 'Exceeded entitled connection count.';
-					array_push($validate->returnData['error'], $errMsg);
-				}
-			}
-			
-			if(count($remotePortArray) > 1) {
-				
-				$breakoutCableValid = true;
-				$localObj = $qls->App->objectArray[$localID];
-				$localTemplateID = $localObj['template_id'];
-				$localTemplate = $qls->App->templateArray[$localTemplateID];
-				$localTemplateFunction = $localTemplate['templateFunction'];
-				if($remoteTemplateFunction != 'Endpoint') {
-					$localTemplateFunction = false;
-				}
-				
-				foreach($remotePortArray as $remotePortData) {
-					$remoteID = $remotePortData['remoteID'];
-					$remoteObj = $qls->App->objectArray[$remoteID];
-					$remoteTemplateID = $remoteObj['template_id'];
-					$remoteTemplate = $qls->App->templateArray[$remoteTemplateID];
-					$remoteTemplateFunction = $remoteTemplate['templateFunction'];
-					if($remoteTemplateFunction != 'Endpoint') {
-						//$breakoutCableValid = false;
-						$breakoutCableValid = true;
-					}
-				}
-				
-				if(!$breakoutCableValid) {
-					$errMsg = 'One-to-many connections must be between two endpoints.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
 			}

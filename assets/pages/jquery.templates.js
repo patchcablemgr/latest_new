@@ -782,7 +782,7 @@ function makeRackObjectsClickable(){
 				if(templateCombined == 'no') {
 					$('#templateImageAction').on('click', function(event){
 						event.preventDefault();
-						$('#modalImageUpload').modal('show');
+						$('#modalTemplateImageUpload').modal('show');
 					});
 					$('#templateImageDelete').on('click', function(event){
 						event.preventDefault();

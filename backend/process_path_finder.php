@@ -318,7 +318,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$finalPathArray = array();
 		
 		foreach($reachableArray as $reachable) {
-			findPaths2($qls, $maxResults, $maxDepth, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
+			findPaths($qls, $maxResults, $maxDepth, $reachable, $endpointAObj, $endpointBObj, $finalPathArray, $previousPathType);
 		}
 		
 		foreach($finalPathArray as $mediaType => &$pathData) {
@@ -332,7 +332,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 	echo json_encode($validate->returnData);
 }
 
-function findPaths2(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0)){
+function findPaths(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$endpointBObj, &$finalPathArray, &$previousPathType, $workingArray=array(), $visitedObjArray=array(), $reachableTypeArray=array('local'=>0,'adjacent'=>0,'path'=>0)){
 	
 	// Path type signals which path should be searched,
 	// trunk or reachable.
@@ -426,7 +426,7 @@ function findPaths2(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$end
 					'port' => $focusPort
 				);
 				
-				findPaths2($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray);
+				findPaths($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $trunkPathType, $workingArray, $visitedObjArray, $reachableTypeArray);
 				
 				// Clear last path branch so we can continue searching
 				for($arrayCount=0; $arrayCount<1; $arrayCount++) {
@@ -532,7 +532,7 @@ function findPaths2(&$qls, &$maxResults, &$maxDepth, &$reachable, &$focus, &$end
 								// Increment reachableTypeCount
 								$reachableTypeArray[$reachableType]++;
 								
-								findPaths2($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray);
+								findPaths($qls, $maxResults, $maxDepth, $reachable, $newFocus, $endpointBObj, $finalPathArray, $reachablePathType, $workingArray, $visitedObjArray, $reachableTypeArray);
 								
 								// Clear last path branch so we can continue searching
 								for($arrayCount=0; $arrayCount<3; $arrayCount++) {
