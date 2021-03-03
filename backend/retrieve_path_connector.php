@@ -89,7 +89,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$peerFace = $cable[$inverseConnectorAttributePrefix.'_object_face'];
 				$peerDepth = $cable[$inverseConnectorAttributePrefix.'_object_depth'];
 				$peerPort = $cable[$inverseConnectorAttributePrefix.'_port_id'];
-				if(loopDetected($qls, $peerID, $peerFace, $peerDepth, $peerPort, $elementID, $elementFace, $elementDepth, $elementPortIndex)) {
+				if($qls->App->loopDetected2($peerID, $peerFace, $peerDepth, $peerPort, $elementID, $elementFace, $elementDepth, $elementPortIndex)) {
 					array_push($return['error'], 'Loop detected.');
 				} else {
 					$qls->SQL->update(

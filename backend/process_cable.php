@@ -88,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$peerPort = $cable['remote_object_port'];
 				$localAttrPrefix = $cable['localAttrPrefix'];
 				
-				if(loopDetected($qls, $peerID, $peerFace, $peerDepth, $peerPort, $elementID, $elementFace, $elementDepth, $elementPort)) {
+				if($qls->App->loopDetected2($peerID, $peerFace, $peerDepth, $peerPort, $elementID, $elementFace, $elementDepth, $elementPort)) {
 					$errMsg = 'Loop detected.';
 					array_push($validate->returnData['error'], $errMsg);
 				} else {
