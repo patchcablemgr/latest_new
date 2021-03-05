@@ -23,7 +23,7 @@ function clearObjectDetails(){
 	$('.rackObjSelected').removeClass('rackObjSelected');
 	
 	//Reset selected object input value so it doesn't get highlighted again
-	$('#selectedObjectID').val('');
+	$(document).data('selectedObjectID', '');
 	
 	// -=Floorplan Object Details=-
 	$('#inline-floorplanObjName').editable('setValue', '-').editable('disable');
@@ -147,8 +147,8 @@ function makeRackObjectsClickable(){
 		$(document).data('selectedObject', object);
 		
 		//Store objectID
-		var objID = $(object).data('templateObjectId');
-		$('#selectedObjectID').val(objID);
+		var selectedObjectID = $(object).data('templateObjectId');
+		$(document).data('selectedObjectID', selectedObjectID);
 		
 		//Store objectFace
 		var objFace = $(object).data('objectFace');
@@ -168,7 +168,7 @@ function makeRackObjectsClickable(){
 		
 		//Collect object data
 		var data = {
-			objID: objID,
+			objID: selectedObjectID,
 			page: 'build',
 			objFace: objFace,
 			cabinetFace: cabinetFace,
@@ -222,6 +222,9 @@ function makeRackObjectsClickable(){
 						.html(cabinetTrunkedTo);
 					initializePathSelector();
 				}
+				
+				// Public data
+				$(document).data('selectedObjectName', response.objectName);
 			}
 		});
 	});
@@ -275,6 +278,9 @@ function makeFloorplanObjectsClickable(){
 						.html(floorplanTrunkedTo);
 					initializeFloorplanPathSelector();
 				}
+				
+				// Public data
+				$(document).data('selectedObjectName', response.name);
 			}
 		});
 		
@@ -291,11 +297,11 @@ function initializePathSelector(){
 		var modalTitle = $(this).data('modaltitle');
 		var peerIDArray = $(this).data('peerIDArray');
 		$(document).data('peerIDArray', peerIDArray);
-		var objectID = $('#selectedObjectID').val();
+		var selectedObjID = $(document).data('selectedObjectID');
 		var objectFace = $('#selectedObjectFace').val();
 		var objectDepth = $('#selectedPartitionDepth').val();
 		
-		$('#objTree').jstree(true).settings.core.data = {url: 'backend/retrieve_environment-tree.php?scope=partition&objectID='+objectID+'&objectFace='+objectFace+'&objectDepth='+objectDepth};
+		$('#objTree').jstree(true).settings.core.data = {url: 'backend/retrieve_environment-tree.php?scope=partition&objectID='+selectedObjID+'&objectFace='+objectFace+'&objectDepth='+objectDepth};
 		$('#objTree').jstree(true).settings.core.multiple = false;
 		$('#objTree').jstree(true).refresh();
 		$('#objectTreeModalLabel').html(modalTitle);
@@ -343,7 +349,7 @@ function initializeEditable(){
 		mode: 'inline',
 		url: 'backend/process_cabinet-objects.php',
 		params: function(params){
-			var selectedObjID = $('#selectedObjectID').val();
+			var selectedObjID = $(document).data('selectedObjectID');
 			var data = {
 				'action':'edit',
 				'objectID':selectedObjID,
@@ -353,7 +359,7 @@ function initializeEditable(){
 			return params;
 		},
 		success: function(response) {
-			var selectedObjID = $('#selectedObjectID').val();
+			var selectedObjID = $(document).data('selectedObjectID');
 			var responseJSON = JSON.parse(response);
 			if (responseJSON.active == 'inactive'){
 				window.location.replace("/");
@@ -498,7 +504,8 @@ function initializeInsertDroppable(){
 }
 
 function retrieveCabinet(cabinetID, cabinetFace){
-	var objID = $('#selectedObjectID').val();
+	
+	var selectedObjectID = $(document).data('selectedObjectID');
 	
 	//Collect object data
 	var data = {
@@ -522,9 +529,10 @@ function retrieveCabinet(cabinetID, cabinetFace){
 		} else {
 			$('#buildSpaceContent').html(response.data[0].html);
 			loadCabinetBuild();
+			
 			//Re-highlight select cabinet object when switching cabinet side.
-			if (objID) {
-				$('[data-template-object-id="'+objID+'"]').find('.flex-container-parent:first').addClass('rackObjSelected');
+			if (selectedObjectID) {
+				$('[data-template-object-id="'+selectedObjectID+'"]').find('.flex-container-parent:first').addClass('rackObjSelected');
 			}
 		}
 	});
@@ -1448,17 +1456,17 @@ $( document ).ready(function() {
 		});
 		if(selectedObjectType == 'floorplan') {
 			var value = selectedNodeArray;
-			var objectID = $(document).data('selectedFloorplanObjectID');
+			var selectedObjectID = $(document).data('selectedFloorplanObjectID');
 			var trunkPathContainer = $('#floorplanTrunkedTo');
 			
 			var data = {
 				action: 'trunkFloorplanPeer',
 				value: value,
-				objectID: objectID
+				objectID: selectedObjectID
 			}
 		} else if(selectedObjectType == 'cabinet') {
 			var value = selectedNodeArray[0];
-			var objectID = $('#selectedObjectID').val();
+			var selectedObjectID = $(document).data('selectedObjectID');
 			var objectFace = $('#selectedObjectFace').val();
 			var objectDepth = $('#selectedPartitionDepth').val();
 			var trunkPathContainer = $('#cabinetTrunkedTo');
@@ -1466,7 +1474,7 @@ $( document ).ready(function() {
 			var data = {
 				action: 'trunkPeer',
 				value: value,
-				objectID: objectID,
+				objectID: selectedObjectID,
 				objectFace: objectFace,
 				objectDepth: objectDepth
 			};
@@ -1491,7 +1499,7 @@ $( document ).ready(function() {
 				if(selectedObjectType == 'floorplan') {
 					getFloorplanObjectPeerTable();
 				} else {
-					$('[data-template-object-id='+objectID+']').find('[data-depth='+objectDepth+']').find('.port').addClass('endpointTrunked');
+					$('[data-template-object-id='+selectedObjectID+']').find('[data-depth='+objectDepth+']').find('.port').addClass('endpointTrunked');
 					var peerArray = value.split('-');
 					var peerID = peerArray[1];
 					var peerDepth = peerArray[3];
@@ -1507,20 +1515,20 @@ $( document ).ready(function() {
 		var selectedObjectType = $(document).data('selectedObjectType');
 		
 		if(selectedObjectType == 'floorplan') {
-			var objectID = $(document).data('selectedFloorplanObjectID');
+			var selectedObjectID = $(document).data('selectedFloorplanObjectID');
 			
 			var data = {
 				action: 'clearFloorplanTrunkPeer',
-				objectID: objectID
+				objectID: selectedObjectID
 			};
 		} else if(selectedObjectType == 'cabinet') {
-			var objectID = $('#selectedObjectID').val();
+			var selectedObjectID = $(document).data('selectedObjectID');
 			var objectFace = $('#selectedObjectFace').val();
 			var objectDepth = $('#selectedPartitionDepth').val();
 			
 			var data = {
 				action: 'clearTrunkPeer',
-				objectID: objectID,
+				objectID: selectedObjectID,
 				objectFace: objectFace,
 				objectDepth: objectDepth
 			};
@@ -1547,7 +1555,7 @@ $( document ).ready(function() {
 					.data('peerIDArray', []);
 					
 					// Clear trunked style
-					$('[data-template-object-id='+objectID+']').find('[data-depth='+objectDepth+']').find('.port').removeClass('endpointTrunked');
+					$('[data-template-object-id='+selectedObjectID+']').find('[data-depth='+objectDepth+']').find('.port').removeClass('endpointTrunked');
 					$('[data-template-object-id='+response.success.peerID+']').find('[data-depth='+response.success.peerFace+']').find('.port').removeClass('endpointTrunked');
 				} else if(selectedObjectType == 'floorplan') {
 					$('#floorplanTrunkedTo')
@@ -1655,71 +1663,102 @@ $( document ).ready(function() {
 	'<button type="button" class="btn btn-sm editable-cancel btn-secondary waves-effect"><i class="zmdi zmdi-close"></i></button>';
 	initializeEditable();
 
-	$('.objDelete.rackObj').click(function(){
+	$('.objDelete').click(function(e){
+		
+		// Prevent browser following # link
+		e.preventDefault();
+		
 		if($(this).hasClass('disabled')) {
-			return false;
-		}
-		
-		var cabinetID = $('#cabinetID').val();
-		var objectID = $('#selectedObjectID').val();
-		var object = $('#cabinetTable').find('[data-template-object-id='+objectID+']');
-		
-		var data = {
-			objectID: objectID,
-			action: 'delete'
-		};
-		
-		var dataSecondary = {
-			cabinetID: cabinetID,
-			action: 'updateCabinetRUMin'
-		};
-		
-		data = JSON.stringify(data);
-		$.post('backend/process_cabinet-objects.php', {data:data}, function(response){
-				var alertMsg = '';
-				var responseJSON = JSON.parse(response);
-				if (responseJSON.active == 'inactive'){
-					window.location.replace("/");
-				} else if ($(responseJSON.error).size() > 0){
-					displayError(responseJSON.error);
-				} else {
-					removeObject(object);
-					$(object).remove();
-					clearObjectDetails();
-					
-					// Update RUSize Minimum
-					dataSecondary = JSON.stringify(dataSecondary);
-					$.ajax({
-						url: 'backend/process_cabinet.php',
-						method: 'POST',
-						data: {'data':dataSecondary},
-						success: function(resultSecondary){
-							var responseSecondary = JSON.parse(resultSecondary);
-							if (responseSecondary.active == 'inactive'){
-								window.location.replace("/");
-							} else if ($(responseSecondary.error).size() > 0){
-								displayError(responseSecondary.error);
-							} else if ($(responseSecondary.success.RUData).length) {
-								$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
-							}
-						},
-						async: false
-					});
-				}
+			
+			// Prevent modal from showing
+			e.stopPropagation();
+			
+		} else {
+			
+			var objectName = $(document).data('selectedObjectName');
+			
+			$('#modalConfirmTitle').html('Delete Object');
+			$('#modalConfirmBody').html('Delete <strong>'+objectName+'</strong>?');
+			
+			if($(this).hasClass('rackObj')){
+				
+				$(document).data('modalConfirmAction', 'deleteRackObject');
+				
+			} else if($(this).hasClass('floorplanObj')){
+				
+				$(document).data('modalConfirmAction', 'deleteFloorplanObject');
 			}
-		);
+		}
 	});
 	
-	$('.objDelete.floorplanObj').click(function(){
-		var objectID = $(document).data('selectedFloorplanObjectID');
+	$('#modalConfirmBtn').click(function(){
 		
-		var data = {
-			objectID: objectID,
-			action: 'delete'
-		};
+		// Store confirm action
+		var confirmAction = $(document).data('modalConfirmAction');
 		
-		data = JSON.stringify(data);
-		$.post('backend/process_floorplan-objects.php', {data:data}, function(response){
+		if(confirmAction == 'deleteRackObject') {
+			// Delete Rack Object
+			
+			var cabinetID = $('#cabinetID').val();
+			var selectedObjectID = $(document).data('selectedObjectID');
+			var object = $('#cabinetTable').find('[data-template-object-id='+selectedObjectID+']');
+			
+			var data = {
+				objectID: selectedObjectID,
+				action: 'delete'
+			};
+			
+			var dataSecondary = {
+				cabinetID: cabinetID,
+				action: 'updateCabinetRUMin'
+			};
+			
+			data = JSON.stringify(data);
+			$.post('backend/process_cabinet-objects.php', {data:data}, function(response){
+					var alertMsg = '';
+					var responseJSON = JSON.parse(response);
+					if (responseJSON.active == 'inactive'){
+						window.location.replace("/");
+					} else if ($(responseJSON.error).size() > 0){
+						displayError(responseJSON.error);
+					} else {
+						removeObject(object);
+						$(object).remove();
+						clearObjectDetails();
+						
+						// Update RUSize Minimum
+						dataSecondary = JSON.stringify(dataSecondary);
+						$.ajax({
+							url: 'backend/process_cabinet.php',
+							method: 'POST',
+							data: {'data':dataSecondary},
+							success: function(resultSecondary){
+								var responseSecondary = JSON.parse(resultSecondary);
+								if (responseSecondary.active == 'inactive'){
+									window.location.replace("/");
+								} else if ($(responseSecondary.error).size() > 0){
+									displayError(responseSecondary.error);
+								} else if ($(responseSecondary.success.RUData).length) {
+									$('#cabinetSizeInput').editable('option', 'min', responseSecondary.success.RUData.orientationSpecificMin);
+								}
+							},
+							async: false
+						});
+					}
+				}
+			);
+		} else if(confirmAction == 'deleteFloorplanObject') {
+			// Delete floorplan object
+			
+			var objectID = $(document).data('selectedFloorplanObjectID');
+			
+			var data = {
+				objectID: objectID,
+				action: 'delete'
+			};
+			
+			data = JSON.stringify(data);
+			$.post('backend/process_floorplan-objects.php', {data:data}, function(response){
 				var alertMsg = '';
 				var responseJSON = JSON.parse(response);
 				if (responseJSON.active == 'inactive'){
@@ -1731,10 +1770,9 @@ $( document ).ready(function() {
 					clearObjectDetails();
 					getFloorplanObjectPeerTable();
 				}
-			}
-		);
+			});
+		}
 	});
-	
 
 	// Ajax Tree
 	$('#ajaxTree')
@@ -2088,7 +2126,6 @@ $( document ).ready(function() {
 		},
 		'core' : {
 			'check_callback' : function(operation, node, node_parent, node_position, more){
-				//alert("Position: "+node_position+" Operation: "+operation+" Type: "+node.type+" Parent: "+node_parent.type+" Node name: "+node.text+" Node ID: "+node.id);
 				if(operation == 'move_node'){
 					if(node.type == 'location') {
 						if(node_parent.type == 'pod' || node_parent.type == 'cabinet') {
@@ -2111,7 +2148,6 @@ $( document ).ready(function() {
 			},
 			'data' : {
 				'url' : function (node) {
-					//return 'backend/process_environment-tree.php';
 					return 'backend/retrieve_environment-tree.php?scope=cabinet';
 				}
 			},

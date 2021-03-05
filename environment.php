@@ -138,7 +138,7 @@ $qls->Security->check_auth_page('operator.php');
 									<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
 									<div class="dropdown-menu">
 										<a class="clearTrunkPeer floorplanObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Path</a>
-										<a class="objDelete floorplanObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+										<a class="objDelete floorplanObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalConfirm"><i class="fa fa-times"></i></span> Delete</a>
 									</div>
 								</div>
 							</span>
@@ -241,7 +241,7 @@ $qls->Security->check_auth_page('operator.php');
 										<div class="dropdown-menu">
 											<a class="createCombinedTemplate rackObj dropdown-item disabled" href="#" ><i class="fa fa-object-group"></i></span> Combine Templates</a>
 											<a class="clearTrunkPeer rackObj dropdown-item disabled" href="#" ><i class="fa fa-times"></i></span> Clear Trunk</a>
-											<a class="objDelete rackObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+											<a class="objDelete rackObj dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalConfirm"><i class="fa fa-times"></i></span> Delete</a>
 										</div>
 									</div>
 								</span>

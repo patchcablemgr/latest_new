@@ -3260,7 +3260,9 @@ var $qls;
 				if($detectDivergence) {
 					$this->detectDivergence($trunkSet);
 				}
-				$trunkFound = (count($trunkSet)) ? true : false;
+				
+				$trunkSetCount = count($trunkSet);
+				$trunkFound = ($trunkSetCount) ? true : false;
 				
 				// Find connections for each trunked port
 				$workingConnSet = array(array(),array());
@@ -3354,6 +3356,7 @@ var $qls;
 
 	function crawlConn($selected, $objID, $objFace, $objDepth, $objPort, &$connSet=array(array(),array()), $connSetID=0) {
 		
+		// Store cable details
 		$managedCableID = (isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $this->inventoryArray[$objID][$objFace][$objDepth][$objPort][0]['localEndID'] : 0;
 		if($managedCableID != 0) {
 			$managedCable = $this->inventoryByIDArray[$managedCableID];
@@ -3399,7 +3402,6 @@ var $qls;
 				$remoteObjFace = $connection['face'];
 				$remoteObjDepth = $connection['depth'];
 				$remoteObjPort = $connection['port'];
-				$managedCableID = $connection['localEndID'];
 				
 				// Verify this node has not been visited already
 				$alreadySeen = false;

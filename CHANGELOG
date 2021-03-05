@@ -36,6 +36,7 @@ Contents
 **Changes introduced in 0.3.14
 [Enhance]	Added support for point-to-multipoint connections to represent breakout cables
 [Fix]		Broken template image upload
+[Fix]		Objects deleted without confirmation
 
 **Changes introduced in 0.3.13
 [Fix]		Failure to import trunk data correctly on backup restore
