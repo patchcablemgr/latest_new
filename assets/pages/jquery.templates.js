@@ -807,6 +807,10 @@ function makeRackObjectsClickable(){
 						});
 					});
 				}
+
+				// Public data
+				$(document).data('selectedObjectName', response.templateName);
+				$(document).data('selectedObjectCategoryName', response.categoryName);
 			}
 		});
 	});
@@ -1882,8 +1886,28 @@ $( document ).ready(function() {
 		$(variables['selectedObj']).click();
 	});
 	
+	$('#objDelete').click(function(e){
+		
+		// Prevent browser following # link
+		e.preventDefault();
+		
+		if($(this).hasClass('disabled')) {
+			
+			// Prevent modal from showing
+			e.stopPropagation();
+			
+		} else {
+			
+			var objectName = $(document).data('selectedObjectName');
+			var objectCategoryName = $(document).data('selectedObjectCategoryName');
+			
+			$('#modalConfirmTitle').html('Delete Template');
+			$('#modalConfirmBody').html('Delete <strong>'+objectName+' ('+objectCategoryName+')</strong>?');
+		}
+	});
+
 	// Delete a temlate
-	$('#confirmObjDelete').click(function(){
+	$('#modalConfirmBtn').click(function(){
 		var templateCombined = $(document).data('selectedTemplateCombined');
 		if (templateCombined == 'yes') {
 			var templateID = $(document).data('selectedTemplateCombinedID');

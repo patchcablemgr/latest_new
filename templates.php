@@ -296,7 +296,7 @@ require_once './includes/content-templates.php';
 							<div class="dropdown-menu">
 								<a id="objFind" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateWhereUsed"><i class="ion-map"></i> Where Used</a>
 								<a id="objClone" class="dropdown-item disabled" href="#" ><i class="fa fa-copy"></i></span> Clone</a>
-								<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalTemplateDeleteConfirm"><i class="fa fa-times"></i></span> Delete</a>
+								<a id="objDelete" class="dropdown-item disabled" href="#" data-toggle="modal" data-target="#modalConfirm"><i class="fa fa-times"></i></span> Delete</a>
 							</div>
 						</div>
 					</span>

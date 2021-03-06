@@ -710,29 +710,6 @@
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<!-- delete template modal -->
-<div id="modalTemplateDeleteConfirm" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalLabelTemplateDeleteConfirm" aria-hidden="true" style="display: none;">
-	<div class="modal-dialog modal-sm">
-		<div class="modal-content">
-			<div class="modal-header">
-				<div title="Close">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						<i class="zmdi zmdi-close"></i>
-					</button>
-				</div>
-				<h4 class="modal-title" id="modalLabelTemplateDeleteConfirm">Delete Template</h4>
-			</div>
-			<div class="modal-body">
-				Delete <strong id="deleteTemplateName"></strong>?
-			</div>
-			<div class="modal-footer">
-				<button id="confirmObjDelete" type="button" class="btn btn-secondary btn-danger waves-effect" data-toggle="modal" data-target="#modalTemplateDeleteConfirm">Confirm</button>
-				<button type="button" class="btn btn-secondary waves-effect" data-dismiss="modal">Cancel</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
 <!-- confirm modal -->
 <div id="modalConfirm" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalConfirm" aria-hidden="true" style="display: none;">
 	<div class="modal-dialog modal-sm">
