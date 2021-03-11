@@ -16,6 +16,8 @@ $selectedObjDepth = $objDepth;
 $selectedObjPort = $objPort;
 
 $detectDivergence = true;
-$pathArray = $qls->App->crawlPath($selectedObjID, $selectedObjFace, $selectedObjDepth, $selectedObjPort, $detectDivergence);
+//$pathArray = $qls->App->crawlPath($selectedObjID, $selectedObjFace, $selectedObjDepth, $selectedObjPort, $detectDivergence);
+$pathArray = $qls->App->crawlPath2($selectedObjID, $selectedObjFace, $selectedObjDepth, $selectedObjPort, $detectDivergence);
+//error_log('Debug (pathArray2): '.json_encode($pathArray));
 
 ?>

@@ -84,6 +84,7 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 }
 
 .objectBox {
+	width: 100%;
 	display: inline-block;
 	margin-top: 5px;
 	margin-bottom: 5px;

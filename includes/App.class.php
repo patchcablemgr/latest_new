@@ -3232,6 +3232,167 @@ var $qls;
 		return str_replace('&#8209;', '-', $string);
 	}
 	
+	function crawlPath2($objID, $objFace, $objDepth, $objPort, $detectDivergence=false, $selected=true, &$pathArray=array(), &$visitedArray=array(), $newConnection=true, $outerDirection=0, $innerDirection=0, $outerDirectionOffset=0, $initial=true){
+		
+		// $outerDirection - 0=up 1=down
+		// $innerDirection - 0=near 1=far
+		
+		// Add port address to visited array
+		$portAddressString = $objID.'_'.$objFace.'_'.$objDepth.'_'.$objPort;
+		$portAddressMD5 = md5($portAddressString);
+		array_push($visitedArray, $portAddressMD5);
+		
+		// Store cable details
+		$managedCableID = (isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) ? $this->inventoryArray[$objID][$objFace][$objDepth][$objPort][0]['localEndID'] : 0;
+		if($managedCableID != 0) {
+			$managedCable = $this->inventoryByIDArray[$managedCableID];
+			$managedCableMediaTypeID = $managedCable['mediaType'];
+			$managedCableLength = $managedCable['length'];
+			$includeUnit = true;
+			$length = $this->calculateCableLength($managedCableMediaTypeID, $managedCableLength, $includeUnit);
+			$mediaTypeID = $managedCable['mediaType'];
+			$connectorTypeID = $managedCable['localConnector'];
+		} else {
+			$length = 'Unk. Length';
+			$mediaTypeID = false;
+			$connectorTypeID = false;
+		}
+		
+		// Store port details
+		$portArray = array(
+			'portAddressString' => $portAddressString,
+			'objID' => $objID,
+			'objFace' => $objFace,
+			'objDepth' => $objDepth,
+			'objPort' => $objPort,
+			'selected' => $selected,
+			'length' => $length,
+			'mediaTypeID' => $mediaTypeID,
+			'connectorTypeID' => $connectorTypeID
+		);
+		
+		// Clear selected flag
+		$selected = false;
+		
+		// Prepare to add port to pathArray
+		if($newConnection) {
+			
+			// Grow pathArray
+			if($outerDirection == 0) {
+				array_unshift($pathArray, array(array(), array()));
+			} else {
+				array_push($pathArray, array(array(), array()));
+			}
+		}
+		
+		// Determine path array index
+		$pathArrayIndex = ($outerDirection == 0) ? $outerDirectionOffset : ((count($pathArray)-1)-$outerDirectionOffset);
+		
+		// Determine connection array index
+		if($outerDirection == 0) {
+			$connectionArrayIndex = ($innerDirection == 0) ? 1 : 0;
+		} else {
+			$connectionArrayIndex = ($innerDirection == 0) ? 0 : 1;
+		}
+		
+		// Flip connection array index if propogating backwards
+		$connectionArrayIndex = ($outerDirectionOffset) ? ($connectionArrayIndex+1)-($connectionArrayIndex*2) : $connectionArrayIndex;
+		
+		error_log('Debug (pathArray): '.json_encode($pathArray));
+		error_log('Debug (portAddressString): '.$portAddressString);
+		error_log('Debug (newConnection): '.$newConnection);
+		error_log('Debug (outerDirection): '.$outerDirection);
+		error_log('Debug (innerDirection): '.$innerDirection);
+		error_log('Debug (outerDirectionOffset): '.$outerDirectionOffset);
+		error_log('Debug (initial): '.$initial);
+		error_log('Debug (pathArrayIndex): '.$pathArrayIndex);
+		error_log('Debug (connectionArrayIndex): '.$connectionArrayIndex);
+		
+		// Add port to pathArray
+		if(isset($pathArray[$pathArrayIndex][$connectionArrayIndex])) {
+			array_push($pathArray[$pathArrayIndex][$connectionArrayIndex], $portArray);
+		} else {
+			error_log('Debug:  array not set');
+		}
+		error_log('Debug (pathArray): '.json_encode($pathArray));
+		error_log('----------------------');
+		
+		//
+		// Crawl connected ports
+		//
+		if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
+			
+			// Clear new connection flag
+			$newConnection = false;
+			
+			// Flip connection array index
+			$newInnerDirection = ($innerDirection == 0) ? 1 : 0;
+			
+			// Loop over each local port connection
+			$inventoryEntry = $this->inventoryArray[$objID][$objFace][$objDepth][$objPort];
+			foreach($inventoryEntry as $connection) {
+				
+				// Collect remote object data
+				$remoteObjID = $connection['id'];
+				$remoteObjFace = $connection['face'];
+				$remoteObjDepth = $connection['depth'];
+				$remoteObjPort = $connection['port'];
+				
+				// Generate remote port hash
+				$remotePortAddressString = $remoteObjID.'_'.$remoteObjFace.'_'.$remoteObjDepth.'_'.$remoteObjPort;
+				$remotePortAddressMD5 = md5($remotePortAddressString);
+				
+				if(!in_array($remotePortAddressMD5, $visitedArray)) {
+					
+					error_log('Debug: crawl port');
+					
+					$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $selected, $pathArray, $visitedArray, $newConnection, $outerDirection, $newInnerDirection, $outerDirectionOffset, false);
+				}
+			}
+		} else if($initial){
+			
+			// Correct innerDirection when processing seed port
+			$innerDirection = 1;
+		}
+		
+		//
+		// Crawl trunked ports
+		//
+		if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
+			
+			// Set direction for seed port
+			$outerDirection = ($initial) ? 1 : $outerDirection;
+			$innerDirection = ($initial) ? 1 : $innerDirection;
+			
+			// Adjust direction offset
+			$newConnection = ($innerDirection == 0) ? false : true;
+			
+			// If this is a near port and we are considering trunk peers, then we must be back propagating
+			$newOuterDirectionOffset = ($innerDirection == 0) ? $outerDirectionOffset + 1 : $outerDirectionOffset;
+			
+			// Loop over each local port connection
+			$peer = $this->peerArray[$objID][$objFace][$objDepth];
+				
+			// Collect remote object data
+			$remoteObjID = $peer['peerID'];
+			$remoteObjFace = $peer['peerFace'];
+			$remoteObjDepth = $peer['peerDepth'];
+			$remoteObjPort = $objPort;
+			
+			// Generate remote port hash
+			$remotePortAddressString = $remoteObjID.'_'.$remoteObjFace.'_'.$remoteObjDepth.'_'.$remoteObjPort;
+			$remotePortAddressMD5 = md5($remotePortAddressString);
+			
+			if(!in_array($remotePortAddressMD5, $visitedArray)) {
+				error_log('Debug: crawl trunk');
+				$innerDirection = 0;
+				$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $selected, $pathArray, $visitedArray, $newConnection, $outerDirection, $innerDirection, $newOuterDirectionOffset, false);
+			}
+		}
+		
+		return $pathArray;
+	}
+	
 	function crawlPath($objID, $objFace, $objDepth, $objPort, $detectDivergence=false){
 		
 		// pathArray contains all necessary path data
@@ -3281,22 +3442,40 @@ var $qls;
 						$this->detectDivergence($connSet[1]);
 					}
 					
-					// Add ports to workingConnSet
+					// Determine where in workingConnSet ports should be added
+					$connSetIndexArray = array(0,1);
 					if($direction == 0) {
-						foreach($connSet[0] as $port) {
-							array_push($workingConnSet[1], $port);
-						}
-						foreach($connSet[1] as $port) {
-							array_push($workingConnSet[0], $port);
-						}
+						$workingConnSetIndexMappingArray = array(1,0);
 					} else {
-						foreach($connSet[0] as $port) {
-							array_push($workingConnSet[0], $port);
+						$workingConnSetIndexMappingArray = array(0,1);
+					}
+					
+					// Add ports to workingConnSet
+					foreach($connSetIndexArray as $connSetIndexID => $connSetIndex) {
+						foreach($connSet[$connSetIndex] as $port) {
+							
+							// Determine if duplicate exists
+							$dupFound = false;
+							foreach($workingConnSet[$workingConnSetIndexMappingArray[$connSetIndexID]] as $existingPort) {
+								if($port['objID'] == $existingPort['objID'] and $port['objFace'] == $existingPort['objFace'] and $port['objDepth'] == $existingPort['objDepth'] and $port['objPort'] == $existingPort['objPort']) {
+									$dupFound = true;
+								}
+							}
+							
+							// Append port to workingConnSet
+							if(!$dupFound) {
+								array_push($workingConnSet[$workingConnSetIndexMappingArray[$connSetIndexID]], $port);
+							}
 						}
-						foreach($connSet[1] as $port) {
-							array_push($workingConnSet[1], $port);
+					}
+					
+					foreach($connSet[0] as $localFoundPort) {
+						$isInitial = false;
+						foreach($trunkSet as $localInitialPort) {
+							if($localFoundPort['objID'] == $localInitialPort['objID'] and $localFoundPort['objFace'] == $localInitialPort['objFace'] and $localFoundPort['objDepth'] == $localInitialPort['objDepth'] and $localFoundPort['objPort'] == $localInitialPort['objPort']) {
+								$isInitial = true;
+							}
 						}
-
 					}
 				}
 				
