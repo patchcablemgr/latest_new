@@ -3232,7 +3232,7 @@ var $qls;
 		return str_replace('&#8209;', '-', $string);
 	}
 	
-	function crawlPath2($objID, $objFace, $objDepth, $objPort, $detectDivergence=false, $selected=true, &$pathArray=array(), &$visitedArray=array(), $newConnection=true, $outerDirection=0, $innerDirection=0, $outerDirectionOffset=0, $initial=true){
+	function crawlPath2($objID, $objFace, $objDepth, $objPort, $detectDivergence=false, &$pathArray=array(array(array(),array())), &$visitedArray=array(), $pathArrayIndex=0, $outerDirection=0, $innerDirection=0, $initial=true){
 		
 		// $outerDirection - 0=up 1=down
 		// $innerDirection - 0=near 1=far
@@ -3265,28 +3265,11 @@ var $qls;
 			'objFace' => $objFace,
 			'objDepth' => $objDepth,
 			'objPort' => $objPort,
-			'selected' => $selected,
+			'selected' => $initial,
 			'length' => $length,
 			'mediaTypeID' => $mediaTypeID,
 			'connectorTypeID' => $connectorTypeID
 		);
-		
-		// Clear selected flag
-		$selected = false;
-		
-		// Prepare to add port to pathArray
-		if($newConnection) {
-			
-			// Grow pathArray
-			if($outerDirection == 0) {
-				array_unshift($pathArray, array(array(), array()));
-			} else {
-				array_push($pathArray, array(array(), array()));
-			}
-		}
-		
-		// Determine path array index
-		$pathArrayIndex = ($outerDirection == 0) ? $outerDirectionOffset : ((count($pathArray)-1)-$outerDirectionOffset);
 		
 		// Determine connection array index
 		if($outerDirection == 0) {
@@ -3295,35 +3278,13 @@ var $qls;
 			$connectionArrayIndex = ($innerDirection == 0) ? 0 : 1;
 		}
 		
-		// Flip connection array index if propogating backwards
-		$connectionArrayIndex = ($outerDirectionOffset) ? ($connectionArrayIndex+1)-($connectionArrayIndex*2) : $connectionArrayIndex;
-		
-		error_log('Debug (pathArray): '.json_encode($pathArray));
-		error_log('Debug (portAddressString): '.$portAddressString);
-		error_log('Debug (newConnection): '.$newConnection);
-		error_log('Debug (outerDirection): '.$outerDirection);
-		error_log('Debug (innerDirection): '.$innerDirection);
-		error_log('Debug (outerDirectionOffset): '.$outerDirectionOffset);
-		error_log('Debug (initial): '.$initial);
-		error_log('Debug (pathArrayIndex): '.$pathArrayIndex);
-		error_log('Debug (connectionArrayIndex): '.$connectionArrayIndex);
-		
 		// Add port to pathArray
-		if(isset($pathArray[$pathArrayIndex][$connectionArrayIndex])) {
-			array_push($pathArray[$pathArrayIndex][$connectionArrayIndex], $portArray);
-		} else {
-			error_log('Debug:  array not set');
-		}
-		error_log('Debug (pathArray): '.json_encode($pathArray));
-		error_log('----------------------');
+		array_push($pathArray[$pathArrayIndex][$connectionArrayIndex], $portArray);
 		
 		//
 		// Crawl connected ports
 		//
 		if(isset($this->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
-			
-			// Clear new connection flag
-			$newConnection = false;
 			
 			// Flip connection array index
 			$newInnerDirection = ($innerDirection == 0) ? 1 : 0;
@@ -3344,15 +3305,12 @@ var $qls;
 				
 				if(!in_array($remotePortAddressMD5, $visitedArray)) {
 					
-					error_log('Debug: crawl port');
+					// Get path array index... it could change during recursion
+					$pathArrayIndex = $this->getCurrentPathIndex($pathArray, $portAddressMD5);
 					
-					$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $selected, $pathArray, $visitedArray, $newConnection, $outerDirection, $newInnerDirection, $outerDirectionOffset, false);
+					$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $pathArray, $visitedArray, $pathArrayIndex, $outerDirection, $newInnerDirection, false);
 				}
 			}
-		} else if($initial){
-			
-			// Correct innerDirection when processing seed port
-			$innerDirection = 1;
 		}
 		
 		//
@@ -3361,14 +3319,10 @@ var $qls;
 		if(isset($this->peerArray[$objID][$objFace][$objDepth])) {
 			
 			// Set direction for seed port
-			$outerDirection = ($initial) ? 1 : $outerDirection;
-			$innerDirection = ($initial) ? 1 : $innerDirection;
-			
-			// Adjust direction offset
-			$newConnection = ($innerDirection == 0) ? false : true;
-			
-			// If this is a near port and we are considering trunk peers, then we must be back propagating
-			$newOuterDirectionOffset = ($innerDirection == 0) ? $outerDirectionOffset + 1 : $outerDirectionOffset;
+			if($initial) {
+				$outerDirection = 1;
+				$innerDirection = 1;
+			}
 			
 			// Loop over each local port connection
 			$peer = $this->peerArray[$objID][$objFace][$objDepth];
@@ -3384,13 +3338,71 @@ var $qls;
 			$remotePortAddressMD5 = md5($remotePortAddressString);
 			
 			if(!in_array($remotePortAddressMD5, $visitedArray)) {
-				error_log('Debug: crawl trunk');
+				
+				// Get path array index... it could change during recursion
+				$pathArrayIndex = $this->getCurrentPathIndex($pathArray, $portAddressMD5);
+				
+				// Grow path array
+				if($outerDirection == 0) {
+					if($innerDirection == 1) {
+						if($pathArrayIndex == 0) {
+							array_unshift($pathArray, array(array(),array()));
+						} else {
+							$pathArrayIndex--;
+						}
+					} else {
+						$outerDirection = 1;
+						$pathArrayIndex++;
+						if(!isset($pathArray[$pathArrayIndex])) {
+							array_push($pathArray, array(array(),array()));
+						}
+					}
+				} else {
+					if($innerDirection == 1) {
+						$pathArrayIndex++;
+						if(!isset($pathArray[$pathArrayIndex])) {
+							array_push($pathArray, array(array(),array()));
+						}
+					} else {
+						$outerDirection = 0;
+						if($pathArrayIndex == 0) {
+							array_unshift($pathArray, array(array(),array()));
+						}
+						$pathArrayIndex--;
+					}
+				}
+
 				$innerDirection = 0;
-				$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $selected, $pathArray, $visitedArray, $newConnection, $outerDirection, $innerDirection, $newOuterDirectionOffset, false);
+				$this->crawlPath2($remoteObjID, $remoteObjFace, $remoteObjDepth, $remoteObjPort, $detectDivergence, $pathArray, $visitedArray, $pathArrayIndex, $outerDirection, $innerDirection, false);
 			}
 		}
 		
 		return $pathArray;
+	}
+	
+	function getCurrentPathIndex($pathArray, $currentPortAddressMD5){
+		error_log('Debug (current port): '.$currentPortAddressMD5);
+		foreach($pathArray as $pathArrayIndex => $connection) {
+			foreach($connection as $connectionSide) {
+				foreach($connectionSide as $port) {
+					$objID = $port['objID'];
+					$objFace = $port['objFace'];
+					$objDepth = $port['objDepth'];
+					$objPort = $port['objPort'];
+					
+					$portAddressString = $objID.'_'.$objFace.'_'.$objDepth.'_'.$objPort;
+					$portAddressMD5 = md5($portAddressString);
+					
+					error_log('Debug (port): '.$portAddressString.' - '.$portAddressMD5);
+					
+					if($currentPortAddressMD5 == $portAddressMD5) {
+						return $pathArrayIndex;
+					}
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	function crawlPath($objID, $objFace, $objDepth, $objPort, $detectDivergence=false){
