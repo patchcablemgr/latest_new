@@ -1,4 +1,4 @@
-<?php
+ <?php
 define('QUADODO_IN_SYSTEM', true);
 require_once '../includes/header.php';
 $qls->Security->check_auth_page('operator.php');
@@ -241,4 +241,3 @@ function getCableMediaTypeInfo($cableMediaTypeTable){
 	}
 	return $cableMediaTypeInfo;
 }
-?>

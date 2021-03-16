@@ -1,6 +1,5 @@
 <?php
 	require_once './includes/shared_tables.php';
-	require_once './includes/path_functions.php';
 	
 	$pillYes = '<span class="label label-pill label-success">Yes</span>';
 	$pillNo = '<span class="label label-pill label-danger">No</span>';
@@ -28,8 +27,8 @@
 	$query = $qls->SQL->select('*', 'app_inventory', array('active' => array('=', 1)));
 	while($row = $qls->SQL->fetch_assoc($query)) {
 		$mediaTypeID = $row['mediaType'];
-		$categoryTypeID = $mediaTypeTable[$mediaTypeID]['category_type_id'];
-		$length = calculateCableLength($mediaTypeTable, $mediaCategoryTypeTable, $row);
+		$lengthValue = $row['length'];
+		$length = $qls->App->calculateCableLength($mediaTypeID, $lengthValue);
 		
 		echo '<tr>';
 			echo '<td data-connectorID="'.$row['a_code39'].'"><a class="linkScan" href="#">'.$row['a_code39'].'</a><button class="displayBarcode pull-right btn btn-sm waves-effect waves-light btn-primary"><i class="fa fa-barcode"></i></button></td>';

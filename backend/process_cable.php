@@ -68,7 +68,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				break;
 				
 			case 'connectionScan':
-				require_once '../includes/path_functions.php';
 				$validate->returnData['success'] = array();
 				$value = $data['value'];
 				if($value == 'clear') {
@@ -224,7 +223,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				break;
 			
 			case 'connectionExplore':
-				require_once '../includes/path_functions.php';
 				$validate->returnData['success'] = array();
 				$value = $data['value'];
 				$clear = $value == 'clear' ? true : false;
