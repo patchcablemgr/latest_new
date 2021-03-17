@@ -1991,12 +1991,15 @@ var $qls;
 							$objDepth = $port['objDepth'];
 							$objPort = $port['objPort'];
 							$selected = ($port['selected'] == true) ? true : $selected;
+							$portDiverges = $port['portDiverges'];
 							$cableLength = $port['length'];
 							$mediaTypeID = $port['mediaTypeID'];
 							$connectorTypeID = $port['connectorTypeID'];
 							$populated = (isset($this->populatedPortArray[$objID][$objFace][$objDepth][$objPort])) ? true : $populated;
 							
-							$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+							if(!$portDiverges) {
+								$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+							}
 						}
 						
 						// Compile port name(s) in an object box

@@ -25,6 +25,17 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 
 		// Create $path
 		include_once $_SERVER['DOCUMENT_ROOT'].'/includes/content-path2.php';
+		
+		$pathDiverges = false;
+		foreach($pathArray as $connection) {
+			foreach($connection as $side) {
+				foreach($side as $port) {
+					$pathDiverges = ($port['portDiverges'] or $pathDiverges);
+				}
+			}
+		}
+		$validate->returnData['data']['pathDiverges'] = $pathDiverges;
+		
 		$validate->returnData['success'] = $qls->App->buildPathFull2($pathArray);
 		error_log('Debug (pathArray): '.json_encode($pathArray));
 	}
