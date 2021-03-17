@@ -86,79 +86,74 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				$peerDepth = $cable['remote_object_depth'];
 				$peerPort = $cable['remote_object_port'];
 				$localAttrPrefix = $cable['localAttrPrefix'];
+								
+				// Remove any populated port entries that may exist
+				$qls->SQL->delete(
+					'app_populated_port',
+					array(
+						'object_id' => array('=', $elementID),
+						'AND',
+						'object_face' => array('=', $elementFace),
+						'AND',
+						'object_depth' => array('=', $elementDepth),
+						'AND',
+						'port_id' => array('=', $elementPort)
+					)
+				);
 				
-				if($qls->App->loopDetected2($peerID, $peerFace, $peerDepth, $peerPort, $elementID, $elementFace, $elementDepth, $elementPort)) {
-					$errMsg = 'Loop detected.';
-					array_push($validate->returnData['error'], $errMsg);
-				} else {
-					
-					// Remove any populated port entries that may exist
-					$qls->SQL->delete(
-						'app_populated_port',
-						array(
-							'object_id' => array('=', $elementID),
-							'AND',
-							'object_face' => array('=', $elementFace),
-							'AND',
-							'object_depth' => array('=', $elementDepth),
-							'AND',
-							'port_id' => array('=', $elementPort)
-						)
-					);
-					
-					// Clear any inventory entries
-					if (isset($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort])) {
-						foreach($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort] as $inventoryEntry) {
-							$rowID = $inventoryEntry['rowID'];
-							$localAttrPrefix = $inventoryEntry['localAttrPrefix'];
+				// Clear any inventory entries
+				if (isset($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort])) {
+					foreach($qls->App->inventoryArray[$elementID][$elementFace][$elementDepth][$elementPort] as $inventoryEntry) {
+						$rowID = $inventoryEntry['rowID'];
+						$localAttrPrefix = $inventoryEntry['localAttrPrefix'];
+						
+						if ($inventoryEntry['localEndID'] == 0) {
 							
-							if ($inventoryEntry['localEndID'] == 0) {
-								
-								// Found entry is not a managed cable... delete
-								$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
-							} else {
-								
-								// Found entry is a managed cable... zeroize
-								$qls->SQL->update(
-									'app_inventory',
-									array(
-										$localAttrPrefix.'_object_id' => 0,
-										$localAttrPrefix.'_port_id' => 0,
-										$localAttrPrefix.'_object_face' => 0,
-										$localAttrPrefix.'_object_depth' => 0
-									),
-									array(
-										'id' => array('=', $rowID)
-									)
-								);
-							}
+							// Found entry is not a managed cable... delete
+							$qls->SQL->delete('app_inventory', array('id' => array('=', $rowID)));
+						} else {
+							
+							// Found entry is a managed cable... zeroize
+							$qls->SQL->update(
+								'app_inventory',
+								array(
+									$localAttrPrefix.'_object_id' => 0,
+									$localAttrPrefix.'_port_id' => 0,
+									$localAttrPrefix.'_object_face' => 0,
+									$localAttrPrefix.'_object_depth' => 0
+								),
+								array(
+									'id' => array('=', $rowID)
+								)
+							);
 						}
 					}
-					
-					// Update connection in database
-					$qls->SQL->update(
-						'app_inventory',
-						array(
-							$localAttrPrefix.'_object_id' => $elementID,
-							$localAttrPrefix.'_port_id' => $elementPort,
-							$localAttrPrefix.'_object_face' => $elementFace,
-							$localAttrPrefix.'_object_depth' => $elementDepth
-						),
-						array(
-							'id' => array('=', $cable['rowID'])
-						)
-					);
-					
-					$qls->App->inventoryByIDArray[$connectorID]['local_object_id'] = $elementID;
-					$qls->App->inventoryByIDArray[$connectorID]['local_object_face'] = $elementFace;
-					$qls->App->inventoryByIDArray[$connectorID]['local_object_depth'] = $elementDepth;
-					$qls->App->inventoryByIDArray[$connectorID]['local_object_port'] = $elementPort;
-					$cable = $qls->App->inventoryByIDArray[$connectorID];
-					
-					// Retrieve connector path
-					$connectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'local');
-					$validate->returnData['success']['connectorFlatPath'] = $connectorFlatPath;
 				}
+				
+				// Update connection in database
+				$qls->SQL->update(
+					'app_inventory',
+					array(
+						$localAttrPrefix.'_object_id' => $elementID,
+						$localAttrPrefix.'_port_id' => $elementPort,
+						$localAttrPrefix.'_object_face' => $elementFace,
+						$localAttrPrefix.'_object_depth' => $elementDepth
+					),
+					array(
+						'id' => array('=', $cable['rowID'])
+					)
+				);
+				
+				$qls->App->inventoryByIDArray[$connectorID]['local_object_id'] = $elementID;
+				$qls->App->inventoryByIDArray[$connectorID]['local_object_face'] = $elementFace;
+				$qls->App->inventoryByIDArray[$connectorID]['local_object_depth'] = $elementDepth;
+				$qls->App->inventoryByIDArray[$connectorID]['local_object_port'] = $elementPort;
+				$cable = $qls->App->inventoryByIDArray[$connectorID];
+				
+				// Retrieve connector path
+				$connectorFlatPath = $qls->App->buildConnectorFlatPath($cable, 'local');
+				$validate->returnData['success']['connectorFlatPath'] = $connectorFlatPath;
+			
 				break;
 			
 			case 'connectionExploreClear':
@@ -435,12 +430,6 @@ function validate($data, &$validate, &$qls){
 					array($remoteID, $remoteFace, $remoteDepth, $remotePort)
 				);
 				$validate->validateTrunkedEndpoint($connectionPeerArray);
-				
-				// Validate no loops will result
-				if($qls->App->loopDetected2($localID, $localFace, $localDepth, $localPort, $remoteID, $remoteFace, $remoteDepth, $remotePort)) {
-					$errMsg = 'Loop detected.';
-					array_push($validate->returnData['error'], $errMsg);
-				}
 				
 				// Does this action need to be confirmed?
 				if(!isset($data['confirmed'])) {
