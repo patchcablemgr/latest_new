@@ -260,12 +260,17 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 	data = JSON.stringify(data);
 	
 	// Retrieve the selected port's path
-	$.post('backend/retrieve_path_full.php', {data:data}, function(response){
-		var responseJSON = JSON.parse(response);
-		if($(responseJSON.error).size() > 0) {
-			displayError(responseJSON.error);
+	$.post('backend/retrieve_path_full.php', {data:data}, function(responseJSON){
+		var response = JSON.parse(responseJSON);
+		if($(response.error).size() > 0) {
+			displayError(response.error);
 		} else {
-			$('#containerFullPath').html(responseJSON.success);
+			if(response.data.pathDiverges) {
+				$('#warningPathDiverges').show();
+			} else {
+				$('#warningPathDiverges').hide();
+			}
+			$('#containerFullPath').html(response.success);
 			makeCableConnectorsClickable();
 			drawPath();
 		}

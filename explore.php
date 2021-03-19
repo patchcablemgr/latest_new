@@ -289,27 +289,7 @@ $qls->Security->check_auth_page('user.php');
 										</blockquote>
 									</div>
 								</div>
-								<div id="pathCardBox" class="card">
-									<div class="card-header">Path
-										<span>
-											<div class="btn-group pull-right">
-												<button type="button" class="btn btn-sm btn-custom dropdown-toggle waves-effect waves-light" data-toggle="dropdown" aria-expanded="false">Actions <span class="m-l-5"><i class="fa fa-cog"></i></span></button>
-												<div class="dropdown-menu">
-													<a id="printFullPath" class="dropdown-item" href="#"><i class="ion-map"></i> Print</a>
-												</div>
-											</div>
-										</span>
-									</div>
-									<div class="card-block">
-										<blockquote class="card-blockquote">
-											<div class="row">
-												<!-- Canvas for drawing cabinet connections -->
-												<canvas id="canvasPath" style="z-index:1000;position:absolute; pointer-events:none;"></canvas>
-												<div id="containerFullPath"></div>
-											</div>
-										</blockquote>
-									</div>
-								</div>
+								<?php require_once './includes/content-pathBox.php'; ?>
 							</div>
 						</div>
 					</div>

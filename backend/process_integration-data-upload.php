@@ -1727,7 +1727,7 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 				}
 			} else {
 				
-				$validOneToManyConnection = false;
+				//$validOneToManyConnection = false;
 				
 				$port = $portArray[$portNameHash];
 				$objID = $port['objID'];
@@ -1750,7 +1750,7 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 					$peerTemplate = $qls->App->templateArray[$peerTemplateID];
 					$peerTemplateFunction = $peerTemplate['templateFunction'];
 					
-					if($templateFunction == 'Endpoint' and $peerTemplateFunction == 'Endpoint') {
+					//if($templateFunction == 'Endpoint' and $peerTemplateFunction == 'Endpoint') {
 						$connection['objID'] = $objID;
 						$connection['face'] = $face;
 						$connection['depth'] = $depth;
@@ -1759,14 +1759,16 @@ function validateImportedConnections(&$qls, &$importedConnectionArray, $portArra
 						$connection['peerFace'] = $peerFace;
 						$connection['peerDepth'] = $peerDepth;
 						$connection['peerPortID'] = $peerPortID;
-						$validOneToManyConnection = true;
-					}
+						//$validOneToManyConnection = true;
+					//}
 				}
 				
+				/*
 				if(!$validOneToManyConnection) {
 					$errMsg = 'PortA on line '.$connection['line'].' of file "'.$connection['fileName'].'" is a duplicate.';
 					array_push($validate->returnData['error'], $errMsg);
 				}
+				*/
 			}
 		} else {
 			if($connection['code39']) {
