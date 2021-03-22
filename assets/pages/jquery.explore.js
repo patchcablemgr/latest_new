@@ -265,12 +265,17 @@ function retrievePortPath(objID, objFace, partitionDepth, portID){
 		if($(response.error).size() > 0) {
 			displayError(response.error);
 		} else {
+			
+			// Display divergent path warning if necessary
 			if(response.data.pathDiverges) {
 				$('#warningPathDiverges').show();
 			} else {
 				$('#warningPathDiverges').hide();
 			}
+			
+			// Render path diagram
 			$('#containerFullPath').html(response.success);
+			
 			makeCableConnectorsClickable();
 			drawPath();
 		}
@@ -940,6 +945,8 @@ $( document ).ready(function() {
 			return false;
 		}
 		
+		var tipObj = $('<span>&nbsp;</span><i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Ctrl-Click or Shift-Click to select multiple ports when representing breakout cables."></i>');
+		
 		var modalTitle = $(this).attr('data-modalTitle');
 		var objectID = $(document).data('clickedObjID');
 		var objectFace = $(document).data('clickedObjFace');
@@ -950,6 +957,8 @@ $( document ).ready(function() {
 		$('#objTree').jstree(true).refresh();
 		$('#alertMsgObjTree').empty();
 		$('#objectTreeModalLabel').html(modalTitle);
+		$('#objectTreeModalLabel').append(tipObj);
+		$('#objectTreeModalLabel').children().tooltip();
 		$('#objectTreeModal').modal('show');
 	});
 	

@@ -48,7 +48,7 @@ require_once './includes/content-templates.php';
 			
 			<!-- Category -->
 			<fieldset class="form-group">
-				<label>Category <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Group and color code objects."></i></label>
+				<label>Category <i class="ion-help-circled" data-toggle="tooltip" data-placement="right" title="Group templates and assign color code."></i></label>
 				<div class="input-group" style="display:flex;">
 					<!-- Category select input -->
 					<div>

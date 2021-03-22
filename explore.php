@@ -11,6 +11,8 @@ $qls->Security->check_auth_page('user.php');
 	<link href="assets/css/style-cabinet.css" rel="stylesheet" type="text/css"/>
 	<link href="assets/css/style-object.css" rel="stylesheet" type="text/css"/>
 	<link href="assets/css/style-templates.css" rel="stylesheet" type="text/css"/>
+	
+	<link href="assets/plugins/bootstrap-tagsinput/css/bootstrap-tagsinput.css" rel="stylesheet"/>
 
 	<!-- X-editable css -->
 	<link type="text/css" href="assets/plugins/x-editable/css/bootstrap-editable.css" rel="stylesheet">
@@ -302,6 +304,9 @@ $qls->Security->check_auth_page('user.php');
 <?php require 'includes/footer_start.php' ?>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.8/jstree.min.js"></script>
 <script src="assets/pages/jquery.explore.js"></script>
+
+<!-- Tags Input -->
+<script src="assets/plugins/bootstrap-tagsinput/js/bootstrap-tagsinput.js"></script>
 
 <!-- XEditable Plugin -->
 <script src="assets/plugins/moment/moment.js"></script>

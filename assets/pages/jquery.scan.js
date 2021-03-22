@@ -54,14 +54,24 @@ function destroyEditables(){
 function buildFullPath(localConnectorCode39){
 	var data = {connectorCode39: localConnectorCode39};
 	data = JSON.stringify(data);
-	$.post('backend/retrieve_path_full.php', {'data':data}).done(function(response){
-		var responseJSON = JSON.parse(response);
-		if (responseJSON.active == 'inactive'){
+	$.post('backend/retrieve_path_full.php', {'data':data}).done(function(responseJSON){
+		var response = JSON.parse(responseJSON);
+		if (response.active == 'inactive'){
 			window.location.replace('/app/login.php');
-		} else if ($(responseJSON.error).size() > 0){
-			displayError(responseJSON.error);
+		} else if ($(response.error).size() > 0){
+			displayError(response.error);
 		} else {
-			$('#containerFullPath').html(responseJSON.success);
+			
+			// Display divergent path warning if necessary
+			if(response.data.pathDiverges) {
+				$('#warningPathDiverges').show();
+			} else {
+				$('#warningPathDiverges').hide();
+			}
+			
+			// Render path diagram
+			$('#containerFullPath').html(response.success);
+			
 			drawPath();
 			$('.cableArrow').on('click', function(){
 				var data = {codeResult: {code: $(this).attr('data-Code39')}};
