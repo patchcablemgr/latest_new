@@ -2059,6 +2059,107 @@ var $qls;
 		// Cable inline
 		} else {
 			
+			foreach($pathArray as $pathArrayIndex => $connection) {
+				
+				// Set connectionPairID so connection can be drawn
+				$connectionPairID = $pathArrayIndex;
+				
+				foreach($connection as $connectionIndex => $connectionSide) {
+					
+					if(count($connectionSide)) {
+						// Set trunkPairID so trunk can be drawn
+						if($connectionIndex == 1) {
+							$trunkPairID++;
+						}
+						
+						// Generate port name(s)
+						$objName = '';
+						$selected = false;
+						$populated = false;
+						foreach($connectionSide as $port) {
+							
+							$objID = $port['objID'];
+							$objFace = $port['objFace'];
+							$objDepth = $port['objDepth'];
+							$objPort = $port['objPort'];
+							$selected = ($port['selected'] == true) ? true : $selected;
+							$portDiverges = $port['portDiverges'];
+							$cableLength = $port['length'];
+							$mediaTypeID = $port['mediaTypeID'];
+							$connectorTypeID = $port['connectorTypeID'];
+							$populated = (isset($this->populatedPortArray[$objID][$objFace][$objDepth][$objPort])) ? true : $populated;
+							
+							if(!$portDiverges) {
+								$objName .= $this->generateObjectPortName($objID, $objFace, $objDepth, $objPort).'<br>';
+							}
+						}
+						
+						// Compile port name(s) in an object box
+						$htmlPort = $this->wrapObject($objID, $objName, $selected, $trunkPairID);
+						
+						// Gather connector data
+						if($connectorTypeID) {
+							$portTypeName = $this->connectorTypeValueArray[$connectorTypeID]['name'];
+						} else {
+							$obj = $this->objectArray[$objID];
+							$objTemplateID = $obj['template_id'];
+							$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+							$portTypeID = $objCompatibility['portType'];
+							$portTypeName = $this->portTypeValueArray[$portTypeID]['name'];
+						}
+						
+						// Determine if this port is connected to another
+						if($connectionIndex == 1) {
+							$connected = (count($connection[0])) ? true : false;
+						} else {
+							$connected = (count($connection[1])) ? true : false;
+						}
+						
+						if($connected or $populated) {
+							// Compile connector div
+							$htmlConnector = '<div title="'.$portTypeName.'" class="port '.$portTypeName.'" data-connection-pair-id='.$connectionPairID.'></div>';
+							
+							// Gather cable data
+							if($mediaTypeID) {
+								$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
+							} else {
+								$obj = $this->objectArray[$objID];
+								$objTemplateID = $obj['template_id'];
+								$objCompatibility = $this->compatibilityArray[$objTemplateID][$objFace][$objDepth];
+								$mediaTypeID = $objCompatibility['mediaType'];
+								$mediaTypeName = $this->mediaTypeValueArray[$mediaTypeID]['name'];
+							}
+							
+							// Compile cable div
+							$htmlCable = '<div style="width:100%;text-align:left;" title="'.$mediaTypeName.'" class="cable '.$mediaTypeName.' adjacent">'.$cableLength.'<br>'.$mediaTypeName.'</div>';
+						} else {
+							$htmlConnector = '';
+							$htmlCable = '';
+						}
+						
+						if($connectionIndex == 1) {
+							$htmlPathFull .= '<tr>';
+							$htmlPathFull .= '<td>'.$htmlConnector.'</td>';
+							$htmlPathFull .= '</tr>';
+							$htmlPathFull .= '<tr>';
+							$htmlPathFull .= '<td>'.$htmlPort.'</td>';
+							$htmlPathFull .= '</tr>';
+						}
+						
+						
+						if($connectionIndex == 0) {
+							$htmlPathFull .= '<tr>';
+							$htmlPathFull .= '<td>'.$htmlPort.'</td>';
+							$htmlPathFull .= '</tr>';
+							$htmlPathFull .= '<tr>';
+							$htmlPathFull .= '<td>'.$htmlConnector.'</td>';
+							$htmlPathFull .= '</tr>';
+							$htmlPathFull .= '<tr><td>'.$htmlCable.'</td></tr>';
+						}
+					}
+				}
+			}
+			
 		}
 		
 		$htmlPathFull .= '<table>';
