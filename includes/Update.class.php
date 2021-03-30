@@ -102,12 +102,26 @@ var $qls;
 			$this->update_0312_to_0313();
 		} else if($this->currentVersion == '0.3.13') {
 			$this->update_0313_to_0314();
+		} else if($this->currentVersion == '0.3.14') {
+			$this->update_0314_to_0315();
 		} else {
 			return true;
 		}
 		
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	/**
+	 * Update from version 0.3.14 to 0.3.15
+	 * @return Boolean
+	 */
+	function update_0314_to_0315() {
+		$incrementalVersion = '0.3.15';
+		
+		// Set app version to 0.3.15
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
 	}
 	
 	/**

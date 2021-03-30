@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.3.15
 	- Changes Introduced In 0.3.14
 	- Changes Introduced In 0.3.13
 	- Changes Introduced In 0.3.12
@@ -32,6 +33,9 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.3.15
+[Fix]		HTML code for hyphens not converted when viewing floorplan object details
 
 **Changes introduced in 0.3.14
 [Enhance]	Added support for point-to-multipoint connections to represent breakout cables

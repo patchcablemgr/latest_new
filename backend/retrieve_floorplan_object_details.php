@@ -19,14 +19,9 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$objectID = $data['objectID'];
 		
 		$floorplanObject = $qls->App->objectArray[$objectID];
+		$floorplanObjectName = $qls->App->unConvertHyphens($floorplanObject['name']);
 		$floorplanObjectTemplateID = $floorplanObject['template_id'];
 		$floorplanObjectTemplate = $qls->App->templateArray[$floorplanObjectTemplateID];
-		
-		$peerArray = array();
-		$query = $qls->SQL->select('*', 'app_object_peer', array('a_id' => array('=', $objectID)));
-		while($row = $qls->SQL->fetch_assoc($query)) {
-			array_push($peerArray, $row);
-		}
 		
 		$type = $floorplanObjectTemplate['templateType'];
 		$trunkable = $qls->App->floorplanObjDetails[$type]['trunkable'];
@@ -68,7 +63,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		}
 		
 		$returnData = array(
-			'name' => $floorplanObject['name'],
+			'name' => $floorplanObjectName,
 			'trunkable' => $trunkable,
 			'peerIDArray' => $peerIDArray,
 			'objPortArray' => $objPortArray,
