@@ -3495,7 +3495,6 @@ var $qls;
 	}
 	
 	function getCurrentPathIndex($pathArray, $currentPortAddressMD5){
-		error_log('Debug (current port): '.$currentPortAddressMD5);
 		foreach($pathArray as $pathArrayIndex => $connection) {
 			foreach($connection as $connectionSide) {
 				foreach($connectionSide as $port) {
@@ -3506,8 +3505,6 @@ var $qls;
 					
 					$portAddressString = $objID.'_'.$objFace.'_'.$objDepth.'_'.$objPort;
 					$portAddressMD5 = md5($portAddressString);
-					
-					error_log('Debug (port): '.$portAddressString.' - '.$portAddressMD5);
 					
 					if($currentPortAddressMD5 == $portAddressMD5) {
 						return $pathArrayIndex;

@@ -57,7 +57,6 @@ if(isset($demoAutoLogin)) {
 		$secret = $user_info['mfa_secret'];
 		
 		$gAuthResponse = $qls->gAuth->checkCode($secret, $gAuthCode);
-		error_log($secret.' - '.$gAuthCode.' - '.$gAuthResponse);
 		
 		$mfaAuthToken = $_SESSION[$qls->config['cookie_prefix'] . 'mfa_auth_token'];
 		unset($_SESSION[$qls->config['cookie_prefix'] . 'mfa_auth_token']);

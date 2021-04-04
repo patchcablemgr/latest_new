@@ -64,7 +64,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			//Check for request errors.
 			$errMsg = false;
 			if(!curl_errno($ch)) {
-				error_log('Debug (responseJSON): '.$responseJSON);
 				if($response = json_decode($responseJSON, true)) {
 					if(!count($response['error'])) {
 						if($response['success'] != '') {

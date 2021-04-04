@@ -212,7 +212,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 				}
 				$remotePortString = implode('<br>', $remotePortArray);
 				$actionString = 'Deleted connection: <strong>'.$localPort.'</strong> to <strong>'.$remotePortString.'</strong>';
-				error_log('Debug (actionString): '.$actionString);
+				
 				$qls->App->logAction(3, 3, $actionString);
 			
 				break;

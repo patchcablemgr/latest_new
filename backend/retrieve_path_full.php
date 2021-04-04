@@ -37,7 +37,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		$validate->returnData['data']['pathDiverges'] = $pathDiverges;
 		
 		$validate->returnData['success'] = $qls->App->buildPathFull2($pathArray);
-		error_log('Debug (pathArray): '.json_encode($pathArray));
 	}
 	echo json_encode($validate->returnData);
 }

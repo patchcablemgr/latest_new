@@ -292,12 +292,10 @@ var $sql_class;
 			if ($result = $this->connection->query($query)) {
 			    return $result;
 			} else {
-				error_log($query);
                 $this->error();
                 return false;
 			}
 		} else {
-			error_log($query);
             // Find the error for no query
             $result = $this->connection->query('');
             $this->error();

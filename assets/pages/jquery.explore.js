@@ -692,10 +692,8 @@ function postProcessCable(){
 			
 			// Update remote port(s)
 			$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
-				console.log('Debug (remotePortGlobalID): '+remotePortGlobalID);
 				
 				if($('#'+remotePortGlobalID).length) {
-					console.log('Debug (localPortGlobalIDBase64): '+localPortGlobalIDBase64);
 					$('#'+remotePortGlobalID).addClass('populated').data('connectedGlobalId', localPortGlobalIDBase64);
 				}
 			});
