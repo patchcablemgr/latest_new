@@ -677,16 +677,18 @@ function postProcessCable(){
 			// Compile emptyGlobalIDArrayBase64
 			var emptyGlobalIDArrayBase64 = btoa(JSON.stringify([]));
 			
-			// Clear previous remote port(s)
-			var prevRemotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
-			$.each(prevRemotePortGlobalIDArray, function(index, prevRemotePortGlobalID){
-				if($('#'+prevRemotePortGlobalID).length) {
-					$('#'+prevRemotePortGlobalID).removeClass('populated').data('connectedGlobalId', emptyGlobalIDArrayBase64);
-				}
-			});
-			
-			// Update local port
-			$('#'+localPortGlobalID).addClass('populated').data('connectedGlobalId', remotePortGlobalIDArrayBase64);
+			if($('#'+localPortGlobalID).length) {
+				// Clear previous remote port(s)
+				var prevRemotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
+				$.each(prevRemotePortGlobalIDArray, function(index, prevRemotePortGlobalID){
+					if($('#'+prevRemotePortGlobalID).length) {
+						$('#'+prevRemotePortGlobalID).removeClass('populated').data('connectedGlobalId', emptyGlobalIDArrayBase64);
+					}
+				});
+				
+				// Update local port
+				$('#'+localPortGlobalID).addClass('populated').data('connectedGlobalId', remotePortGlobalIDArrayBase64);
+			}
 			
 			// Update remote port(s)
 			$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
@@ -1019,14 +1021,16 @@ $( document ).ready(function() {
 				// Compile localPortGlobalID
 				var localPortGlobalID = 'port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+objPort;
 				
-				// Update remote port(s)
-				var remotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
-				$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
-					if($('#'+remotePortGlobalID).length) {
-						$('#'+remotePortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
-					}
-				});
-				$('#'+localPortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
+				if($('#'+localPortGlobalID).length) {
+					// Update remote port(s)
+					var remotePortGlobalIDArray = JSON.parse(atob($('#'+localPortGlobalID).data('connectedGlobalId')));
+					$.each(remotePortGlobalIDArray, function(index, remotePortGlobalID){
+						if($('#'+remotePortGlobalID).length) {
+							$('#'+remotePortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
+						}
+					});
+					$('#'+localPortGlobalID).removeClass('populated').data('connectedGlobalId', btoa(JSON.stringify([])));
+				}
 				
 				var interfaceSelectionElem = $('#selectPort').find(':selected');
 				$('#checkboxPopulated').prop("checked", false);

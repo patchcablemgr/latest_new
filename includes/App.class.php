@@ -1165,11 +1165,11 @@ var $qls;
 			}
 		}
 		
-		$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID), 'AND', 'parent_id' => array('=', 0)), array($objSortAttr, $objSortDir));
+		$query = $this->qls->SQL->select('*', 'app_object', array('env_tree_id' => array('=', $cabinetID)), array($objSortAttr, $objSortDir));
 		
 		$counter = 1;
 		while($objectNode = $this->qls->SQL->fetch_assoc($query)) {
-			if($objectNode['env_tree_id'] == $cabinetID and $objectNode['parent_id'] == 0) {
+			if($objectNode['parent_id'] == 0 or $objectNode['parent_id'] == Null) {
 				$objectID = $objectNode['id'];
 				$objectName = $objectNode['name'];
 				$objectTemplateID = $objectNode['template_id'];
