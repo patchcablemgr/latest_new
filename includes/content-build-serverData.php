@@ -8,6 +8,21 @@ if($_SERVER['REQUEST_METHOD'] == 'GET'){
 		echo '<input id="objID" type="hidden" value="'.$objID.'">';
 	}
 	
+	if(isset($_GET['objFace'])) {
+		$objFace = $_GET['objFace'];
+		echo '<input id="objFace" type="hidden" value="'.$objFace.'">';
+	}
+	
+	if(isset($_GET['objDepth'])) {
+		$objDepth = $_GET['objDepth'];
+		echo '<input id="objDepth" type="hidden" value="'.$objDepth.'">';
+	}
+	
+	if(isset($_GET['portID'])) {
+		$portID = $_GET['portID'];
+		echo '<input id="portID" type="hidden" value="'.$portID.'">';
+	}
+	
 	if(isset($_GET['parentID'])) {
 		$parentID = $_GET['parentID'];
 		echo '<input id="parentID" type="hidden" value="'.$parentID.'">';

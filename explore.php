@@ -287,6 +287,16 @@ $qls->Security->check_auth_page('user.php');
 												<input id="checkboxPopulated" type="checkbox" disabled>
 												<label for="checkboxPopulated">Populated</label>
 											</div>
+											<table>
+												<tr>
+													<td class="objectDetailAlignRight">
+														<strong>Description:&nbsp&nbsp</strong>
+													</td>
+													<td>
+														<a href="#" id="inline-portDescription" data-type="text"></a>
+													</td>
+												</tr>
+											</table>
 											
 										</blockquote>
 									</div>

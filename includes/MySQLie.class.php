@@ -579,6 +579,7 @@ var $qls;
 
         $this->update_queries();
         $this->last_query[] = $query;
+		error_log('Debug: '.$query);
         mysqli_query($this->connection, $query) or die(mysqli_errno($this->connection) . ': ' . mysqli_error($this->connection));
 	}
 

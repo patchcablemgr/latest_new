@@ -104,12 +104,58 @@ var $qls;
 			$this->update_0313_to_0314();
 		} else if($this->currentVersion == '0.3.14') {
 			$this->update_0314_to_0315();
+		} else if($this->currentVersion == '0.3.15') {
+			$this->update_0315_to_0316();
 		} else {
 			return true;
 		}
 		
 		$this->currentVersion = $this->getVersion();
 		return false;
+	}
+	
+	
+	/**
+	 * Update from version 0.3.15 to 0.3.16
+	 * @return Boolean
+	 */
+	function update_0315_to_0316() {
+		$incrementalVersion = '0.3.16';
+		
+		// Set app version to 0.3.16
+		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
+		
+		// Update password hash
+		$query = $this->qls->SQL->query("SHOW COLUMNS FROM `qls_users` LIKE 'pwl'");
+		if(!$this->qls->SQL->num_rows($query)) {
+			
+			// Add pwl column
+			$this->qls->SQL->alter('users', 'add', 'pwl', 'tinyint', true, 0);
+			
+			// Grow password field to support changes in password_hash()
+			$this->qls->SQL->query('ALTER TABLE `qls_users` CHANGE `password` `password` varchar(255)');
+			
+			// Convert password hash
+			$query = $this->qls->SQL->select('*', 'users');
+			while($row = $this->qls->SQL->fetch_assoc($query)) {
+				
+				$rowID = $row['id'];
+				$password = $row['password'];
+				$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+				
+				$this->qls->SQL->update('users', array('password' => $passwordHash, 'pwl' => true), array('id' => array('=', $rowID)));
+			}
+		}
+		
+		// Add object port type
+		$objectPortTypeColumns = array('value', 'name', 'category_type_id', 'defaultOption');
+		$objectPortTypeValues = array(8, 'ST', 2, 0);
+		$this->qls->SQL->insert('shared_object_portType', $objectPortTypeColumns, $objectPortTypeValues);
+		
+		// Add cable connector type
+		$connectorPortTypeColumns = array('value', 'name', 'defaultOption');
+		$connectorPortTypeValues = array(8, 'ST', 0);
+		$this->qls->SQL->insert('shared_cable_connectorType', $connectorPortTypeColumns, $connectorPortTypeValues);
 	}
 	
 	/**

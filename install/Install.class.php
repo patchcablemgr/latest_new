@@ -439,6 +439,7 @@ var $install_error = array();
             $user_code = sha1(sha1($c_hash[0] . $c_hash[1] . $c_hash[2] . $c_hash[3]) . sha1($c_hash[4] . $c_hash[5]) . md5($c_hash[6] . $c_hash[7] . $c_hash[8] . sha1($c_hash[9])) . $password . $email);
 
             // Password generation
+			/*
             $hash[] = md5($password);
             $hash[] = md5($password . $user_code);
             $hash[] = md5($password) . sha1($user_code . $password) . md5(md5($password));
@@ -446,7 +447,9 @@ var $install_error = array();
             $hash[] = md5($hash[3] . $hash[0] . $hash[1] . $hash[2] . sha1($hash[3] . $hash[2]));
             $hash[] = sha1($hash[0] . $hash[1] . $hash[2] . $hash[3]) . md5($hash[4] . $hash[4]) . sha1($user_code);
             $final_hash = sha1($hash[0] . $hash[1] . $hash[2] . $hash[3] . $hash[4] . $hash[5] . md5($user_code));
-
+			*/
+			$final_hash = password_hash($password, PASSWORD_DEFAULT);
+			
 			$masks = array(
 				"'Admin',1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",
 				"'{$default_mask_name}',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -683,7 +686,8 @@ var $install_error = array();
 				"3, 'SC', 0",
 				"4, 'Label', 0",
 				"5, 'MPO-12', 0",
-				"6, 'MPO-24', 0"
+				"6, 'MPO-24', 0",
+				"7, 'ST', 0"
 			);
 			
 			// Add cable connector type
@@ -812,7 +816,8 @@ var $install_error = array();
 				"4, 'SFP', 4, 0",
 				"5, 'QSFP', 4, 0",
 				"6, 'MPO-12', 2, 0",
-				"7, 'MPO-24', 2, 0"
+				"7, 'MPO-24', 2, 0",
+				"8, 'ST', 2, 0"
 			);
 			
 			// Add object port type

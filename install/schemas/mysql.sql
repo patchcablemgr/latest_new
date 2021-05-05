@@ -60,6 +60,7 @@ CREATE TABLE `{database_prefix}users`(
 	`treeSort` tinyint(4) DEFAULT '0' NOT NULL,
 	`treeSortAdj` tinyint(4) DEFAULT '0' NOT NULL,
 	`objSort` tinyint(4) DEFAULT '0' NOT NULL,
+	`pwl` tinyint(4) DEFAULT '0' NOT NULL,
 	PRIMARY KEY(`id`),
 	INDEX `users_idx` (`username`),
 	INDEX `users_idx2` (`code`),

@@ -4,6 +4,48 @@
  * Tree view
  */
 
+function initializeEditable(){
+	
+	// Port Description
+	$('#inline-portDescription').editable({
+		display: function(value){
+			$(this).text(value);
+		},
+		pk: 1,
+		mode: 'inline',
+		showbuttons: false,
+		onblure: 'submit',
+		url: 'backend/process_port.php',
+		params: function(params){
+			
+			var objID = $(document).data('clickedObjID');
+			var objFace = $(document).data('clickedObjFace');
+			var objDepth = $(document).data('clickedObjPartitionDepth');
+			var portID = $(document).data('clickedObjPortID');
+			var data = {
+				'action': 'portDescription',
+				'objID': objID,
+				'objFace': objFace,
+				'objDepth': objDepth,
+				'portID': portID,
+				'value': params.value
+			};
+			params.data = JSON.stringify(data);
+			return params;
+		},
+		success: function(responseJSON) {
+			var response = JSON.parse(responseJSON);
+			if (response.active == 'inactive'){
+				window.location.replace("/");
+			} else if ($(response.error).size() > 0){
+				displayError(response.error);
+			} else {
+				$('#alertMsg').empty();
+			}
+		}
+	}).editable('option', 'disabled', true);
+}
+
 function makeAddCabButtonClickable(addCabButton){
 	$(addCabButton).click(function(event){
 		event.preventDefault();
@@ -299,6 +341,13 @@ function retrievePortOptions(objID, objFace, partitionDepth, portID){
 		if($(responseJSON.error).size() > 0) {
 			displayError(responseJSON.error);
 		} else {
+			
+			// Port description
+			$('#inline-portDescription')
+			.editable('option', 'value', responseJSON.success.portDescription)
+			.editable('option', 'disabled', false);
+			
+			// Port populated
 			$('#checkboxPopulated').prop("checked", responseJSON.success.populatedChecked);
 			$('#checkboxPopulated').prop("disabled", responseJSON.success.populatedDisabled);
 		
@@ -477,9 +526,19 @@ function getFloorplanObjectPeerTable(){
 
 function selectObject(parentObject){
 	var objID = $('#objID').val();
-	var selection = $(parentObject).find('[data-template-object-id='+objID+'][data-object-face=0]').children('.selectable:first');
+	if($('#objFace').length && $('#objDepth').length && $('#portID').length) {
+		var objFace = $('#objFace').val();
+		var objDepth = $('#objDepth').val();
+		var portID = $('#portID').val();
+		var selection = $('#port-4-'+objID+'-'+objFace+'-'+objDepth+'-'+portID);
+	} else {
+		var selection = $(parentObject).find('[data-template-object-id='+objID+'][data-object-face=0]').children('.selectable:first');
+	}
 	$(selection).click();
 	$('#objID').remove();
+	$('#objFace').remove();
+	$('#objDepth').remove();
+	$('#portID').remove();
 }
 
 function portDesignation(elem, action, flag) {
@@ -735,6 +794,8 @@ $( document ).ready(function() {
 	// requires jquery.drawConnections.js
 	initializeCanvas();
 	
+	initializeEditable();
+	
 	// Export to Viso button
 	$('#buttonVisioExport').on('click', function(){
 		window.open('/backend/export-visio.php');
@@ -818,9 +879,10 @@ $( document ).ready(function() {
 		}
 		
 		var data = {
+			action: 'portPopulated',
 			objID: objID,
 			objFace: objFace,
-			partitionDepth: objDepth,
+			objDepth: objDepth,
 			portID: objPort,
 			portPopulated: portPopulated
 		}
@@ -828,7 +890,7 @@ $( document ).ready(function() {
 		data = JSON.stringify(data);
 	
 		// Retrieve the selected port's path
-		$.post('backend/process_port_populated.php', {data:data}, function(response){
+		$.post('backend/process_port.php', {data:data}, function(response){
 			var responseJSON = JSON.parse(response);
 			if($(responseJSON.error).size() > 0) {
 				displayError(responseJSON.error);

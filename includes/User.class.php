@@ -130,27 +130,16 @@ var $qls;
             return false;
 		}
 
-		// Get the user's username from the database
-		$users_result = $this->qls->SQL->select('*',
-			'users',
-			array('id' =>
-				array(
-					'=',
-					$userID
-				)
-			)
-		);
-		$users_row = $this->qls->SQL->fetch_array($users_result);
-
 		$new_password = (isset($_POST['new_password']) && $this->validate_password($_POST['new_password'])) ? $this->qls->Security->make_safe($_POST['new_password']) : false;
 		$new_password_confirm = (isset($_POST['new_password_confirm']) && $_POST['new_password_confirm'] == $_POST['new_password']) ? true : false;
 
 		if ($new_password !== false && $new_password_confirm !== false) {
-			$password_hash = $this->generate_password_hash($new_password, $users_row['code']);
+			
+			$password_hash = password_hash($new_password, PASSWORD_DEFAULT);
 
 			// Update the database
 			$this->qls->SQL->update('users',
-				array('password' => $password_hash),
+				array('password' => $password_hash, 'pwl' => 0),
 				array('id' =>
 					array(
 						'=',
@@ -408,17 +397,20 @@ var $qls;
 	 * @param string $user_code      - The user's activation code
 	 * @return bool
 	 */
-	function compare_passwords($input_password, $real_password, $user_code) {
-        // Generate the hash to compare them
-        $input_hash = $this->generate_password_hash($input_password, $user_code);
-
-		// Actually compare them
-		if ($input_hash == $real_password) {
-		    return true;
+	function compare_passwords($input_password, $real_password, $user_code, $pwl) {
+		
+		if($pwl) {
+			// Generate the legacy hash
+			$input_hash = $this->generate_password_hash($input_password, $user_code);
+			$password = $input_hash;
+		} else {
+			$password = $input_password;
 		}
-		else {
-		    return false;
-		}
+		
+		$passwordHash = password_hash($password, PASSWORD_DEFAULT);
+		
+		return password_verify($password, $real_password);
+		
 	}
 
 	/**
@@ -434,7 +426,7 @@ var $qls;
 			
 			if ($user_info['id'] != '') {
 				if ($user_info['tries'] < $this->qls->config['max_tries']) {
-					if ($this->compare_passwords($password, $user_info['password'], $user_info['code'])) {
+					if ($this->compare_passwords($password, $user_info['password'], $user_info['code'], $user_info['pwl'])) {
 						if ($user_info['blocked'] == 'no') {
 							// They need to be active
 							if ($user_info['active'] == 'yes') {
@@ -507,7 +499,7 @@ var $qls;
 		}
 	}
 	
-function initialize_session($user_info, $auth_token_salt) {
+	function initialize_session($user_info, $auth_token_salt) {
 	$username = $user_info['username'];
 	$password = $auth_token_salt;
 	
@@ -711,7 +703,7 @@ function initialize_session($user_info, $auth_token_salt) {
         // All the values that go with the columns
         $values = array(
             $username,
-            $this->generate_password_hash($password, $generated_code),
+			password_hash($password, PASSWORD_DEFAULT),
             $generated_code,
             'no',
             0,

@@ -29,6 +29,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		
 		$peerPortArray = array();
 		
+		// Retrieve port description
+		if(isset($qls->App->portDescriptionArray[$objID][$objFace][$objDepth][$objPort])) {
+			$portDescription = $qls->App->portDescriptionArray[$objID][$objFace][$objDepth][$objPort]['description'];
+		} else {
+			$portDescription = '';
+		}
+		
 		// Retrieve peer port ID
 		if(isset($qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort])) {
 			$port = $qls->App->inventoryArray[$objID][$objFace][$objDepth][$objPort];
@@ -92,7 +99,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			'portOptions' => $portOptions,
 			'peerPortArray' => $peerPortArray,
 			'populatedChecked' => $populatedChecked,
-			'populatedDisabled' => $populatedDisabled
+			'populatedDisabled' => $populatedDisabled,
+			'portDescription' => $portDescription
 		);
 		
 		$validate->returnData['success'] = $returnData;

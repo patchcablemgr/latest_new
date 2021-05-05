@@ -282,6 +282,21 @@ var $qls;
 			$this->mediaCategoryTypeArray[$row['value']] = $row;
 		}
 		
+		// Generate port description object
+		$this->portDescriptionArray = array();
+		$this->portDescriptionAllArray = array();
+		$query = $this->qls->SQL->select('*', 'app_port_description');
+		while($row = $this->qls->SQL->fetch_assoc($query)) {
+			
+			$objID = $row['object_id'];
+			$objFace = $row['object_face'];
+			$objDepth = $row['object_depth'];
+			$portID = $row['port_id'];
+			
+			$this->portDescriptionArray[$objID][$objFace][$objDepth][$portID] = $row;
+			$this->portDescriptionAllArray[$row['id']] = $row;
+		}
+		
 		$this->inventoryArray = array();
 		$this->inventoryAllArray = array();
 		$this->inventoryByIDArray = array();
