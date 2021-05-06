@@ -105,7 +105,7 @@ var $qls;
 		} else if($this->currentVersion == '0.3.14') {
 			$this->update_0314_to_0315();
 		} else if($this->currentVersion == '0.3.15') {
-			$this->update_0315_to_0316();
+			$this->update_0315_to_040();
 		} else {
 			return true;
 		}
@@ -116,13 +116,13 @@ var $qls;
 	
 	
 	/**
-	 * Update from version 0.3.15 to 0.3.16
+	 * Update from version 0.3.15 to 0.4.0
 	 * @return Boolean
 	 */
-	function update_0315_to_0316() {
-		$incrementalVersion = '0.3.16';
+	function update_0315_to_040() {
+		$incrementalVersion = '0.4.0';
 		
-		// Set app version to 0.3.16
+		// Set app version to 0.4.0
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Update password hash
@@ -156,6 +156,18 @@ var $qls;
 		$connectorPortTypeColumns = array('value', 'name', 'defaultOption');
 		$connectorPortTypeValues = array(8, 'ST', 0);
 		$this->qls->SQL->insert('shared_cable_connectorType', $connectorPortTypeColumns, $connectorPortTypeValues);
+		
+		// Add port description table
+		$query = '';
+		$query .= 'CREATE TABLE `qls_app_port_description` (';
+		$query .= '`id` int(11) NOT NULL AUTO_INCREMENT,';
+		$query .= '`object_id` int(11) NOT NULL,';
+		$query .= '`object_face` int(11) NOT NULL,';
+		$query .= '`object_depth` int(11) NOT NULL,';
+		$query .= '`port_id` int(11) NOT NULL,';
+		$query .= '`description` varchar(255) NOT NULL,';
+		$query .= 'PRIMARY KEY(`id`))';
+		$this->qls->SQL->query($query);
 	}
 	
 	/**

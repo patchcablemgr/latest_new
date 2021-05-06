@@ -5,6 +5,7 @@ ChangeLog for PatchCableMgr
 ****************************************************
 
 Contents
+	- Changes Introduced In 0.4.0
 	- Changes Introduced In 0.3.15
 	- Changes Introduced In 0.3.14
 	- Changes Introduced In 0.3.13
@@ -33,6 +34,12 @@ Contents
 
 ****************************************************
 \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+**Changes introduced in 0.4.0
+[Feature]	Port description
+[Enhance]	Improved password hashing
+[Enhance]	Added support for ST connectors
+[Fix]		Hyphen encoded in search results
 
 **Changes introduced in 0.3.15
 [Fix]		Floorplan object ports not available when making new connection

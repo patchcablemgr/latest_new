@@ -535,3 +535,14 @@ CREATE TABLE `{database_prefix}shared_user_messages` (
   `viewed` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY(`id`)
 );
+
+DROP TABLE IF EXISTS `{database_prefix}app_port_description`;
+
+CREATE TABLE `{database_prefix}app_port_description` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `object_id` int(11) NOT NULL,
+  `object_face` int(11) NOT NULL,
+  `object_depth` int(11) NOT NULL,
+  `port_id` int(11) NOT NULL,
+  PRIMARY KEY(`id`)
+);

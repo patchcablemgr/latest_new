@@ -299,6 +299,18 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 	background-image: url("/assets/images/portIcons/SFP-gray.png");
 }
 
+.port.ST {
+	background-image: url("/assets/images/portIcons/SFP-black.png");
+}
+
+.port.ST.populated {
+	background-image: url("/assets/images/portIcons/SFP-red.png") !important;
+}
+
+.port.ST.endpointTrunked {
+	background-image: url("/assets/images/portIcons/SFP-gray.png");
+}
+
 .port {
 	height: 8px;
 	width: 8px;
