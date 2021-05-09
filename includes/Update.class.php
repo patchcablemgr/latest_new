@@ -105,7 +105,7 @@ var $qls;
 		} else if($this->currentVersion == '0.3.14') {
 			$this->update_0314_to_0315();
 		} else if($this->currentVersion == '0.3.15') {
-			$this->update_0315_to_040();
+			$this->update_0315_to_0316();
 		} else {
 			return true;
 		}
@@ -116,13 +116,13 @@ var $qls;
 	
 	
 	/**
-	 * Update from version 0.3.15 to 0.4.0
+	 * Update from version 0.3.15 to 0.3.16
 	 * @return Boolean
 	 */
-	function update_0315_to_040() {
-		$incrementalVersion = '0.4.0';
+	function update_0315_to_0316() {
+		$incrementalVersion = '0.3.16';
 		
-		// Set app version to 0.4.0
+		// Set app version to 0.3.16
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Update password hash

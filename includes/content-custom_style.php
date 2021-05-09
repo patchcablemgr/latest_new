@@ -300,15 +300,15 @@ for($x=1; $x<MAX_TEMPLATE_RU; $x++) {
 }
 
 .port.ST {
-	background-image: url("/assets/images/portIcons/SFP-black.png");
+	background-image: url("/assets/images/portIcons/ST-black.png");
 }
 
 .port.ST.populated {
-	background-image: url("/assets/images/portIcons/SFP-red.png") !important;
+	background-image: url("/assets/images/portIcons/ST-red.png") !important;
 }
 
 .port.ST.endpointTrunked {
-	background-image: url("/assets/images/portIcons/SFP-gray.png");
+	background-image: url("/assets/images/portIcons/ST-gray.png");
 }
 
 .port {
