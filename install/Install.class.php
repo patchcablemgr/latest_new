@@ -687,7 +687,7 @@ var $install_error = array();
 				"4, 'Label', 0",
 				"5, 'MPO-12', 0",
 				"6, 'MPO-24', 0",
-				"7, 'ST', 0"
+				"8, 'ST', 0"
 			);
 			
 			// Add cable connector type
