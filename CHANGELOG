@@ -40,6 +40,7 @@ Contents
 [Enhance]	Improved password hashing
 [Enhance]	Added support for ST connectors
 [Fix]		Hyphen encoded in search results
+[Fix]		Cabinet cable paths inaccessible
 
 **Changes introduced in 0.3.15
 [Fix]		Floorplan object ports not available when making new connection

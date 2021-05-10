@@ -110,7 +110,7 @@ $qls->Security->check_auth_page('operator.php');
 											<th>Cabinet</th>
 										</tr>
 										</thead>
-										<tbody id="cablePathTableBody">
+										<tbody>
 											<tr>
 												<td>Left</td>
 												<td><a href="javascript:void(0)" id="adjCabinetSelectL" class="adjCabinetSelect" data-type="select" data-pk="" data-value=""></a></td>

@@ -89,6 +89,8 @@ function makePathDeleteClickable(selectSource){
 	$('.pathDistanceNumber').editable({
 		showbuttons: false,
 		mode: 'inline',
+		showbuttons: false,
+		onblur: 'submit',
 		source: selectSource,
 		url: 'backend/process_cabinet.php',
 		params: function(params){
@@ -122,6 +124,8 @@ function makePathDeleteClickable(selectSource){
 	$('.pathNotesText').editable({
 		showbuttons: false,
 		mode: 'inline',
+		showbuttons: false,
+		onblur: 'submit',
 		url: 'backend/process_cabinet.php',
 		params: function(params){
 			var data = {
@@ -347,6 +351,8 @@ function initializeEditable(){
 		},
 		pk: 1,
 		mode: 'inline',
+		showbuttons: false,
+		onblur: 'submit',
 		url: 'backend/process_cabinet-objects.php',
 		params: function(params){
 			var selectedObjID = $(document).data('selectedObjectID');
@@ -379,6 +385,8 @@ function initializeEditable(){
 		},
 		pk: 1,
 		mode: 'inline',
+		showbuttons: false,
+		onblur: 'submit',
 		url: 'backend/process_floorplan-objects.php',
 		params: function(params){
 			var selectedFloorplanObjID = $(document).data('selectedFloorplanObjectID');
@@ -1651,6 +1659,7 @@ $( document ).ready(function() {
 				cablePathLine += '<td><a href="#" class="pathNotesText" data-type="text" data-pk="'+responseJSON.success.newID+'"></a></td>';
 				cablePathLine += '<td><button class="btn btn-sm waves-effect waves-light btn-danger cablePathRemove"> <i class="fa fa-remove"></i> </button></td>';
 				cablePathLine += '</tr>';
+				console.log('Debug (cablePathLine): '+cablePathLine);
 				$('#cablePathTableBody').append(cablePathLine);
 				makePathDeleteClickable(responseJSON.success.localCabinets);
 			}

@@ -14,7 +14,7 @@ function initializeEditable(){
 		pk: 1,
 		mode: 'inline',
 		showbuttons: false,
-		onblure: 'submit',
+		onblur: 'submit',
 		url: 'backend/process_port.php',
 		params: function(params){
 			
@@ -968,10 +968,10 @@ $( document ).ready(function() {
 				});
 				
 				// Initialize cable path table
-				$('#cablePathTable').DataTable().off('click');
-				$('#cablePathTable').DataTable().destroy();
-				$('#cablePathTableBody').html(table);
-				var pathTable = $('#cablePathTable').DataTable({
+				$('#pathFinderTable').DataTable().off('click');
+				$('#pathFinderTable').DataTable().destroy();
+				$('#pathFinderTableBody').html(table);
+				var pathTable = $('#pathFinderTable').DataTable({
 					'searching': false,
 					'paging': false,
 					'info': false

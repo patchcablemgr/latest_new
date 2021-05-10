@@ -118,7 +118,7 @@
 								<div class="card-block">
 									<blockquote class="card-blockquote">
 									<div class="table-responsive">
-										<table id="cablePathTable" class="table table-striped table-bordered">
+										<table id="pathFinderTable" class="table table-striped table-bordered">
 											<thead>
 											<tr>
 												<th>MediaType</th>
@@ -129,7 +129,7 @@
 												<!--th></th-->
 											</tr>
 											</thead>
-											<tbody id="cablePathTableBody">
+											<tbody id="pathFinderTableBody">
 											</tbody>
 										</table>
 									</div>

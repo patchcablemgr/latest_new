@@ -416,6 +416,8 @@ function makeRackObjectsClickable(){
 					},
 					pk: 1,
 					mode: 'inline',
+					showbuttons: false,
+					onblur: 'submit',
 					url: 'backend/process_object-custom.php',
 					params: function(params){
 						var data = {
@@ -628,6 +630,8 @@ function makeRackObjectsClickable(){
 					},
 					pk: 1,
 					mode: 'inline',
+					showbuttons: false,
+					onblur: 'submit',
 					url: 'backend/process_object-custom.php',
 					params: function(params){
 						var data = {
