@@ -34,7 +34,7 @@ DROP TABLE IF EXISTS `{database_prefix}users`;
 CREATE TABLE `{database_prefix}users`(
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`username` VARCHAR(255) DEFAULT '' NOT NULL,
-	`password` VARCHAR(40) DEFAULT '' NOT NULL,
+	`password` VARCHAR(255) DEFAULT '' NOT NULL,
 	`code` VARCHAR(40) DEFAULT '' NOT NULL,
 	`active` CHAR(3) DEFAULT 'no' NOT NULL,
 	`last_login` INT(11) DEFAULT '0' NOT NULL,
