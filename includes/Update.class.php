@@ -126,14 +126,14 @@ var $qls;
 		$this->qls->SQL->update('app_organization_data', array('version' => $incrementalVersion), array('id' => array('=', 1)));
 		
 		// Update password hash
-		$query = $this->qls->SQL->query("SHOW COLUMNS FROM `qls_users` LIKE 'pwl'");
+		$query = $this->qls->SQL->query("SHOW COLUMNS FROM `{$this->qls->config['sql_prefix']}users` LIKE 'pwl'");
 		if(!$this->qls->SQL->num_rows($query)) {
 			
 			// Add pwl column
 			$this->qls->SQL->alter('users', 'add', 'pwl', 'tinyint', true, 0);
 			
 			// Grow password field to support changes in password_hash()
-			$this->qls->SQL->query('ALTER TABLE `qls_users` CHANGE `password` `password` varchar(255)');
+			$this->qls->SQL->query("ALTER TABLE `{$this->qls->config['sql_prefix']}users` CHANGE `password` `password` varchar(255)");
 			
 			// Convert password hash
 			$query = $this->qls->SQL->select('*', 'users');
@@ -159,7 +159,7 @@ var $qls;
 		
 		// Add port description table
 		$query = '';
-		$query .= 'CREATE TABLE `qls_app_port_description` (';
+		$query .= "CREATE TABLE `{$this->qls->config['sql_prefix']}app_port_description` (";
 		$query .= '`id` int(11) NOT NULL AUTO_INCREMENT,';
 		$query .= '`object_id` int(11) NOT NULL,';
 		$query .= '`object_face` int(11) NOT NULL,';
